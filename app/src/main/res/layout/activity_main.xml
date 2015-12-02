@@ -1,0 +1,90 @@
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordinatorLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:layout_scrollFlags="scroll|enterAlways"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+    </android.support.design.widget.AppBarLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:text="ỨNG DỤNG DMS Ở ĐÂY"
+            android:textSize="50dp"
+            android:textStyle="bold"
+            android:textColor="@color/colorPrimary"
+            android:gravity="center_horizontal|center_vertical"
+            android:layout_height="match_parent" />
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_gravity="end|bottom"
+        android:weightSum="5"
+        android:layout_height="wrap_content">
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fabPhone"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:onClick="callPhone"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:src="@drawable/phone_btn" />
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fabSMS"
+            android:layout_weight="1"
+            android:onClick="showSms"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:src="@drawable/sms_btn" />
+        <ImageButton
+            android:id="@+id/imgApp"
+            android:background="@null"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:onClick="showApps"
+            android:layout_height="wrap_content"
+            android:src="@drawable/app_btn" />
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fabEmail"
+            android:layout_weight="1"
+            android:onClick="showGmail"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:src="@drawable/gmail_btn" />
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fabCal"
+            android:layout_weight="1"
+            android:onClick="showCal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:src="@drawable/calculator_btn" />
+
+    </LinearLayout>
+
+</android.support.design.widget.CoordinatorLayout>
