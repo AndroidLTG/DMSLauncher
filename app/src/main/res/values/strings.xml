@@ -1,3 +1,19 @@
 <resources>
     <string name="app_name">DMSLauncher</string>
+    <string name="check_in">Ghi nhận vào</string>
+    <string name="check_out">Ghi nhận ra</string>
+    <string name="setting">Cài đặt</string>
+    <string name="notice">Thông báo</string>
+    <string name="position">Vị trí</string>
+    <string name="get_location">Lấy vị trí</string>
+    <string name="take_picture">Chụp hình</string>
+    <string name="save_send">Lưu và gửi liền</string>
+    <string name="view_contact">Xem liên lạc</string>
+    <string name="edit_number_before_call">Sửa số trước khi gọi</string>
+    <string name="copy_call_number">Sao chép liên lạc</string>
+    <string name="reject_call">Chặn liên lạc</string>
+    <string name="remove_reject_call">Bỏ chặn liên lạc</string>
+    <string name="delete_call_log">Xóa nhật ký cuộc gọi này</string>
+    <string name="delete_all_log_this_number">Xóa hết nhật ký cuộc gọi bởi số này</string>
+    <string name="add_to_contact">Thêm liên lạc</string>
 </resources>

@@ -1,0 +1,68 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/centerbg"
+    tools:context="info.androidhive.materialtabs.fragments.OneFragment">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CENTER"
+        android:textSize="40dp"
+        android:textStyle="bold"
+        android:layout_centerInParent="true"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        android:weightSum="5"
+        android:layout_height="wrap_content">
+        <ImageButton
+            android:id="@+id/fabPhone"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:background="@null"
+            android:onClick="callPhone"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:src="@drawable/phone_btn" />
+        <ImageButton
+            android:id="@+id/fabSMS"
+            android:layout_weight="1"
+            android:background="@null"
+            android:onClick="showSms"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:src="@drawable/sms_btn" />
+        <ImageButton
+            android:id="@+id/imgApp"
+            android:background="@null"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:onClick="showApps"
+            android:layout_height="wrap_content"
+            android:src="@drawable/app_btn" />
+        <ImageButton
+            android:id="@+id/fabEmail"
+            android:layout_weight="1"
+            android:onClick="showGmail"
+            android:background="@null"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:src="@drawable/gmail_btn" />
+        <ImageButton
+            android:id="@+id/fabCal"
+            android:layout_weight="1"
+            android:onClick="lockDevice"
+            android:background="@null"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:src="@drawable/screenoff_btn" />
+
+    </LinearLayout>
+</RelativeLayout>

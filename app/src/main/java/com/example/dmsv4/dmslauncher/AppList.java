@@ -20,6 +20,7 @@ public class AppList extends Activity {
     private PackageManager manager;
     private List<AppsDetail> apps;
     private ListView list;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,7 +29,8 @@ public class AppList extends Activity {
         loadListView();
         addClickListener();
     }
-    private void addClickListener(){
+
+    private void addClickListener() {
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> av, View v, int pos,
@@ -38,25 +40,26 @@ public class AppList extends Activity {
             }
         });
     }
-    private void loadListView(){
-        list = (ListView)findViewById(R.id.apps_list);
+
+    private void loadListView() {
+        list = (ListView) findViewById(R.id.apps_list);
 
         ArrayAdapter<AppsDetail> adapter = new ArrayAdapter<AppsDetail>(this,
                 R.layout.list_item,
                 apps) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
-                if(convertView == null){
+                if (convertView == null) {
                     convertView = getLayoutInflater().inflate(R.layout.list_item, null);
                 }
 
-                ImageView appIcon = (ImageView)convertView.findViewById(R.id.item_app_icon);
+                ImageView appIcon = (ImageView) convertView.findViewById(R.id.item_app_icon);
                 appIcon.setImageDrawable(apps.get(position).icon);
 
-                TextView appLabel = (TextView)convertView.findViewById(R.id.item_app_label);
+                TextView appLabel = (TextView) convertView.findViewById(R.id.item_app_label);
                 appLabel.setText(apps.get(position).label);
 
-                TextView appName = (TextView)convertView.findViewById(R.id.item_app_name);
+                TextView appName = (TextView) convertView.findViewById(R.id.item_app_name);
                 appName.setText(apps.get(position).name);
 
                 return convertView;
@@ -65,15 +68,14 @@ public class AppList extends Activity {
 
         list.setAdapter(adapter);
     }
-    private void loadApps(){
-        manager = getPackageManager();
-        apps = new ArrayList<AppsDetail>();
 
+    private void loadApps() {
+        manager = getPackageManager();
+        apps = new ArrayList<>();
         Intent i = new Intent(Intent.ACTION_MAIN, null);
         i.addCategory(Intent.CATEGORY_LAUNCHER);
-
         List<ResolveInfo> availableActivities = manager.queryIntentActivities(i, 0);
-        for(ResolveInfo ri:availableActivities){
+        for (ResolveInfo ri : availableActivities) {
             AppsDetail app = new AppsDetail();
             app.label = ri.loadLabel(manager);
             app.name = ri.activityInfo.packageName;

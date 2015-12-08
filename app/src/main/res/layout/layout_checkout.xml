@@ -1,0 +1,89 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:background="@drawable/rightbg"
+    android:layout_height="match_parent"
+    android:visibility="gone"
+    android:id="@+id/rela_layout_checkout"
+    tools:context="info.androidhive.materialtabs.fragments.OneFragment">
+    <TextView
+        android:layout_width="match_parent"
+        android:gravity="center_vertical|center_horizontal"
+        android:id="@+id/textTitle"
+        android:text="GHI NHẬN VÀO"
+        android:background="@android:color/white"
+        android:textColor="@color/colorBlue"
+        android:textStyle="bold"
+        android:layout_height="wrap_content" />
+    <LinearLayout
+        android:layout_below="@+id/textTitle"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:weightSum="4"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:weightSum="2"
+            android:layout_width="match_parent"
+            android:layout_height="0dp">
+            <Button
+                android:paddingTop="5dp"
+                android:layout_width="0dp"
+                android:background="@android:color/white"
+                android:alpha="0.8"
+                android:layout_weight="1"
+                android:text="@string/get_location"
+                android:drawableTop="@drawable/getlocation_btn"
+                android:layout_height="match_parent" />
+            <Button
+                android:paddingTop="5dp"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:background="@android:color/white"
+                android:alpha="0.8"
+                android:text="@string/take_picture"
+                android:drawableTop="@drawable/camera_btn"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:weightSum="2"
+            android:layout_width="match_parent"
+            android:layout_height="0dp">
+            <EditText
+                android:layout_width="match_parent"
+                android:text="@string/check_out"
+                android:gravity="center"
+                android:textStyle="bold"
+                android:background="@android:color/white"
+                android:textColor="@android:color/black"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:weightSum="2"
+            android:layout_width="match_parent"
+            android:layout_height="0dp">
+            <Button
+                android:paddingTop="5dp"
+                android:layout_width="match_parent"
+                android:background="@android:color/white"
+                android:alpha="0.8"
+                android:text="@string/save_send"
+                android:drawableTop="@drawable/v_btn"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:weightSum="2"
+            android:layout_width="match_parent"
+            android:layout_height="0dp">
+
+        </LinearLayout>
+    </LinearLayout>
+
+</RelativeLayout>

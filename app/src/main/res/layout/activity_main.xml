@@ -3,88 +3,74 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/coordinatorLayout"
     android:layout_width="match_parent"
+    android:fitsSystemWindows="true"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
-
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:layout_scrollFlags="scroll|enterAlways"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+        <!--<android.support.v7.widget.Toolbar-->
+            <!--android:id="@+id/toolbar"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="?attr/actionBarSize"-->
+            <!--android:background="?attr/colorPrimary"-->
+            <!--app:contentInsetLeft="0dp"-->
+            <!--app:contentInsetStart="0dp"-->
+            <!--app:layout_scrollFlags="scroll|enterAlways"-->
+            <!--app:popupTheme="@style/ThemeOverlay.AppCompat.Light" >-->
+            <!--&lt;!&ndash;<LinearLayout&ndash;&gt;-->
+                <!--&lt;!&ndash;android:layout_width="match_parent"&ndash;&gt;-->
+                <!--&lt;!&ndash;android:weightSum="2"&ndash;&gt;-->
+                <!--&lt;!&ndash;android:orientation="horizontal"&ndash;&gt;-->
+                <!--&lt;!&ndash;android:layout_height="match_parent">&ndash;&gt;-->
+                <!--&lt;!&ndash;<TextView&ndash;&gt;-->
+                    <!--&lt;!&ndash;android:layout_width="0dp"&ndash;&gt;-->
+                    <!--&lt;!&ndash;android:layout_weight="1"&ndash;&gt;-->
+                    <!--&lt;!&ndash;android:gravity="center_horizontal|center_vertical"&ndash;&gt;-->
+                    <!--&lt;!&ndash;android:text="Ghi nhận vào"&ndash;&gt;-->
+                    <!--&lt;!&ndash;android:textColor="@android:color/white"&ndash;&gt;-->
+                    <!--&lt;!&ndash;android:textStyle="bold"&ndash;&gt;-->
+                    <!--&lt;!&ndash;android:drawableRight="@drawable/go_btn"&ndash;&gt;-->
+                    <!--&lt;!&ndash;android:layout_height="match_parent" />&ndash;&gt;-->
+                <!--&lt;!&ndash;<View&ndash;&gt;-->
+                    <!--&lt;!&ndash;android:layout_width="50dp"&ndash;&gt;-->
+                    <!--&lt;!&ndash;android:layout_height="match_parent"/>&ndash;&gt;-->
+                <!--&lt;!&ndash;<TextView&ndash;&gt;-->
+                    <!--&lt;!&ndash;android:layout_width="0dp"&ndash;&gt;-->
+                    <!--&lt;!&ndash;android:text="Ghi nhận ra"&ndash;&gt;-->
+                    <!--&lt;!&ndash;android:textColor="@android:color/white"&ndash;&gt;-->
+                    <!--&lt;!&ndash;android:textStyle="bold"&ndash;&gt;-->
+                    <!--&lt;!&ndash;android:gravity="center_horizontal|center_vertical"&ndash;&gt;-->
+                    <!--&lt;!&ndash;android:drawableLeft="@drawable/back_btn"&ndash;&gt;-->
+                    <!--&lt;!&ndash;android:layout_weight="1"&ndash;&gt;-->
+                    <!--&lt;!&ndash;android:layout_height="match_parent" />&ndash;&gt;-->
+            <!--&lt;!&ndash;</LinearLayout>&ndash;&gt;-->
+
+            <!--</android.support.v7.widget.Toolbar>-->
+        <!--<android.support.design.widget.TabLayout-->
+            <!--android:id="@+id/tabs"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--app:tabMode="fixed"-->
+            <!--app:tabGravity="fill"/>-->
+
     </android.support.design.widget.AppBarLayout>
 
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:text="ỨNG DỤNG DMS Ở ĐÂY"
-            android:textSize="50dp"
-            android:textStyle="bold"
-            android:textColor="@color/colorPrimary"
-            android:gravity="center_horizontal|center_vertical"
-            android:layout_height="match_parent" />
-
-    </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:orientation="horizontal"
         android:layout_gravity="end|bottom"
-        android:weightSum="5"
         android:layout_height="wrap_content">
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fabPhone"
-            android:layout_weight="1"
-            android:layout_width="0dp"
-            android:onClick="callPhone"
+        <android.support.v4.view.ViewPager
+            android:id="@+id/viewpager"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:src="@drawable/phone_btn" />
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fabSMS"
-            android:layout_weight="1"
-            android:onClick="showSms"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:src="@drawable/sms_btn" />
-        <ImageButton
-            android:id="@+id/imgApp"
-            android:background="@null"
-            android:layout_weight="1"
-            android:layout_width="0dp"
-            android:onClick="showApps"
-            android:layout_height="wrap_content"
-            android:src="@drawable/app_btn" />
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fabEmail"
-            android:layout_weight="1"
-            android:onClick="showGmail"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:src="@drawable/gmail_btn" />
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fabCal"
-            android:layout_weight="1"
-            android:onClick="showCal"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:src="@drawable/calculator_btn" />
-
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"  />
     </LinearLayout>
+
+
 
 </android.support.design.widget.CoordinatorLayout>

@@ -1,0 +1,135 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:background="@drawable/rightbg"
+    android:layout_height="match_parent"
+    tools:context="info.androidhive.materialtabs.fragments.OneFragment">
+    <include
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        layout="@layout/layout_checkin" />
+    <include
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        layout="@layout/layout_checkout" />
+    <RelativeLayout
+        android:id="@+id/rela_layout_main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:layout_width="match_parent"
+            android:gravity="center_vertical|center_horizontal"
+            android:id="@+id/textTitle"
+            android:text="PHẦN MỀM DMS"
+            android:background="@android:color/white"
+            android:textColor="@color/colorBlue"
+            android:textStyle="bold"
+            android:layout_height="wrap_content" />
+        <LinearLayout
+            android:layout_below="@+id/textTitle"
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:weightSum="4"
+            android:layout_height="match_parent">
+            <LinearLayout
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                android:layout_width="match_parent"
+                android:layout_height="0dp">
+                <Button
+                    android:id="@+id/btnCheckIn"
+                    android:layout_width="0dp"
+                    android:background="@android:color/white"
+                    android:alpha="0.8"
+                    android:layout_weight="1"
+                    android:text="@string/check_in"
+                    android:drawableTop="@drawable/checkin_btn"
+                    android:layout_height="match_parent" />
+                <Button
+                    android:id="@+id/btnCheckOut"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:background="@android:color/white"
+                    android:alpha="0.8"
+                    android:text="@string/check_out"
+                    android:drawableTop="@drawable/checkout_btn"
+                    android:layout_height="match_parent" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                android:layout_width="match_parent"
+                android:layout_height="0dp">
+                <Button
+                    android:id="@+id/btnNotify"
+                    android:layout_width="0dp"
+                    android:background="@android:color/white"
+                    android:alpha="0.8"
+                    android:layout_weight="1"
+                    android:text="@string/notice"
+                    android:drawableTop="@drawable/notice_btn"
+                    android:layout_height="match_parent" />
+                <Button
+                    android:id="@+id/btnLocation"
+                    android:layout_width="0dp"
+                    android:background="@android:color/white"
+                    android:alpha="0.8"
+                    android:layout_weight="1"
+                    android:text="@string/position"
+                    android:drawableTop="@drawable/markerto_btn"
+                    android:layout_height="match_parent" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                android:layout_width="match_parent"
+                android:layout_height="0dp">
+                <Button
+                    android:layout_width="0dp"
+                    android:background="@android:color/white"
+                    android:alpha="0.8"
+                    android:layout_weight="1"
+                    android:text="@string/app_name"
+                    android:drawableTop="@drawable/lock_btn"
+                    android:layout_height="match_parent" />
+                <Button
+                    android:layout_width="0dp"
+                    android:background="@android:color/white"
+                    android:alpha="0.8"
+                    android:layout_weight="1"
+                    android:text="@string/app_name"
+                    android:drawableTop="@drawable/lock_btn"
+                    android:layout_height="match_parent" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                android:layout_width="match_parent"
+                android:layout_height="0dp">
+                <Button
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:background="@android:color/white"
+                    android:alpha="0.8"
+                    android:text="@string/app_name"
+                    android:drawableTop="@drawable/lock_btn"
+                    android:layout_height="match_parent" />
+                <Button
+                    android:id="@+id/btnSetting"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:background="@android:color/white"
+                    android:alpha="0.8"
+                    android:text="@string/setting"
+                    android:drawableTop="@drawable/setup_btn"
+                    android:layout_height="match_parent" />
+            </LinearLayout>
+        </LinearLayout>
+    </RelativeLayout>
+
+
+</RelativeLayout>
