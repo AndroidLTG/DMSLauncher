@@ -50,7 +50,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void init() {
-
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         //Create viewpager with three fragment
         setupViewPager(viewPager);
@@ -159,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN,
                             dmsDeviceAdmin);
                     intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION,
-                            "Your boss told you to do this");
+                            "Trình chạy DMS");
                     startActivityForResult(intent, ACTIVATION_REQUEST);
                 }
                 return;
