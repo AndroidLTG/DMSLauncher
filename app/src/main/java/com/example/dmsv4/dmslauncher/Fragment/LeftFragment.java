@@ -1,39 +1,35 @@
 package com.example.dmsv4.dmslauncher.Fragment;
 
 
-import android.Manifest;
 import android.app.Dialog;
-import android.app.LoaderManager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.CallLog;
 import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.example.dmsv4.dmslauncher.CallHistory;
-import com.example.dmsv4.dmslauncher.CustomAdapterListView;
+import com.example.dmsv4.dmslauncher.GetSet.CallHistory;
+import com.example.dmsv4.dmslauncher.CustomAdapter.CustomAdapterListView;
+import com.example.dmsv4.dmslauncher.Home;
 import com.example.dmsv4.dmslauncher.R;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
 
@@ -41,9 +37,7 @@ import java.util.Random;
  * Created by DMSv4 on 12/3/2015.
  */
 public class LeftFragment extends Fragment {
-    private ListView lstHistory;
-    private ArrayList<CallHistory> arrCall = new ArrayList<CallHistory>();
-    CustomAdapterListView adapterListView = null;
+
 
     public LeftFragment() {
     }
@@ -65,22 +59,16 @@ public class LeftFragment extends Fragment {
         return v;
     }
 
-    @Override
-    public void onPause() {
-        Log.w("OnPause", "OnPause");
-
-        super.onPause();
-    }
 
     private void control_() {
-        arrCall = new ArrayList<>();
-        adapterListView = new CustomAdapterListView(
+        Home.arrCall = new ArrayList<>();
+        Home.adapterListView = new CustomAdapterListView(
                 getActivity(),
                 R.layout.list_call_history,// lấy custom layout
-                arrCall/*thiết lập data source*/);
-        lstHistory.setAdapter(adapterListView);
+                Home.arrCall/*thiết lập data source*/);
+        Home.lstHistory.setAdapter(Home.adapterListView);
         getCallDetails();
-        lstHistory.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        Home.lstHistory.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
                 final CallHistory callHistory = (CallHistory) parent.getItemAtPosition(position);
@@ -153,9 +141,9 @@ public class LeftFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         DeleteCallLogByNumber(callHistory.getPhoneNumber());
-                        arrCall.remove(position);
+                        Home.arrCall.remove(position);
                         getCallDetails();
-                        adapterListView.notifyDataSetChanged();
+                        Home.adapterListView.notifyDataSetChanged();
                         dialog.dismiss();
                     }
                 });
@@ -168,7 +156,7 @@ public class LeftFragment extends Fragment {
                 return false;
             }
         });
-        lstHistory.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        Home.lstHistory.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
                 Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -178,14 +166,35 @@ public class LeftFragment extends Fragment {
                 getContext().startActivity(intent);
             }
         });
+
+        Home.lstHistory.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                if (firstVisibleItem + visibleItemCount == totalItemCount && totalItemCount != 0) {
+                    if (Home.flag_loading == false) {
+                        Home.flag_loading = true;
+                        Home.arrCall.clear();
+                        Home.adapterListView.clear();
+                        Home.LIMITROW = Home.LIMITROW + 10;
+                        getCallDetails();
+
+                    }
+                }
+            }
+        });
     }
 
+
     private void getId(View v) {
-        lstHistory = (ListView) v.findViewById(R.id.listHistory);
+        Home.lstHistory = (ListView) v.findViewById(R.id.listHistory);
     }
 
     private void getCallDetails() {
-
         Cursor managedCursor = getContext().getContentResolver().query(CallLog.Calls.CONTENT_URI, null,
                 null, null, CallLog.Calls.DATE + " DESC");
         int number = managedCursor.getColumnIndex(CallLog.Calls.NUMBER);
@@ -194,41 +203,57 @@ public class LeftFragment extends Fragment {
         int duration = managedCursor.getColumnIndex(CallLog.Calls.DURATION);
         int name = managedCursor.getColumnIndex(CallLog.Calls.CACHED_NAME);
         while (managedCursor.moveToNext()) {
-            String phNumber = managedCursor.getString(number);
-            String callType = managedCursor.getString(type);
-            String callDate = managedCursor.getString(date);
-            String phName = managedCursor.getString(name);
-            Date callDayTime = new Date(Long.valueOf(callDate));
-            String callDuration = managedCursor.getString(duration);
-            String dir = null;
-            int dircode = Integer.parseInt(callType);
-            switch (dircode) {
-                case CallLog.Calls.OUTGOING_TYPE:
-                    dir = "Cuộc gọi đi";
-                    break;
+            if (Home.arrCall.size() < Home.LIMITROW) {// limit 10 row
+                String phNumber = managedCursor.getString(number);
+                String callType = managedCursor.getString(type);
+                String callDate = managedCursor.getString(date);
+                String phName = managedCursor.getString(name);
+                Date callDayTime = new Date(Long.valueOf(callDate));
+                String callDuration = managedCursor.getString(duration);
+                String dir = null;
+                int dircode = Integer.parseInt(callType);
+                switch (dircode) {
+                    case CallLog.Calls.OUTGOING_TYPE:
+                        dir = "Cuộc gọi đi";
+                        break;
 
-                case CallLog.Calls.INCOMING_TYPE:
-                    dir = "Cuộc gọi đến";
-                    break;
+                    case CallLog.Calls.INCOMING_TYPE:
+                        dir = "Cuộc gọi đến";
+                        break;
 
-                case CallLog.Calls.MISSED_TYPE:
-                    dir = "Cuộc gọi nhỡ";
-                    break;
+                    case CallLog.Calls.MISSED_TYPE:
+                        dir = "Cuộc gọi nhỡ";
+                        break;
+                }
+                CallHistory callHistory = new CallHistory();
+                if (phName == null)
+                    callHistory.setPhoneName(" ");
+                else
+                    callHistory.setPhoneName(phName);
+                callHistory.setCallTime(getDateHmFromDate(callDayTime));
+                callHistory.setCallDuration(callDuration);
+                callHistory.setCallType(dir);
+                callHistory.setPhoneNumber(phNumber);
+                Home.arrCall.add(callHistory);
             }
-            CallHistory callHistory = new CallHistory();
-            if (phName == null)
-                callHistory.setPhoneName(" ");
-            else
-                callHistory.setPhoneName(phName);
-            callHistory.setCallDuration(callDuration);
-            callHistory.setCallTime(callDayTime + "");
-            callHistory.setCallType(dir);
-            callHistory.setPhoneNumber(phNumber);
-            arrCall.add(callHistory);
         }
         managedCursor.close();
-        adapterListView.notifyDataSetChanged();
+        Home.adapterListView.notifyDataSetChanged();
+        Home.flag_loading = false;
+    }
 
+    private String getDateHmFromDate(Date date) {
+        String dateF = "";
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        if (calendar.get(Calendar.HOUR_OF_DAY) < 10 && calendar.get(Calendar.MINUTE) < 10)
+            dateF = "0" + calendar.get(Calendar.HOUR_OF_DAY) + ":0" + calendar.get(Calendar.MINUTE);
+        else if (calendar.get(Calendar.HOUR_OF_DAY) < 10)
+            dateF = "0" + calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE);
+        else if (calendar.get(Calendar.MINUTE) < 10)
+            dateF = calendar.get(Calendar.HOUR_OF_DAY) + ":0" + calendar.get(Calendar.MINUTE);
+        else dateF = calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE);
+        return dateF;
     }
 
     public boolean contactExists(Context context, String number) {

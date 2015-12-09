@@ -1,39 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.dmsv4.dmslauncher">
+
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
-    <uses-permission android:name="android.permission.WRITE_CALL_LOG"/>
+    <uses-permission android:name="android.permission.WRITE_CALL_LOG" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
-    <uses-permission android:name="android.permission.CALL_PHONE"/>
+    <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.WRITE_CONTACTS" />
+
     <application
         android:allowBackup="true"
+        android:clearTaskOnLaunch="true"
+        android:enabled="true"
         android:icon="@mipmap/ic_launcher"
         android:label="DMS Launcher"
         android:launchMode="singleTask"
-        android:stateNotNeeded="true"
-        android:clearTaskOnLaunch="true"
-        android:windowSoftInputMode="adjustPan"
-        android:screenOrientation="nosensor"
         android:resumeWhilePausing="true"
+        android:screenOrientation="nosensor"
+        android:stateNotNeeded="true"
         android:taskAffinity=""
-        android:enabled="true"
-        android:theme="@style/MyMaterialTheme">
+        android:theme="@style/MyMaterialTheme"
+        android:windowSoftInputMode="adjustPan">
 
-        <activity android:name=".MainActivity" >
+        <activity
+            android:name=".Home"
+            android:clearTaskOnLaunch="true"
+            android:launchMode="singleTask"
+            android:stateNotNeeded="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.HOME" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.MONKEY"/>
+                <category android:name="android.intent.category.MONKEY" />
             </intent-filter>
         </activity>
-        <activity android:name="com.example.dmsv4.dmslauncher.AppList"
-            android:theme="@style/MyMaterialTheme">
-        </activity>
         <receiver
-            android:name=".DMSDeviceAdminReceiver"
-            android:permission="android.permission.BIND_DEVICE_ADMIN" >
+            android:name=".Receiver.DMSDeviceAdminReceiver"
+            android:permission="android.permission.BIND_DEVICE_ADMIN">
             <intent-filter>
 
                 <!-- This action is required -->
