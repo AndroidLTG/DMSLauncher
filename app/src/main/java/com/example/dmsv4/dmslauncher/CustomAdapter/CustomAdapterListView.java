@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.ContactsContract;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.dmsv4.dmslauncher.GetSet.CallHistory;
+import com.example.dmsv4.dmslauncher.Home;
 import com.example.dmsv4.dmslauncher.R;
 
 import java.io.IOException;
@@ -41,21 +43,43 @@ public class CustomAdapterListView extends ArrayAdapter<CallHistory> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        LayoutInflater inflater =
-                context.getLayoutInflater();
-        convertView = inflater.inflate(layoutId, null);
-        final TextView txtName = (TextView)
-                convertView.findViewById(R.id.txtName);
-        final TextView txtInfo = (TextView)
-                convertView.findViewById(R.id.txtInfo);
         final CallHistory emp = myArray.get(position);
-        txtName.setText(emp.getPhoneName() + " \n" + emp.getPhoneNumber());
-        txtInfo.setText(emp.getCallType() + " \nThời gian " + emp.getCallTime() + " \nĐộ dài " + emp.getCallDuration());
-        final ImageView imgPhoto = (ImageView) convertView.findViewById(R.id.imgProfilePhoto);
-        imgPhoto.setImageBitmap(retrieveContactPhoto(context, emp.getPhoneNumber()));
-        final ImageView imgCall = (ImageView) convertView.findViewById(R.id.imgOptionCallMail);
-        final ImageView imgSms = (ImageView) convertView.findViewById(R.id.imgOptionSmsMail);
-        imgCall.setOnClickListener(new View.OnClickListener() {
+        ViewHolder holder = null;
+        if (convertView == null) {
+            LayoutInflater inflater =
+                    context.getLayoutInflater();
+            convertView = inflater.inflate(layoutId, null);
+            holder = new ViewHolder();
+            holder.txtName = (TextView) convertView.findViewById(R.id.txtName);
+            holder.txtInfo = (TextView) convertView.findViewById(R.id.txtInfo);
+            holder.imgPhoto = (ImageView) convertView.findViewById(R.id.imgProfilePhoto);
+            holder.imgCall = (ImageView) convertView.findViewById(R.id.imgOptionCallMail);
+            holder.imgSms = (ImageView) convertView.findViewById(R.id.imgOptionSmsMail);
+            holder.imgCallType = (ImageView) convertView.findViewById(R.id.imgCallType);
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+        }
+
+        switch (emp.getCallType()) {
+            case 0:
+                holder.imgCallType.setImageResource(R.drawable.from_btn);
+                break;
+            case 1:
+                holder.imgCallType.setImageResource(R.drawable.to_btn);
+                break;
+            case 2:
+                holder.imgCallType.setImageResource(R.drawable.exclam_btn);
+                break;
+            default:
+                holder.imgCallType.setImageResource(R.drawable.from_btn);
+                break;
+
+        }
+        holder.txtName.setText(emp.getPhoneName() + " \n" + emp.getPhoneNumber());
+        holder.txtInfo.setText(emp.getCallTime() + "    ▒   " + retrieveDurationCall(emp.getCallDuration()));
+        holder.imgPhoto.setImageBitmap(retrieveContactPhoto(context, emp.getPhoneNumber()));
+        holder.imgCall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent callIntent = new Intent(Intent.ACTION_CALL);
@@ -63,7 +87,7 @@ public class CustomAdapterListView extends ArrayAdapter<CallHistory> {
                 getContext().startActivity(callIntent);
             }
         });
-        imgSms.setOnClickListener(new View.OnClickListener() {
+        holder.imgSms.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent smsIntent = new Intent(Intent.ACTION_VIEW);
@@ -76,6 +100,26 @@ public class CustomAdapterListView extends ArrayAdapter<CallHistory> {
         });
 
         return convertView;
+    }
+
+    static class ViewHolder {
+        TextView txtName;
+        TextView txtInfo;
+        ImageView imgPhoto;
+        ImageView imgCall;
+        ImageView imgSms;
+        ImageView imgCallType;
+    }
+
+    private String retrieveDurationCall(String duration) {
+        String retrieve = "";
+        int durationF = Integer.parseInt(duration);
+        int hours = durationF / 3600;
+        int minutes = (durationF % 3600) / 60;
+        int seconds = durationF % 60;
+        retrieve = String.format("%02d:%02d:%02d", hours, minutes, seconds);
+
+        return retrieve;
     }
 
     public static Bitmap retrieveContactPhoto(Context context, String number) {

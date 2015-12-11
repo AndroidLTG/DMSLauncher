@@ -16,4 +16,7 @@
     <string name="delete_call_log">Xóa nhật ký cuộc gọi này</string>
     <string name="delete_all_log_this_number">Xóa hết nhật ký cuộc gọi bởi số này</string>
     <string name="add_to_contact">Thêm liên lạc</string>
+    <string name="enabled">Đã bật</string>
+    <string name="disabled">Đã tắt</string>
+    <string name="permissionlabel">Trình khởi chạy DMS</string>
 </resources>

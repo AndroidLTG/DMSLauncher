@@ -10,6 +10,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.example.dmsv4.dmslauncher.Home;
 import com.example.dmsv4.dmslauncher.R;
 
 /**
@@ -35,6 +36,9 @@ public class RightFragment extends Fragment implements View.OnClickListener {
         rela_checkout = (RelativeLayout)v.findViewById(R.id.rela_layout_checkout);
         rela_checkin = (RelativeLayout)v.findViewById(R.id.rela_layout_checkin);
         rela_main = (RelativeLayout) v.findViewById(R.id.rela_layout_main);
+        RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        v.setLayoutParams(p);
+        v.requestLayout();
         v.findViewById(R.id.btnCheckIn).setOnClickListener(this);
         v.findViewById(R.id.btnCheckOut).setOnClickListener(this);
         v.findViewById(R.id.btnNotify).setOnClickListener(this);

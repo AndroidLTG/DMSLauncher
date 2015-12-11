@@ -3,6 +3,7 @@ package com.example.dmsv4.dmslauncher.GetSet;
 /**
  * Created by DMSv4 on 12/2/2015.
  */
+
 import android.graphics.drawable.Drawable;
 
 public class AppsDetail {

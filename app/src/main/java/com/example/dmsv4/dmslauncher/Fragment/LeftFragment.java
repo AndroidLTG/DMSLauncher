@@ -27,6 +27,7 @@ import com.example.dmsv4.dmslauncher.GetSet.CallHistory;
 import com.example.dmsv4.dmslauncher.CustomAdapter.CustomAdapterListView;
 import com.example.dmsv4.dmslauncher.Home;
 import com.example.dmsv4.dmslauncher.R;
+import com.victor.loading.rotate.RotateLoading;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -53,145 +54,32 @@ public class LeftFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_left, container, false);
         getId(v);
-        control_();
-
+        loadLeft_();
 
         return v;
     }
 
 
-    private void control_() {
-        Home.arrCall = new ArrayList<>();
-        Home.adapterListView = new CustomAdapterListView(
-                getActivity(),
-                R.layout.list_call_history,// lấy custom layout
-                Home.arrCall/*thiết lập data source*/);
-        Home.lstHistory.setAdapter(Home.adapterListView);
-        getCallDetails();
-        Home.lstHistory.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-                final CallHistory callHistory = (CallHistory) parent.getItemAtPosition(position);
-                final Dialog dialog = new Dialog(getContext());
-                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                dialog.setContentView(R.layout.view_listviewlonglick);
-                dialog.getWindow().setLayout(WindowManager.LayoutParams.FILL_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
-                final TextView txtViewContact, txtEditNumberBeforeCall, txtCopyCallNumber, txtRejectCall, txtDeleteCallLog, txtDeleteAllLogThisNumber, txtNameContact;
-                txtViewContact = (TextView) dialog.findViewById(R.id.txtViewContact);
-                txtNameContact = (TextView) dialog.findViewById(R.id.txtNameContact);
-                txtEditNumberBeforeCall = (TextView) dialog.findViewById(R.id.txtEditNumberBeforeCall);
-                txtCopyCallNumber = (TextView) dialog.findViewById(R.id.txtCopyCallNumber);
-                txtRejectCall = (TextView) dialog.findViewById(R.id.txtRejectCall);
-                txtDeleteCallLog = (TextView) dialog.findViewById(R.id.txtDeleteCallLog);
-                txtDeleteAllLogThisNumber = (TextView) dialog.findViewById(R.id.txtDeleteAllCallLogThisNumber);
-                // set the custom dialog components - text, image and button
-                txtNameContact.setText(callHistory.getPhoneName() + "\n" + callHistory.getPhoneNumber());
-
-                if (!contactExists(getContext(), callHistory.getPhoneNumber()))
-                    txtViewContact.setText(getString(R.string.add_to_contact));
-                txtViewContact.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (txtViewContact.getText().toString().equals(getString(R.string.add_to_contact))) {
-                            Intent intent = new Intent(Intent.ACTION_INSERT,
-                                    ContactsContract.Contacts.CONTENT_URI);
-                            intent.putExtra(ContactsContract.Intents.Insert.PHONE, callHistory.getPhoneNumber());
-                            startActivity(intent);
-                            dialog.dismiss();
-                        } else {
-                            Intent intent = new Intent(Intent.ACTION_VIEW);
-                            Uri uri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_URI, String.valueOf(getContactIDFromNumber(callHistory.getPhoneNumber(), getContext())));
-                            intent.setData(uri);
-                            getContext().startActivity(intent);
-                            dialog.dismiss();
-                        }
-
-                    }
-                });
-                txtEditNumberBeforeCall.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent callIntent = new Intent(Intent.ACTION_DIAL);
-                        callIntent.setData(Uri.parse("tel:" + callHistory.getPhoneNumber()));
-                        getContext().startActivity(callIntent);
-                        dialog.dismiss();
-                    }
-                });
-                txtCopyCallNumber.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                        ClipData clip = null;
-                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB) {
-                            clip = ClipData.newPlainText(callHistory.getPhoneName(), callHistory.getPhoneNumber());
-                            clipboard.setPrimaryClip(clip);
-
-                        }
-                        dialog.dismiss();
-
-                    }
-                });
-                txtRejectCall.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                    }
-                });
-                txtDeleteCallLog.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        DeleteCallLogByNumber(callHistory.getPhoneNumber());
-                        Home.arrCall.remove(position);
-                        getCallDetails();
-                        Home.adapterListView.notifyDataSetChanged();
-                        dialog.dismiss();
-                    }
-                });
-                txtDeleteAllLogThisNumber.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                    }
-                });
-                dialog.show();
-                return false;
-            }
-        });
-        Home.lstHistory.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                final CallHistory callHistory = (CallHistory) parent.getItemAtPosition(position);
-                Uri uri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_URI, String.valueOf(getContactIDFromNumber(callHistory.getPhoneNumber(), getContext())));
-                intent.setData(uri);
-                getContext().startActivity(intent);
-            }
-        });
-
-        Home.lstHistory.setOnScrollListener(new AbsListView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
-
-            }
-
-            @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if (firstVisibleItem + visibleItemCount == totalItemCount && totalItemCount != 0) {
-                    if (Home.flag_loading == false) {
-                        Home.flag_loading = true;
-                        Home.arrCall.clear();
-                        Home.adapterListView.clear();
-                        Home.LIMITROW = Home.LIMITROW + 10;
-                        getCallDetails();
-
-                    }
-                }
-            }
-        });
-    }
-
-
     private void getId(View v) {
         Home.lstHistory = (ListView) v.findViewById(R.id.listHistory);
+
+    }
+
+    public void DeleteCallLogByNumber(String number) {
+        String queryString = "NUMBER=" + number;
+        getContext().getContentResolver().delete(CallLog.Calls.CONTENT_URI, queryString, null);
+    }
+
+    public static int getContactIDFromNumber(String contactNumber, Context context) {
+        contactNumber = Uri.encode(contactNumber);
+        int phoneContactID = new Random().nextInt();
+        Cursor contactLookupCursor = context.getContentResolver().query(Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, contactNumber), new String[]{ContactsContract.PhoneLookup.DISPLAY_NAME, ContactsContract.PhoneLookup._ID}, null, null, null);
+        while (contactLookupCursor.moveToNext()) {
+            phoneContactID = contactLookupCursor.getInt(contactLookupCursor.getColumnIndexOrThrow(ContactsContract.PhoneLookup._ID));
+        }
+        contactLookupCursor.close();
+
+        return phoneContactID;
     }
 
     private void getCallDetails() {
@@ -210,19 +98,19 @@ public class LeftFragment extends Fragment {
                 String phName = managedCursor.getString(name);
                 Date callDayTime = new Date(Long.valueOf(callDate));
                 String callDuration = managedCursor.getString(duration);
-                String dir = null;
+                int dir = 0;
                 int dircode = Integer.parseInt(callType);
                 switch (dircode) {
                     case CallLog.Calls.OUTGOING_TYPE:
-                        dir = "Cuộc gọi đi";
+                        dir = 0;
                         break;
 
                     case CallLog.Calls.INCOMING_TYPE:
-                        dir = "Cuộc gọi đến";
+                        dir = 1;
                         break;
 
                     case CallLog.Calls.MISSED_TYPE:
-                        dir = "Cuộc gọi nhỡ";
+                        dir = 2;
                         break;
                 }
                 CallHistory callHistory = new CallHistory();
@@ -273,20 +161,134 @@ public class LeftFragment extends Fragment {
         return false;
     }
 
-    public void DeleteCallLogByNumber(String number) {
-        String queryString = "NUMBER=" + number;
-        getContext().getContentResolver().delete(CallLog.Calls.CONTENT_URI, queryString, null);
-    }
 
-    public static int getContactIDFromNumber(String contactNumber, Context context) {
-        contactNumber = Uri.encode(contactNumber);
-        int phoneContactID = new Random().nextInt();
-        Cursor contactLookupCursor = context.getContentResolver().query(Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, contactNumber), new String[]{ContactsContract.PhoneLookup.DISPLAY_NAME, ContactsContract.PhoneLookup._ID}, null, null, null);
-        while (contactLookupCursor.moveToNext()) {
-            phoneContactID = contactLookupCursor.getInt(contactLookupCursor.getColumnIndexOrThrow(ContactsContract.PhoneLookup._ID));
-        }
-        contactLookupCursor.close();
+    private void loadLeft_() {
+        Home.arrCall = new ArrayList<>();
+        Home.adapterListView = new CustomAdapterListView(
+                this.getActivity(),
+                R.layout.list_call_history,// lấy custom layout
+                Home.arrCall/*thiết lập data source*/);
+        Home.lstHistory.setAdapter(Home.adapterListView);
+        Home.lstHistory.setScrollingCacheEnabled(false);
+        getCallDetails();
+        Home.lstHistory.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+                final CallHistory callHistory = (CallHistory) parent.getItemAtPosition(position);
+                final Dialog dialog = new Dialog(getContext());
+                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                dialog.setContentView(R.layout.view_listviewlonglick);
+                dialog.getWindow().setLayout(WindowManager.LayoutParams.FILL_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+                final TextView txtViewContact, txtEditNumberBeforeCall, txtCopyCallNumber, txtRejectCall, txtDeleteCallLog, txtDeleteAllLogThisNumber, txtNameContact;
+                txtViewContact = (TextView) dialog.findViewById(R.id.txtViewContact);
+                txtNameContact = (TextView) dialog.findViewById(R.id.txtNameContact);
+                txtEditNumberBeforeCall = (TextView) dialog.findViewById(R.id.txtEditNumberBeforeCall);
+                txtCopyCallNumber = (TextView) dialog.findViewById(R.id.txtCopyCallNumber);
+                txtRejectCall = (TextView) dialog.findViewById(R.id.txtRejectCall);
+                txtDeleteCallLog = (TextView) dialog.findViewById(R.id.txtDeleteCallLog);
+                txtDeleteAllLogThisNumber = (TextView) dialog.findViewById(R.id.txtDeleteAllCallLogThisNumber);
+                // set the custom dialog components - text, image and button
+                txtNameContact.setText(callHistory.getPhoneName() + "\n" + callHistory.getPhoneNumber());
 
-        return phoneContactID;
+                if (!contactExists(getContext(), callHistory.getPhoneNumber()))
+                    txtViewContact.setText(getString(R.string.add_to_contact));
+                txtViewContact.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (txtViewContact.getText().toString().equals(getString(R.string.add_to_contact))) {
+                            Intent intent = new Intent(Intent.ACTION_INSERT,
+                                    ContactsContract.Contacts.CONTENT_URI);
+                            intent.putExtra(ContactsContract.Intents.Insert.PHONE, callHistory.getPhoneNumber());
+                            startActivity(intent);
+                            dialog.dismiss();
+                        } else {
+                            Intent intent = new Intent(Intent.ACTION_VIEW);
+                            Uri uri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_URI, String.valueOf(getContactIDFromNumber(callHistory.getPhoneNumber(), getContext())));
+                            intent.setData(uri);
+                            startActivity(intent);
+                            dialog.dismiss();
+                        }
+
+                    }
+                });
+                txtEditNumberBeforeCall.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent callIntent = new Intent(Intent.ACTION_DIAL);
+                        callIntent.setData(Uri.parse("tel:" + callHistory.getPhoneNumber()));
+                        startActivity(callIntent);
+                        dialog.dismiss();
+                    }
+                });
+                txtCopyCallNumber.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                        ClipData clip = null;
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB) {
+                            clip = ClipData.newPlainText(callHistory.getPhoneName(), callHistory.getPhoneNumber());
+                            clipboard.setPrimaryClip(clip);
+
+                        }
+                        dialog.dismiss();
+
+                    }
+                });
+                txtRejectCall.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                    }
+                });
+                txtDeleteCallLog.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        DeleteCallLogByNumber(callHistory.getPhoneNumber());
+                        Home.arrCall.remove(position);
+                        getCallDetails();
+                        Home.adapterListView.notifyDataSetChanged();
+                        dialog.dismiss();
+                    }
+                });
+                txtDeleteAllLogThisNumber.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                });
+                dialog.show();
+                return false;
+            }
+        });
+        Home.lstHistory.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                final CallHistory callHistory = (CallHistory) parent.getItemAtPosition(position);
+                Uri uri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_URI, String.valueOf(getContactIDFromNumber(callHistory.getPhoneNumber(), getContext())));
+                intent.setData(uri);
+                startActivity(intent);
+            }
+        });
+
+        Home.lstHistory.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                if (firstVisibleItem + visibleItemCount == totalItemCount && totalItemCount != 0) {
+//                    if (Home.flag_loading == false) {
+//                        Home.flag_loading = true;
+//                        Home.arrCall.clear();
+//                        Home.adapterListView.clear();
+//                       // Home.LIMITROW = Home.LIMITROW + 10;
+//                        getCallDetails();
+//
+//                    }
+                }
+            }
+        });
     }
 }

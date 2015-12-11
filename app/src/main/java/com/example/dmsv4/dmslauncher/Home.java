@@ -1,4 +1,5 @@
 package com.example.dmsv4.dmslauncher;
+
 import android.app.Activity;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
@@ -6,7 +7,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.Color;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -14,13 +19,17 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import com.example.dmsv4.dmslauncher.CustomAdapter.CustomAdapterGripView;
 import com.example.dmsv4.dmslauncher.CustomAdapter.CustomAdapterListView;
@@ -30,40 +39,71 @@ import com.example.dmsv4.dmslauncher.Fragment.RightFragment;
 import com.example.dmsv4.dmslauncher.GetSet.AppsDetail;
 import com.example.dmsv4.dmslauncher.GetSet.CallHistory;
 import com.example.dmsv4.dmslauncher.Receiver.DMSDeviceAdminReceiver;
+import com.victor.loading.rotate.RotateLoading;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Home extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemLongClickListener {
-    DevicePolicyManager devicePolicyManager;
-    ComponentName dmsDeviceAdmin;
+public class Home extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemLongClickListener, AdapterView.OnItemClickListener {
+    private DevicePolicyManager devicePolicyManager;
+    private ComponentName dmsDeviceAdmin;
     private ViewPager viewPager;
     public static GridView gridListApp;
     private ViewPagerAdapter adapter;
     static final int ACTIVATION_REQUEST = 47; // identifies our request id
-    private Animation animFadein;
+    private Animation animA;
     public static int LIMITROW = 10;
-    public static ListView lstHistory;
+    public static ListView lstHistory;//row in call history
     public static CustomAdapterListView adapterListView = null;
     public static ArrayList<CallHistory> arrCall = new ArrayList<CallHistory>();
     public static boolean flag_loading = false;
     private PackageManager manager;
+    private List<AppsDetail> allItems;
     public static RelativeLayout rela_layout_center;
+    private CustomAdapterGripView adapterGripView;
+    public static RotateLoading rotateLoading;
+    private CoordinatorLayout coordinatorLayout;
+    public static LinearLayout linearMenu;
+    private ImageView imgCenter;
+    private ViewGroup.LayoutParams defaultparams;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        animFadein = AnimationUtils.loadAnimation(getApplicationContext(),
-                R.anim.fade_in);
         Log.w("onCreate", "onCreate");
+        changeColorStatusBar();
         getId();
         init();
     }
 
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        if (hasFocus) {
+            animA = AnimationUtils.loadAnimation(getApplicationContext(),
+                    R.anim.fade_in);
+            coordinatorLayout.startAnimation(animA);
+        } else {
+            animA = AnimationUtils.loadAnimation(getApplicationContext(),
+                    R.anim.fade_out);
+            coordinatorLayout.startAnimation(animA);
+        }
+    }
+
+    private void changeColorStatusBar() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(Color.BLACK);
+        }
+    }
+
     private void getId() {
         viewPager = (ViewPager) findViewById(R.id.viewpager);
-
+        imgCenter = (ImageView) findViewById(R.id.imgCenterSwipe);
+        linearMenu = (LinearLayout) findViewById(R.id.linearMenu);
+        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinatorLayout);
     }
 
     @Override
@@ -72,10 +112,68 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
     }
 
     private void init() {
-
         //Create viewpager with three fragment
         setupViewPager(viewPager);
-        //Get permision ADMIN DEVICE
+        //Get permission ADMIN DEVICE
+        getPermission();
+        //Load left call history
+
+    }
+
+    private void setupViewPager(final ViewPager viewPager) {
+        adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        adapter.addFragment(new LeftFragment(), "LEFT");
+        adapter.addFragment(new CenterFragment(), "CENTER");
+        adapter.addFragment(new RightFragment(), "RIGHT");
+        viewPager.setAdapter(adapter);
+        defaultparams = viewPager.getLayoutParams();
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                animA = AnimationUtils.loadAnimation(getApplicationContext(),
+                        R.anim.fade_in);
+                coordinatorLayout.startAnimation(animA);
+                switch (position) {
+                    case 0:
+                        imgCenter.setImageResource(R.drawable.swipeleft);
+                        viewPager.setLayoutParams(defaultparams);
+                        linearMenu.setVisibility(View.VISIBLE);
+                        break;
+                    case 1:
+                        imgCenter.setImageResource(R.drawable.swipecenter);
+                        viewPager.setLayoutParams(defaultparams);
+                        linearMenu.setVisibility(View.VISIBLE);
+                        break;
+                    case 2:
+                        linearMenu.setVisibility(View.GONE);
+                        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT);
+                        viewPager.setLayoutParams(params);
+                        imgCenter.setImageResource(R.drawable.swiperight);
+                        break;
+                    default:
+                        linearMenu.setVisibility(View.VISIBLE);
+                        imgCenter.setImageResource(R.drawable.swipecenter);
+                        break;
+                }
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+        //Set current page is center fragment
+        viewPager.setCurrentItem(1);
+
+    }
+
+    private void getPermission() {
         devicePolicyManager = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
         dmsDeviceAdmin = new ComponentName(this, DMSDeviceAdminReceiver.class);
         Intent intent = new Intent(
@@ -83,25 +181,23 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
         intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN,
                 dmsDeviceAdmin);
         intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION,
-                "Your boss told you to do this");
+                getString(R.string.permissionlabel));
         startActivityForResult(intent, ACTIVATION_REQUEST);
-        //Set current page is center fragment
-        viewPager.setCurrentItem(1);
-    }
-
-    private void setupViewPager(ViewPager viewPager) {
-        adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(new LeftFragment(), "LEFT");
-        adapter.addFragment(new CenterFragment(), "CENTER");
-        adapter.addFragment(new RightFragment(), "RIGHT");
-        viewPager.setAdapter(adapter);
     }
 
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-        AppsDetail appsDetail = (AppsDetail) parent.getItemAtPosition(position);
-        Toast.makeText(getApplicationContext(),"Long click :"+appsDetail.getName(),Toast.LENGTH_SHORT).show();
+        Uri packageUri = Uri.parse("package:" + allItems.get(position).getName());
+        Intent uninstallIntent =
+                new Intent(Intent.ACTION_DELETE, packageUri);
+        startActivity(uninstallIntent);
         return false;
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Intent i = manager.getLaunchIntentForPackage(allItems.get(position).name.toString());
+        startActivity(i);
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {//Adapter for fragment
@@ -143,8 +239,6 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
             adapterListView.notifyDataSetChanged();
         }
         viewPager.setCurrentItem(1);
-        animFadein = AnimationUtils.loadAnimation(getApplicationContext(),
-                R.anim.fade_out);
         super.onPause();
     }
 
@@ -157,8 +251,6 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
     @Override
     protected void onRestart() {
         Log.w("onRestart", "onRestart");
-        animFadein = AnimationUtils.loadAnimation(getApplicationContext(),
-                R.anim.fade_in);
         super.onRestart();
     }
 
@@ -171,8 +263,6 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
     @Override
     protected void onDestroy() {
         Log.w("onDestroy", "onDestroy");
-        animFadein = AnimationUtils.loadAnimation(getApplicationContext(),
-                R.anim.fade_out);
         super.onDestroy();
     }
 
@@ -206,23 +296,14 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
     }
 
     public void showApps(View v) {//Show list app in device
-        rela_layout_center.setVisibility(View.GONE);
-        gridListApp.setVisibility(View.VISIBLE);
+        rotateLoading.start();
         gridListApp.setOnItemLongClickListener(this);
-        loadApps();
-        final List<AppsDetail> allItems = loadApps();
-        CustomAdapterGripView customAdapter = new CustomAdapterGripView(Home.this, allItems);
-        gridListApp.setAdapter(customAdapter);
-
-        gridListApp.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent i = manager.getLaunchIntentForPackage(allItems.get(position).name.toString());
-                startActivity(i);
-            }
-        });
-
+        allItems = loadApps();
+        adapterGripView = new CustomAdapterGripView(Home.this, allItems);
+        gridListApp.setAdapter(adapterGripView);
+        gridListApp.setOnItemClickListener(this);
     }
+
     private List<AppsDetail> loadApps() {
         manager = getPackageManager();
         List<AppsDetail> apps = new ArrayList<>();
@@ -236,8 +317,13 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
             app.icon = ri.activityInfo.loadIcon(manager);
             apps.add(app);
         }
+        rotateLoading.stop();
+        rela_layout_center.setVisibility(View.GONE);
+        gridListApp.setVisibility(View.VISIBLE);
+        if (viewPager.getCurrentItem() != 1) viewPager.setCurrentItem(1);
         return apps;
     }
+
     public void callPhone(View v) {// Show call app
         Intent i = getPackageManager().getLaunchIntentForPackage("com.android.contacts");
         startActivity(i);
@@ -275,9 +361,8 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
         if (viewPager.getCurrentItem() == 0) {
             viewPager.setCurrentItem(1);
         }
-        if(viewPager.getCurrentItem()==1)
-        {
-            if(adapter.getItem(1).getView().findViewById(R.id.gridListApp).getVisibility()==View.VISIBLE){
+        if (viewPager.getCurrentItem() == 1) {
+            if (adapter.getItem(1).getView().findViewById(R.id.gridListApp).getVisibility() == View.VISIBLE) {
                 adapter.getItem(1).getView().findViewById(R.id.gridListApp).setVisibility(View.GONE);
                 adapter.getItem(1).getView().findViewById(R.id.rela_layout_center).setVisibility(View.VISIBLE);
 
@@ -300,4 +385,6 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
             }
         }
     }
+
+
 }

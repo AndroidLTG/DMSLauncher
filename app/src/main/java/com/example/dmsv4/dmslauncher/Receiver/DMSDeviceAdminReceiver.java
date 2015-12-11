@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.dmsv4.dmslauncher.R;
+
 /**
  * This is the component that is responsible for actual device administration.
  * It becomes the receiver when a policy is applied. It is important that we
@@ -15,20 +17,24 @@ import android.widget.Toast;
 public class DMSDeviceAdminReceiver extends DeviceAdminReceiver {
     static final String TAG = "DMSDeviceAdminReceiver";
 
-    /** Called when this application is approved to be a device administrator. */
+    /**
+     * Called when this application is approved to be a device administrator.
+     */
     @Override
     public void onEnabled(Context context, Intent intent) {
         super.onEnabled(context, intent);
-        Toast.makeText(context, "Enabled",
+        Toast.makeText(context, context.getString(R.string.enabled),
                 Toast.LENGTH_LONG).show();
         Log.d(TAG, "onEnabled");
     }
 
-    /** Called when this application is no longer the device administrator. */
+    /**
+     * Called when this application is no longer the device administrator.
+     */
     @Override
     public void onDisabled(Context context, Intent intent) {
         super.onDisabled(context, intent);
-        Toast.makeText(context, "Disabled",
+        Toast.makeText(context, context.getString(R.string.disabled),
                 Toast.LENGTH_LONG).show();
         Log.d(TAG, "onDisabled");
     }

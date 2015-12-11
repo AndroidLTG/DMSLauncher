@@ -6,7 +6,7 @@ package com.example.dmsv4.dmslauncher.GetSet;
 public class CallHistory {
     private String phoneNumber;
     private String phoneName;
-    private String callType;
+    private int callType;
     private String callTime;
     private String callDuration;
 
@@ -26,11 +26,12 @@ public class CallHistory {
         this.phoneName = phoneName;
     }
 
-    public String getCallType() {
+
+    public int getCallType() {
         return callType;
     }
 
-    public void setCallType(String callType) {
+    public void setCallType(int callType) {
         this.callType = callType;
     }
 

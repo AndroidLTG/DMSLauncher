@@ -11,6 +11,7 @@ import android.widget.RelativeLayout;
 
 import com.example.dmsv4.dmslauncher.Home;
 import com.example.dmsv4.dmslauncher.R;
+import com.victor.loading.rotate.RotateLoading;
 
 /**
  * Created by DMSv4 on 12/3/2015.
@@ -36,5 +37,7 @@ public class CenterFragment extends Fragment {
     private void getId(View v) {
         Home.rela_layout_center = (RelativeLayout) v.findViewById(R.id.rela_layout_center);
         Home.gridListApp = (GridView) v.findViewById(R.id.gridListApp);
+        Home.rotateLoading = (RotateLoading) v.findViewById(R.id.rotateloading);
+        Home.rotateLoading.stop();
     }
 }
