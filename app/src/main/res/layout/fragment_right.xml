@@ -14,21 +14,34 @@
         layout="@layout/layout_checkout"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+    <include
+        layout="@layout/layout_login"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
+    <include
+        layout="@layout/layout_change_password"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <include
+        layout="@layout/layout_list_order"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
     <RelativeLayout
         android:id="@+id/rela_layout_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/textTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/button_drawable"
-            android:gravity="center_vertical|center_horizontal"
-            android:text="PHẦN MỀM DMS"
-            android:textColor="@color/colorBlue"
-            android:textStyle="bold" />
+        <!--<TextView-->
+            <!--android:id="@+id/textTitle"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:background="@drawable/button_drawable"-->
+            <!--android:gravity="center_vertical|center_horizontal"-->
+            <!--android:text="PHẦN MỀM DMS"-->
+            <!--android:textColor="@color/colorBlue"-->
+            <!--android:textStyle="bold" />-->
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -105,24 +118,26 @@
                 android:weightSum="2">
 
                 <Button
+                    android:id="@+id/btnOrder"
                     android:layout_width="0dp"
                     android:textColor="@drawable/text_drawable"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:alpha="0.8"
                     android:background="@drawable/button_drawable"
-                    android:drawableTop="@drawable/lock_btn"
-                    android:text="@string/app_name" />
+                    android:drawableTop="@drawable/manager_btn"
+                    android:text="@string/order" />
 
                 <Button
+                    android:id="@+id/btnUpdate"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:textColor="@drawable/text_drawable"
                     android:alpha="0.8"
                     android:background="@drawable/button_drawable"
-                    android:drawableTop="@drawable/lock_btn"
-                    android:text="@string/app_name" />
+                    android:drawableTop="@drawable/statistic_btn"
+                    android:text="@string/update" />
             </LinearLayout>
 
             <LinearLayout
@@ -133,14 +148,15 @@
                 android:weightSum="2">
 
                 <Button
+                    android:id="@+id/btnReport"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:alpha="0.8"
                     android:textColor="@drawable/text_drawable"
                     android:background="@drawable/button_drawable"
-                    android:drawableTop="@drawable/lock_btn"
-                    android:text="@string/app_name" />
+                    android:drawableTop="@drawable/notice_btn"
+                    android:text="@string/notify" />
 
                 <Button
                     android:id="@+id/btnSetting"

@@ -1,6 +1,8 @@
 package com.example.dmsv4.dmslauncher;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -12,11 +14,16 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,12 +31,15 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.example.dmsv4.dmslauncher.CustomAdapter.CustomAdapterGripView;
 import com.example.dmsv4.dmslauncher.CustomAdapter.CustomAdapterListView;
@@ -39,15 +49,19 @@ import com.example.dmsv4.dmslauncher.Fragment.RightFragment;
 import com.example.dmsv4.dmslauncher.GetSet.AppsDetail;
 import com.example.dmsv4.dmslauncher.GetSet.CallHistory;
 import com.example.dmsv4.dmslauncher.Receiver.DMSDeviceAdminReceiver;
+import com.example.dmsv4.dmslauncher.RecycleView.RecyclerItemClickListener;
+import com.example.dmsv4.dmslauncher.Service.BackgroundService;
+import com.orhanobut.dialogplus.DialogPlus;
 import com.victor.loading.rotate.RotateLoading;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Home extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemLongClickListener, AdapterView.OnItemClickListener {
+public class Home extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemLongClickListener, AdapterView.OnItemClickListener, RecyclerItemClickListener.OnItemClickListener {
     private DevicePolicyManager devicePolicyManager;
     private ComponentName dmsDeviceAdmin;
     private ViewPager viewPager;
+    private Toolbar toolbar;
     public static GridView gridListApp;
     private ViewPagerAdapter adapter;
     static final int ACTIVATION_REQUEST = 47; // identifies our request id
@@ -59,18 +73,23 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
     public static boolean flag_loading = false;
     private PackageManager manager;
     private List<AppsDetail> allItems;
-    public static RelativeLayout rela_layout_center;
+    public static RelativeLayout rela_layout_center, rela_main_center;
     private CustomAdapterGripView adapterGripView;
     public static RotateLoading rotateLoading;
     private CoordinatorLayout coordinatorLayout;
     public static LinearLayout linearMenu;
     private ImageView imgCenter;
     private ViewGroup.LayoutParams defaultparams;
+    public static TextView txtTitle;
+    public static DialogPlus dialog = null;
+    //KET HOP
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        startService(new Intent(this, BackgroundService.class));
         Log.w("onCreate", "onCreate");
         changeColorStatusBar();
         getId();
@@ -104,6 +123,9 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
         imgCenter = (ImageView) findViewById(R.id.imgCenterSwipe);
         linearMenu = (LinearLayout) findViewById(R.id.linearMenu);
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinatorLayout);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        txtTitle = (TextView) findViewById(R.id.txtTile);
     }
 
     @Override
@@ -112,13 +134,15 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
     }
 
     private void init() {
+
+
         //Create viewpager with three fragment
         setupViewPager(viewPager);
         //Get permission ADMIN DEVICE
         getPermission();
         //Load left call history
-
     }
+
 
     private void setupViewPager(final ViewPager viewPager) {
         adapter = new ViewPagerAdapter(getSupportFragmentManager());
@@ -135,21 +159,26 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
 
             @Override
             public void onPageSelected(int position) {
-                animA = AnimationUtils.loadAnimation(getApplicationContext(),
-                        R.anim.fade_in);
-                coordinatorLayout.startAnimation(animA);
+//                animA = AnimationUtils.loadAnimation(getApplicationContext(),
+//                        R.anim.fade_in);
+//                coordinatorLayout.startAnimation(animA);
                 switch (position) {
                     case 0:
+                        txtTitle.setText(getString(R.string.calllog));
                         imgCenter.setImageResource(R.drawable.swipeleft);
                         viewPager.setLayoutParams(defaultparams);
                         linearMenu.setVisibility(View.VISIBLE);
+                        closeFocus(getCurrentFocus());
                         break;
                     case 1:
+                        txtTitle.setText(getString(R.string.home));
                         imgCenter.setImageResource(R.drawable.swipecenter);
                         viewPager.setLayoutParams(defaultparams);
+                        closeFocus(getCurrentFocus());
                         linearMenu.setVisibility(View.VISIBLE);
                         break;
                     case 2:
+                        txtTitle.setText(getString(R.string.app_dms));
                         linearMenu.setVisibility(View.GONE);
                         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT);
                         viewPager.setLayoutParams(params);
@@ -172,7 +201,12 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
         viewPager.setCurrentItem(1);
 
     }
-
+    private void closeFocus(View view) {
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
     private void getPermission() {
         devicePolicyManager = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
         dmsDeviceAdmin = new ComponentName(this, DMSDeviceAdminReceiver.class);
@@ -198,6 +232,11 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Intent i = manager.getLaunchIntentForPackage(allItems.get(position).name.toString());
         startActivity(i);
+    }
+
+    @Override
+    public void onItemClick(View view, int position) {
+
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {//Adapter for fragment
@@ -229,6 +268,8 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
         }
     }
 
+
+    //LIFE CYCLE
     @Override
     protected void onPause() {
         Log.w("onPause", "onPause");
@@ -269,6 +310,11 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
     @Override
     protected void onStop() {
         Log.w("onStop", "onStop");
+        Intent mStartService = new Intent(getApplicationContext(), BackgroundService.class);
+        int mPendingIntentId = 123456;
+        PendingIntent mPendingIntent = PendingIntent.getService(getApplicationContext(), mPendingIntentId, mStartService, PendingIntent.FLAG_CANCEL_CURRENT);
+        AlarmManager mgr = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+        mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 10000, mPendingIntent);
         super.onStop();
     }
 
@@ -334,8 +380,10 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
     }
 
     public void showSms(View v) {// Show sms app
-        Intent i = getPackageManager().getLaunchIntentForPackage("com.android.mms");
-        startActivity(i);
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        intent.setType("vnd.android-dir/mms-sms");
+        startActivity(intent);
     }
 
     public void showGmail(View v) {//show mail app
@@ -355,7 +403,16 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
             else if (adapter.getItem(2).getView().findViewById(R.id.rela_layout_checkout).getVisibility() == View.VISIBLE) {
                 adapter.getItem(2).getView().findViewById(R.id.rela_layout_checkout).setVisibility(View.GONE);
                 adapter.getItem(2).getView().findViewById(R.id.rela_layout_main).setVisibility(View.VISIBLE);
-            } else // if in main
+            } else if (adapter.getItem(2).getView().findViewById(R.id.linear_change_pass).getVisibility() == View.VISIBLE) {
+                adapter.getItem(2).getView().findViewById(R.id.linear_change_pass).setVisibility(View.GONE);
+                adapter.getItem(2).getView().findViewById(R.id.rela_layout_main).setVisibility(View.VISIBLE);
+
+            } else if (adapter.getItem(2).getView().findViewById(R.id.linear_list_order).getVisibility() == View.VISIBLE) {
+                adapter.getItem(2).getView().findViewById(R.id.linear_list_order).setVisibility(View.GONE);
+                adapter.getItem(2).getView().findViewById(R.id.rela_layout_main).setVisibility(View.VISIBLE);
+                if (dialog != null) dialog.dismiss();
+
+            } else
                 viewPager.setCurrentItem(1);
         }
         if (viewPager.getCurrentItem() == 0) {
@@ -381,6 +438,7 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
             if (alreadyOnHome) {
                 adapter.getItem(1).getView().findViewById(R.id.gridListApp).setVisibility(View.GONE);
                 adapter.getItem(1).getView().findViewById(R.id.rela_layout_center).setVisibility(View.VISIBLE);
+                if (dialog != null) dialog.dismiss();
                 Log.d("whatever", "Home pressed");
             }
         }

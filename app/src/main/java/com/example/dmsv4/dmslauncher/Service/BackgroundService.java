@@ -1,6 +1,9 @@
 package com.example.dmsv4.dmslauncher.Service;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
@@ -20,6 +23,12 @@ public class BackgroundService extends Service {
     @Override
     public void onDestroy() {
         Log.d("BackgroundService", "onDestroy");
+        Intent mStartService = new Intent(getApplicationContext(), BackgroundService.class);
+        int mPendingIntentId = 123456;
+        PendingIntent mPendingIntent = PendingIntent.getService(getApplicationContext(), mPendingIntentId,    mStartService, PendingIntent.FLAG_CANCEL_CURRENT);
+        AlarmManager mgr = (AlarmManager)getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+        mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 10000, mPendingIntent);
+        System.exit(0);
         ControlThread.inst().requestStop();
     }
 

@@ -9,10 +9,14 @@ import CommonLib.EventType;
 /**
  * Created by My PC on 27/11/2015.
  */
-public class ControlThread extends Thread{
+public class ControlThread extends Thread {
     private static ControlThread instance = null;
-    private ControlThread() {super(); }
-    public synchronized static ControlThread inst(){
+
+    private ControlThread() {
+        super();
+    }
+
+    public synchronized static ControlThread inst() {
         if (instance == null) {
             instance = new ControlThread();
             Log.d("ControlThread", "Create new instance");
@@ -21,6 +25,7 @@ public class ControlThread extends Thread{
     }
 
     private boolean isRunning = false;
+
     public void requestStop() {
         isRunning = false;
     }
@@ -30,13 +35,12 @@ public class ControlThread extends Thread{
         isRunning = true;
         LocalDB.inst();
         try {
-            while(isRunning) {
+            while (isRunning) {
                 Log.v("QueueTimerControl", "timedout");
                 EventType.EventBase event = EventPool.control().deQueue();
                 if (event == null) {
                     sleep(Const.QueueTimerControl);
-                }
-                else {
+                } else {
                     processEvent(event);
                 }
             }
@@ -47,9 +51,14 @@ public class ControlThread extends Thread{
 
     private void processEvent(EventType.EventBase event) {
         switch (event.type) {
-            case BEGIN:
+            case Login:
+                EventPool.view().enQueue(new EventType.EventLoginResult(true, "OK"));
                 break;
-            case END:
+            case ChangePass:
+                EventPool.view().enQueue(new EventType.EventChangeResult(true, "OK"));
+                break;
+            case LoadOrders:
+                EventPool.view().enQueue(new EventType.EventLoadResult(true, "OK", null));
                 break;
             default:
                 Log.w("Control_processEvent", "unhandled " + event.type);

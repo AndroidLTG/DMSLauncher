@@ -19,4 +19,39 @@
     <string name="enabled">Đã bật</string>
     <string name="disabled">Đã tắt</string>
     <string name="permissionlabel">Trình khởi chạy DMS</string>
+    <string name="calllog">Cuộc gọi gần đây</string>
+    <string name="home">Màn hình chính</string>
+    <string name="app_dms">Ứng dụng DMS</string>
+    <string name="hint_username">Tên tài khoản</string>
+    <string name="hint_password">Mật khẩu</string>
+    <string name="sign_in">Đăng nhập</string>
+    <string name="sign_in_title">Màn hình đăng nhập</string>
+    <string name="change_pass_title">Màn hình đổi mật khẩu</string>
+    <string name="err_msg_name">Nhập tên đăng nhập</string>
+    <string name="err_msg_password">Nhập mật khẩu</string>
+    <string name="hint_password_old">Nhập mật khẩu cũ</string>
+    <string name="hint_password_new">Nhập mật khẩu mới</string>
+    <string name="hint_password_new_again">Nhập lại mật khẩu mới</string>
+    <string name="change_pass">Đổi mật khẩu</string>
+    <string name="err_msg_password_old">Nhập mật khẩu cũ</string>
+    <string name="err_msg_password_new">Nhập mật khẩu mới</string>
+    <string name="err_msg_password_new_again">Nhập lại mật khẩu mới</string>
+    <string name="listorder_title">Danh sách đơn hàng</string>
+    <string name="order">Đơn hàng</string>
+    <string name="update">Cập nhật</string>
+    <string name="notify">Báo cáo</string>
+    <string name="no">Không</string>
+    <string name="yes">Có</string>
+    <string name="questionexit">Bạn có muốn thoát ứng dụng?</string>
+    <string name="money">VNĐ</string>
+    <string name="err_msg_password_not_match">Mật khẩu mới không khớp</string>
+    <string name="cancel">Hủy bỏ</string>
+    <string name="dms_slogan">Công ty TNHH Đầu Tư Phần Mềm Quản Lý DMS 18 Gò Cẩm Đệm, Phường 10, Quận Tân Bình, TP.HCM Điện thoại: (083) 602 8869 Mail: cty.dms@gmail.com</string>
+    <string name="rememberLogin">Duy trì đăng nhập</string>
+    <string name="sign_in_success">Đăng nhập thành công</string>
+    <string name="sign_in_fail">Đăng nhập thất bại</string>
+    <string name="change_pass_success">Đổi mật khẩu thành công</string>
+    <string name="change_pass_fail">Đổi mật khẩu thất bại</string>
+
+
 </resources>
