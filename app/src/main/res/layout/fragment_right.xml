@@ -2,8 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/centerbg"
-    tools:context="info.androidhive.materialtabs.fragments.OneFragment">
+    android:background="@drawable/centerbg">
 
     <include
         layout="@layout/layout_checkin"
@@ -14,6 +13,7 @@
         layout="@layout/layout_checkout"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
     <include
         layout="@layout/layout_login"
         android:layout_width="match_parent"
@@ -28,20 +28,22 @@
         layout="@layout/layout_list_order"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+
     <RelativeLayout
         android:id="@+id/rela_layout_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <!--<TextView-->
-            <!--android:id="@+id/textTitle"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:background="@drawable/button_drawable"-->
-            <!--android:gravity="center_vertical|center_horizontal"-->
-            <!--android:text="PHẦN MỀM DMS"-->
-            <!--android:textColor="@color/colorBlue"-->
-            <!--android:textStyle="bold" />-->
+        <!--android:id="@+id/textTitle"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:background="@drawable/button_drawable"-->
+        <!--android:gravity="center_vertical|center_horizontal"-->
+        <!--android:text="PHẦN MỀM DMS"-->
+        <!--android:textColor="@color/colorBlue"-->
+        <!--android:textStyle="bold" />-->
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -50,35 +52,62 @@
             android:orientation="vertical"
             android:weightSum="4">
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@color/colorIcon" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:orientation="horizontal"
                 android:weightSum="2">
+
+                <View
+                    android:layout_width="2dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/colorIcon" />
 
                 <Button
                     android:id="@+id/btnCheckIn"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:alpha="0.8"
-                    android:textColor="@drawable/text_drawable"
+                    android:alpha="1"
                     android:background="@drawable/button_drawable"
                     android:drawableTop="@drawable/checkin_btn"
-                    android:text="@string/check_in" />
+                    android:paddingTop="5dp"
+                    android:text="@string/check_in"
+                    android:textColor="@drawable/text_drawable" />
+
+                <View
+                    android:layout_width="2dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/colorIcon" />
 
                 <Button
                     android:id="@+id/btnCheckOut"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:textColor="@drawable/text_drawable"
-                    android:alpha="0.8"
+                    android:alpha="1"
                     android:background="@drawable/button_drawable"
                     android:drawableTop="@drawable/checkout_btn"
-                    android:text="@string/check_out" />
+                    android:paddingTop="5dp"
+                    android:text="@string/check_out"
+                    android:textColor="@drawable/text_drawable" />
+
+                <View
+                    android:layout_width="2dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/colorIcon" />
             </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@color/colorIcon" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -86,29 +115,51 @@
                 android:layout_weight="1"
                 android:orientation="horizontal"
                 android:weightSum="2">
+
+                <View
+                    android:layout_width="2dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/colorIcon" />
 
                 <Button
                     android:id="@+id/btnNotify"
                     android:layout_width="0dp"
-                    android:textColor="@drawable/text_drawable"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:alpha="0.8"
+                    android:alpha="1"
                     android:background="@drawable/button_drawable"
                     android:drawableTop="@drawable/notice_btn"
-                    android:text="@string/notice" />
+                    android:paddingTop="5dp"
+                    android:text="@string/notice"
+                    android:textColor="@drawable/text_drawable" />
+
+                <View
+                    android:layout_width="2dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/colorIcon" />
 
                 <Button
                     android:id="@+id/btnLocation"
-                    android:textColor="@drawable/text_drawable"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:alpha="0.8"
+                    android:alpha="1"
                     android:background="@drawable/button_drawable"
                     android:drawableTop="@drawable/markerto_btn"
-                    android:text="@string/position" />
+                    android:paddingTop="5dp"
+                    android:text="@string/position"
+                    android:textColor="@drawable/text_drawable" />
+
+                <View
+                    android:layout_width="2dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/colorIcon" />
             </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@color/colorIcon" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -117,28 +168,50 @@
                 android:orientation="horizontal"
                 android:weightSum="2">
 
+                <View
+                    android:layout_width="2dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/colorIcon" />
+
                 <Button
                     android:id="@+id/btnOrder"
                     android:layout_width="0dp"
-                    android:textColor="@drawable/text_drawable"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:alpha="0.8"
+                    android:alpha="1"
                     android:background="@drawable/button_drawable"
                     android:drawableTop="@drawable/manager_btn"
-                    android:text="@string/order" />
+                    android:paddingTop="5dp"
+                    android:text="@string/order"
+                    android:textColor="@drawable/text_drawable" />
+
+                <View
+                    android:layout_width="2dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/colorIcon" />
 
                 <Button
                     android:id="@+id/btnUpdate"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:textColor="@drawable/text_drawable"
-                    android:alpha="0.8"
+                    android:alpha="1"
                     android:background="@drawable/button_drawable"
                     android:drawableTop="@drawable/statistic_btn"
-                    android:text="@string/update" />
+                    android:paddingTop="5dp"
+                    android:text="@string/update"
+                    android:textColor="@drawable/text_drawable" />
+
+                <View
+                    android:layout_width="2dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/colorIcon" />
             </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@color/colorIcon" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -147,28 +220,50 @@
                 android:orientation="horizontal"
                 android:weightSum="2">
 
+                <View
+                    android:layout_width="2dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/colorIcon" />
+
                 <Button
                     android:id="@+id/btnReport"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:alpha="0.8"
-                    android:textColor="@drawable/text_drawable"
+                    android:alpha="1"
                     android:background="@drawable/button_drawable"
                     android:drawableTop="@drawable/notice_btn"
-                    android:text="@string/notify" />
+                    android:paddingTop="5dp"
+                    android:text="@string/notify"
+                    android:textColor="@drawable/text_drawable" />
+
+                <View
+                    android:layout_width="2dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/colorIcon" />
 
                 <Button
                     android:id="@+id/btnSetting"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:alpha="0.8"
-                    android:textColor="@drawable/text_drawable"
+                    android:alpha="1"
                     android:background="@drawable/button_drawable"
                     android:drawableTop="@drawable/setup_btn"
-                    android:text="@string/setting" />
+                    android:paddingTop="5dp"
+                    android:text="@string/setting"
+                    android:textColor="@drawable/text_drawable" />
+
+                <View
+                    android:layout_width="2dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/colorIcon" />
             </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@color/colorIcon" />
         </LinearLayout>
     </RelativeLayout>
 

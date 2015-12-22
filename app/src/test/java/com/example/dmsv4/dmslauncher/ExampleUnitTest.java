@@ -1,4 +1,4 @@
-package com.example.dmsv4.dmslauncher;
+package com.vietdms.mobile.dmslauncher;
 
 import org.junit.Test;
 

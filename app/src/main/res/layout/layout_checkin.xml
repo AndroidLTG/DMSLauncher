@@ -28,6 +28,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp">
             <Button
+                android:id="@+id/btn_get_checkin"
                 android:paddingTop="5dp"
                 android:layout_width="0dp"
                 android:textColor="@drawable/text_drawable"
@@ -38,6 +39,7 @@
                 android:drawableTop="@drawable/getlocation_btn"
                 android:layout_height="match_parent" />
             <Button
+                android:id="@+id/btn_get_photo"
                 android:paddingTop="5dp"
                 android:layout_width="0dp"
                 android:layout_weight="1"
@@ -70,6 +72,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp">
             <Button
+                android:id="@+id/btn_save_send_checkin"
                 android:paddingTop="5dp"
                 android:layout_width="match_parent"
                 android:textColor="@drawable/text_drawable"

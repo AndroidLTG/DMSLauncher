@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:paddingTop="?attr/actionBarSize"
-
+    android:visibility="gone"
     android:weightSum="2">
 
     <org.buraktamturk.loadingview.LoadingView

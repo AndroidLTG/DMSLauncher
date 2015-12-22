@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">DMSLauncher</string>
+    <string name="app_name">Trình khởi chạy DMS</string>
     <string name="check_in">Ghi nhận vào</string>
     <string name="check_out">Ghi nhận ra</string>
     <string name="setting">Cài đặt</string>
@@ -52,6 +52,11 @@
     <string name="sign_in_fail">Đăng nhập thất bại</string>
     <string name="change_pass_success">Đổi mật khẩu thành công</string>
     <string name="change_pass_fail">Đổi mật khẩu thất bại</string>
-
-
+    <string name="title_activity_maps">Bản đồ</string>
+    <string name="title_activity_get_location">Bản đồ</string>
+    <string name="error_title">Lỗi</string>
+    <string name="sign_out">Đăng xuất</string>
+    <string name="tagWL">WAKELOCK</string>
+    <string name="setAlarm">Alarm</string>
+    <string name="app_design_name">Design by LTG</string>
 </resources>

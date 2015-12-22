@@ -5,7 +5,7 @@ android {
     buildToolsVersion "23.0.1"
 
     defaultConfig {
-        applicationId "com.example.dmsv4.dmslauncher"
+        applicationId "com.vietdms.mobile.dmslauncher"
         minSdkVersion 11
         targetSdkVersion 23
         versionCode 1
@@ -22,6 +22,9 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
+    compile files('libs/activation.jar')
+    compile files('libs/mail.jar')
+    compile files('libs/additionnal.jar')
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.android.support:design:23.1.1'
     compile 'com.android.support:cardview-v7:23.1.1'
@@ -29,4 +32,7 @@ dependencies {
     compile 'com.victor:lib:1.0.1'
     compile 'org.buraktamturk:loadingview:1.0.0@aar'
     compile 'com.orhanobut:dialogplus:1.10@aar'
+    compile 'com.google.android.gms:play-services:8.4.0'
+    compile 'com.google.android.gms:play-services-maps:8.4.0'
+    compile 'cat.ereza:customactivityoncrash:1.4.0'
 }

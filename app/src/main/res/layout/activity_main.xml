@@ -12,20 +12,22 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="30dp"
             android:background="@android:color/black"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" >
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
             <TextView
                 android:id="@+id/txtTile"
-                android:text="Tiêu đề"
-                android:gravity="center_vertical|center_horizontal"
-                android:textStyle="bold"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-            </android.support.v7.widget.Toolbar>
+                android:layout_height="match_parent"
+                android:gravity="center_vertical|center_horizontal"
+                android:text="Tiêu đề"
+                android:textStyle="bold" />
+        </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
 
     <LinearLayout

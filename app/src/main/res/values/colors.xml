@@ -8,4 +8,5 @@
     <color name="colorAccent">#FFFFFF</color>
     <color name="colorBlue">#1B98E0</color>
     <color name="colorHint">#969191</color>
+    <color name="colorIcon">#157efb</color>
 </resources>
