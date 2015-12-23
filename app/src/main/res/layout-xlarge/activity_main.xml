@@ -4,6 +4,8 @@
     android:id="@+id/coordinatorLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/transparent"
+    android:fitsSystemWindows="true"
     tools:context=".Home">
 
     <android.support.design.widget.AppBarLayout
@@ -14,113 +16,113 @@
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:contentInsetLeft="0dp"
-            app:contentInsetStart="0dp"
-            app:layout_scrollFlags="scroll|enterAlways"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" >
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:weightSum="2"
-                android:orientation="horizontal"
-                android:layout_height="match_parent">
-                <TextView
-                    android:layout_width="0dp"
-                    android:background="@null"
-                    android:layout_weight="1"
-                    android:gravity="center_horizontal|center_vertical"
-                    android:text="Ghi nhận vào"
-                    android:textColor="@android:color/white"
-                    android:textStyle="bold"
-                    android:drawableRight="@drawable/go_btn"
-                    android:layout_height="match_parent" />
-                <View
-                    android:layout_width="50dp"
-                    android:layout_height="match_parent"/>
-                <TextView
-                    android:layout_width="0dp"
-                    android:background="@null"
-                    android:text="Ghi nhận ra"
-                    android:textColor="@android:color/white"
-                    android:textStyle="bold"
-                    android:gravity="center_horizontal|center_vertical"
-                    android:drawableLeft="@drawable/back_btn"
-                    android:layout_weight="1"
-                    android:layout_height="match_parent" />
-            </LinearLayout>
+            android:layout_height="30dp"
+            android:background="@android:color/black"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
-            </android.support.v7.widget.Toolbar>
+            <TextView
+                android:id="@+id/txtTile"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical|center_horizontal"
+                android:text="Tiêu đề"
+                android:textStyle="bold" />
+        </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_marginTop="30dp"
+        android:background="@android:color/transparent"
         android:orientation="vertical"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:weightSum="10">
 
-        <TextView
+        <android.support.v4.view.ViewPager
+            android:id="@+id/viewpager"
             android:layout_width="match_parent"
-            android:text="ỨNG DỤNG DMS Ở ĐÂY"
-            android:textSize="50dp"
-            android:textStyle="bold"
-            android:textColor="@color/colorPrimary"
-            android:gravity="center_horizontal|center_vertical"
-            android:layout_height="match_parent" />
+            android:layout_height="0dp"
+            android:layout_weight="8"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-    </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
-            android:orientation="horizontal"
-            android:layout_gravity="end|bottom"
-            android:weightSum="5"
-            android:layout_height="wrap_content">
-            <ImageButton
-                android:id="@+id/fabPhone"
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:background="@null"
-                android:onClick="callPhone"
+            android:layout_height="0dp"
+            android:layout_weight="2"
+            android:background="@drawable/footerbg"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:src="@drawable/phone_btn" />
-            <ImageButton
-                android:id="@+id/fabSMS"
-                android:layout_weight="1"
-                android:background="@null"
-                android:onClick="showSms"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:src="@drawable/sms_btn" />
-            <ImageButton
-                android:id="@+id/imgApp"
-                android:background="@null"
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:onClick="showApps"
-                android:layout_height="wrap_content"
-                android:src="@drawable/app_btn" />
-            <ImageButton
-                android:id="@+id/fabEmail"
-                android:layout_weight="1"
-                android:onClick="showGmail"
-                android:background="@null"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:src="@drawable/gmail_btn" />
-            <ImageButton
-                android:id="@+id/fabCal"
-                android:layout_weight="1"
-                android:onClick="showCal"
-                android:background="@null"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:src="@drawable/calculator_btn" />
+                android:background="@android:color/transparent">
+
+                <ImageView
+                    android:id="@+id/imgCenterSwipe"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:background="@drawable/swipecenter" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/linearMenu"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentBottom="true"
+                android:orientation="horizontal"
+                android:weightSum="5">
+
+                <ImageButton
+                    android:id="@+id/btn_Call"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/phone_btn" />
+
+                <ImageButton
+                    android:id="@+id/btn_SmS"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/sms_btn" />
+
+                <ImageButton
+                    android:id="@+id/btn_Menu"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/home_btn" />
+
+                <ImageButton
+                    android:id="@+id/btn_Email"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:src="@drawable/gmail_btn" />
+
+                <ImageButton
+                    android:id="@+id/btn_Lock"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/screenoff_btn" />
+
+            </LinearLayout>
 
         </LinearLayout>
+
+    </LinearLayout>
 
 
 </android.support.design.widget.CoordinatorLayout>

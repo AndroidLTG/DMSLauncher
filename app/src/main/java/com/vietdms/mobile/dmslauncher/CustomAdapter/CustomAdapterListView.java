@@ -74,8 +74,8 @@ public class CustomAdapterListView extends ArrayAdapter<CallHistory> {
                 break;
 
         }
-        holder.txtName.setText(emp.getPhoneName() + " \n" + emp.getPhoneNumber());
-        holder.txtInfo.setText(emp.getCallTime() + "    ▒   " + retrieveDurationCall(emp.getCallDuration()));
+        holder.txtName.setText(emp.getPhoneName() + context.getString(R.string.downline) + emp.getPhoneNumber());
+        holder.txtInfo.setText(emp.getCallTime() + context.getString(R.string.spaceline) + retrieveDurationCall(emp.getCallDuration()));
         holder.imgPhoto.setImageBitmap(retrieveContactPhoto(context, emp.getPhoneNumber()));
         holder.imgCall.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -147,8 +147,9 @@ public class CustomAdapterListView extends ArrayAdapter<CallHistory> {
                 if (inputStream != null) {
                     photo = BitmapFactory.decodeStream(inputStream);
                 }
-                assert inputStream != null;
-                inputStream.close();
+                if (inputStream != null) {
+                    inputStream.close();
+                }
 
             } catch (IOException | NullPointerException e) {
                 e.printStackTrace();

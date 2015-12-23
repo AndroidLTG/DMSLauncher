@@ -29,10 +29,12 @@
         android:paddingTop="10dp"
         android:text="@string/view_contact"
         android:textColor="@android:color/black" />
+
     <View
         android:background="@color/colorBlue"
         android:layout_width="match_parent"
-        android:layout_height="1dp"/>
+        android:layout_height="1dp" />
+
     <TextView
         android:id="@+id/txtEditNumberBeforeCall"
         android:layout_width="match_parent"
@@ -43,10 +45,12 @@
         android:paddingTop="10dp"
         android:text="@string/edit_number_before_call"
         android:textColor="@android:color/black" />
+
     <View
         android:background="@color/colorBlue"
         android:layout_width="match_parent"
-        android:layout_height="1dp"/>
+        android:layout_height="1dp" />
+
     <TextView
         android:id="@+id/txtCopyCallNumber"
         android:layout_width="match_parent"
@@ -57,10 +61,12 @@
         android:paddingTop="10dp"
         android:text="@string/copy_call_number"
         android:textColor="@android:color/black" />
+
     <View
         android:background="@color/colorBlue"
         android:layout_width="match_parent"
-        android:layout_height="1dp"/>
+        android:layout_height="1dp" />
+
     <TextView
         android:id="@+id/txtRejectCall"
         android:layout_width="match_parent"
@@ -71,10 +77,12 @@
         android:paddingTop="10dp"
         android:text="@string/reject_call"
         android:textColor="@android:color/black" />
+
     <View
         android:background="@color/colorBlue"
         android:layout_width="match_parent"
-        android:layout_height="1dp"/>
+        android:layout_height="1dp" />
+
     <TextView
         android:id="@+id/txtDeleteCallLog"
         android:layout_width="match_parent"
@@ -85,10 +93,12 @@
         android:paddingTop="10dp"
         android:text="@string/delete_call_log"
         android:textColor="@android:color/black" />
+
     <View
         android:background="@color/colorBlue"
         android:layout_width="match_parent"
-        android:layout_height="1dp"/>
+        android:layout_height="1dp" />
+
     <TextView
         android:id="@+id/txtDeleteAllCallLogThisNumber"
         android:layout_width="match_parent"
@@ -99,9 +109,10 @@
         android:paddingTop="10dp"
         android:text="@string/delete_all_log_this_number"
         android:textColor="@android:color/black" />
+
     <View
         android:background="@color/colorBlue"
         android:layout_width="match_parent"
-        android:layout_height="1dp"/>
+        android:layout_height="1dp" />
 
 </LinearLayout>

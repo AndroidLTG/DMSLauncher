@@ -51,9 +51,10 @@ public class CustomAdapterGripView extends BaseAdapter {
         } else {
             listViewHolder = (ViewHolder) convertView.getTag();
         }
-        listViewHolder.textInListView.setText(listApp.get(position).getLabel());
-
-        listViewHolder.imageInListView.setImageDrawable(listApp.get(position).getIcon());
+        if (listApp.get(position).role == 1 || listApp.get(position).role == 2) {
+            listViewHolder.textInListView.setText(listApp.get(position).label);
+            listViewHolder.imageInListView.setImageDrawable(listApp.get(position).icon);
+        }
         return convertView;
     }
 

@@ -97,7 +97,7 @@ public class LocationAlarmManager extends BroadcastReceiver {
         intent.putExtra(context.getString(R.string.setAlarm), Boolean.FALSE);
         PendingIntent pi = PendingIntent.getBroadcast(context, 0, intent, 0);
         //After 5 minute
-        am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 1000 * 20, pi);
+        am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 1000 * 60, pi);
     }
 
     public void CancelAlarm(Context context) {

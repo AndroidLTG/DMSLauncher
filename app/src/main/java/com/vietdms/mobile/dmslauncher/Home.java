@@ -85,7 +85,7 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
         setContentView(R.layout.activity_main);
         Log.w("onCreate", "onCreate");
         Awake();
-        changeColorStatusBar();
+        MyMethod.changeColorStatusBar(getWindow());
         getId();
         init();
     }
@@ -94,10 +94,9 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
         CustomActivityOnCrash.install(this);
         LocationAlarmManager alarmManager = new LocationAlarmManager();
         startService(new Intent(this, BackgroundService.class));
-        if(alarmManager != null){
-            alarmManager.SetAlarm(getApplicationContext());
-        }else{
-            MyMethod.showToast(this,"Alarm is null");
+        if (alarmManager != null) alarmManager.SetAlarm(getApplicationContext());
+        else {
+            MyMethod.showToast(this, "Alarm is null");
         }
     }
 
@@ -116,14 +115,6 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
         }
     }
 
-    private void changeColorStatusBar() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Window window = getWindow();
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(Color.BLACK);
-        }
-    }
 
     private void getId() {
         viewPager = (ViewPager) findViewById(R.id.viewpager);
@@ -137,6 +128,25 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
 
     @Override
     public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.btn_Call:
+                MyMethod.callPhone(v.getContext());
+                break;
+            case R.id.btn_Menu:
+                showApps(v);
+                break;
+            case R.id.btn_SmS:
+                MyMethod.showSms(v.getContext());
+                break;
+            case R.id.btn_Email:
+                MyMethod.showGmail(v.getContext());
+                break;
+            case R.id.btn_Lock:
+                MyMethod.lockDevice(devicePolicyManager);
+                break;
+            default:
+                break;
+        }
     }
 
     private void init() {
@@ -144,9 +154,13 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
         setupViewPager(viewPager);
         //Get permission ADMIN DEVICE
         getPermission();
-        //Load left call history
+        //set event main menu
+        findViewById(R.id.btn_Call).setOnClickListener(this);
+        findViewById(R.id.btn_SmS).setOnClickListener(this);
+        findViewById(R.id.btn_Email).setOnClickListener(this);
+        findViewById(R.id.btn_Menu).setOnClickListener(this);
+        findViewById(R.id.btn_Lock).setOnClickListener(this);
     }
-
 
     private void setupViewPager(final ViewPager viewPager) {
         adapter = new ViewPagerAdapter(getSupportFragmentManager());
@@ -216,7 +230,7 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
 
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-        Uri packageUri = Uri.parse("package:" + allItems.get(position).getName());
+        Uri packageUri = Uri.parse("package:" + allItems.get(position).name);
         Intent uninstallIntent =
                 new Intent(Intent.ACTION_DELETE, packageUri);
         startActivity(uninstallIntent);
@@ -225,8 +239,7 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Intent i = manager.getLaunchIntentForPackage(allItems.get(position).name.toString());
-        startActivity(i);
+        MyMethod.runApp(allItems.get(position), manager, view.getContext());
     }
 
     @Override
@@ -280,6 +293,7 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
 
     @Override
     protected void onResume() {
+        if (!MyMethod.checkAdminActive(devicePolicyManager, dmsDeviceAdmin)) getPermission();
         Log.w("onResume", "onResume");
         super.onResume();
     }
@@ -323,7 +337,7 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
                     intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN,
                             dmsDeviceAdmin);
                     intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION,
-                            "Trình chạy DMS");
+                            getString(R.string.permissionlabel));
                     startActivityForResult(intent, ACTIVATION_REQUEST);
                 }
                 return;
@@ -331,10 +345,6 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    public void showCal(View v) {//Show calculator app
-        Intent i = getPackageManager().getLaunchIntentForPackage("com.android.calculator2");
-        startActivity(i);
-    }
 
     public void showApps(View v) {//Show list app in device
         rotateLoading.start();
@@ -356,6 +366,7 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
             app.label = ri.loadLabel(manager);
             app.name = ri.activityInfo.packageName;
             app.icon = ri.activityInfo.loadIcon(manager);
+            app.role = 2;
             apps.add(app);
         }
         rotateLoading.stop();
@@ -365,26 +376,6 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
         return apps;
     }
 
-    public void callPhone(View v) {// Show call app
-        Intent i = getPackageManager().getLaunchIntentForPackage("com.android.contacts");
-        startActivity(i);
-    }
-
-    public void lockDevice(View v) {// Lock screen
-        devicePolicyManager.lockNow();
-    }
-
-    public void showSms(View v) {// Show sms app
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_DEFAULT);
-        intent.setType("vnd.android-dir/mms-sms");
-        startActivity(intent);
-    }
-
-    public void showGmail(View v) {//show mail app
-        Intent i = getPackageManager().getLaunchIntentForPackage("com.google.android.gm");
-        startActivity(i);
-    }
 
     @Override
     public void onBackPressed() {
@@ -392,29 +383,29 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
             case 0:
                 break;
             case 1:
-                if (adapter.getItem(1).getView().findViewById(R.id.gridListApp).getVisibility() == View.VISIBLE) {
-                    adapter.getItem(1).getView().findViewById(R.id.gridListApp).setVisibility(View.GONE);
-                    adapter.getItem(1).getView().findViewById(R.id.rela_layout_center).setVisibility(View.VISIBLE);
+                if (MyMethod.isVisible(adapter.getItem(1).getView().findViewById(R.id.gridListApp))) {
+                    MyMethod.setGone(adapter.getItem(1).getView().findViewById(R.id.gridListApp));
+                    MyMethod.setVisible(adapter.getItem(1).getView().findViewById(R.id.rela_layout_center));
 
                 }
                 break;
             case 2:
                 //if in check in
-                if (adapter.getItem(2).getView().findViewById(R.id.rela_layout_checkin).getVisibility() == View.VISIBLE) {
-                    adapter.getItem(2).getView().findViewById(R.id.rela_layout_checkin).setVisibility(View.GONE);
-                    adapter.getItem(2).getView().findViewById(R.id.rela_layout_main).setVisibility(View.VISIBLE);
+                if (MyMethod.isVisible(adapter.getItem(2).getView().findViewById(R.id.rela_layout_checkin))) {
+                    MyMethod.setGone(adapter.getItem(2).getView().findViewById(R.id.rela_layout_checkin));
+                    MyMethod.setVisible(adapter.getItem(2).getView().findViewById(R.id.rela_layout_main));
                 }
                 //if in check out
-                else if (adapter.getItem(2).getView().findViewById(R.id.rela_layout_checkout).getVisibility() == View.VISIBLE) {
-                    adapter.getItem(2).getView().findViewById(R.id.rela_layout_checkout).setVisibility(View.GONE);
-                    adapter.getItem(2).getView().findViewById(R.id.rela_layout_main).setVisibility(View.VISIBLE);
-                } else if (adapter.getItem(2).getView().findViewById(R.id.linear_change_pass).getVisibility() == View.VISIBLE) {
-                    adapter.getItem(2).getView().findViewById(R.id.linear_change_pass).setVisibility(View.GONE);
-                    adapter.getItem(2).getView().findViewById(R.id.rela_layout_main).setVisibility(View.VISIBLE);
+                else if (MyMethod.isVisible(adapter.getItem(2).getView().findViewById(R.id.rela_layout_checkout))) {
+                    MyMethod.setGone(adapter.getItem(2).getView().findViewById(R.id.rela_layout_checkout));
+                    MyMethod.setVisible(adapter.getItem(2).getView().findViewById(R.id.rela_layout_main));
+                } else if (MyMethod.isVisible(adapter.getItem(2).getView().findViewById(R.id.linear_change_pass))) {
+                    MyMethod.setGone(adapter.getItem(2).getView().findViewById(R.id.linear_change_pass));
+                    MyMethod.setVisible(adapter.getItem(2).getView().findViewById(R.id.rela_layout_main));
 
-                } else if (adapter.getItem(2).getView().findViewById(R.id.linear_list_order).getVisibility() == View.VISIBLE) {
-                    adapter.getItem(2).getView().findViewById(R.id.linear_list_order).setVisibility(View.GONE);
-                    adapter.getItem(2).getView().findViewById(R.id.rela_layout_main).setVisibility(View.VISIBLE);
+                } else if (MyMethod.isVisible(adapter.getItem(2).getView().findViewById(R.id.linear_list_order))) {
+                    MyMethod.setGone(adapter.getItem(2).getView().findViewById(R.id.linear_list_order));
+                    MyMethod.setVisible(adapter.getItem(2).getView().findViewById(R.id.rela_layout_main));
                     if (dialog != null) dialog.dismiss();
 
                 } else

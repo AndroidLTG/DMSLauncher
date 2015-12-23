@@ -5,13 +5,8 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.location.Location;
-import android.location.LocationManager;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
-
-import com.vietdms.mobile.dmslauncher.MyMethod;
 
 import Controller.ControlThread;
 
@@ -27,7 +22,6 @@ public class BackgroundService extends Service {
     public void onCreate() {
         Log.d("BackgroundService", "onCreate");
         ControlThread.inst().start();
-        //location
 
     }
 

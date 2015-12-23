@@ -42,6 +42,7 @@
     <string name="notify">Báo cáo</string>
     <string name="no">Không</string>
     <string name="yes">Có</string>
+    <string name="accept">Chấp nhận</string>
     <string name="questionexit">Bạn có muốn thoát ứng dụng?</string>
     <string name="money">VNĐ</string>
     <string name="err_msg_password_not_match">Mật khẩu mới không khớp</string>
@@ -58,5 +59,8 @@
     <string name="sign_out">Đăng xuất</string>
     <string name="tagWL">WAKELOCK</string>
     <string name="setAlarm">Alarm</string>
-    <string name="app_design_name">Design by LTG</string>
+    <string name="app_design_name">Thiết kế bởi LTG</string>
+    <string name="downline"> \n</string>
+    <string name="spaceline">\t▒\t</string>
+    <string name="enter_password">Nhập mật khẩu mở khóa</string>
 </resources>

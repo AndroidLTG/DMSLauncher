@@ -75,52 +75,47 @@
                 android:weightSum="5">
 
                 <ImageButton
-                    android:id="@+id/fabPhone"
+                    android:id="@+id/btn_Call"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="16dp"
                     android:layout_weight="1"
                     android:background="@android:color/transparent"
-                    android:onClick="callPhone"
                     android:src="@drawable/phone_btn" />
 
                 <ImageButton
-                    android:id="@+id/fabSMS"
+                    android:id="@+id/btn_SmS"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="16dp"
                     android:layout_weight="1"
                     android:background="@android:color/transparent"
-                    android:onClick="showSms"
                     android:src="@drawable/sms_btn" />
 
                 <ImageButton
-                    android:id="@+id/imgApp"
+                    android:id="@+id/btn_Menu"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:background="@android:color/transparent"
-                    android:onClick="showApps"
                     android:src="@drawable/home_btn" />
 
                 <ImageButton
-                    android:id="@+id/fabEmail"
+                    android:id="@+id/btn_Email"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="16dp"
                     android:layout_weight="1"
                     android:background="@null"
-                    android:onClick="showGmail"
                     android:src="@drawable/gmail_btn" />
 
                 <ImageButton
-                    android:id="@+id/fabCal"
+                    android:id="@+id/btn_Lock"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="16dp"
                     android:layout_weight="1"
                     android:background="@android:color/transparent"
-                    android:onClick="lockDevice"
                     android:src="@drawable/screenoff_btn" />
 
             </LinearLayout>

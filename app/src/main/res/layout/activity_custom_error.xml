@@ -12,8 +12,7 @@
         android:layout_height="50dp"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:background="@android:color/transparent"
-        />
+        android:background="@android:color/transparent" />
 
 
     <ProgressBar
