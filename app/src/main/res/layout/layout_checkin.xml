@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:visibility="gone"
     android:id="@+id/rela_layout_checkin"
-    tools:context="info.androidhive.materialtabs.fragments.OneFragment">
+    tools:context="com.vietdms.mobile.dmslauncher.Home">
 
     <TextView
         android:layout_width="match_parent"

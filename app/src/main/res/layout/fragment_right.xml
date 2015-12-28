@@ -28,22 +28,11 @@
         layout="@layout/layout_list_order"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-
-
     <RelativeLayout
         android:id="@+id/rela_layout_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!--<TextView-->
-        <!--android:id="@+id/textTitle"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:background="@drawable/button_drawable"-->
-        <!--android:gravity="center_vertical|center_horizontal"-->
-        <!--android:text="PHẦN MỀM DMS"-->
-        <!--android:textColor="@color/colorBlue"-->
-        <!--android:textStyle="bold" />-->
 
         <LinearLayout
             android:layout_width="match_parent"

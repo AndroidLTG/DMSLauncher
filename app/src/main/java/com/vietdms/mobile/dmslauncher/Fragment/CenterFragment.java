@@ -6,7 +6,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.GridView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.vietdms.mobile.dmslauncher.Home;
@@ -18,7 +20,6 @@ import com.victor.loading.rotate.RotateLoading;
  */
 public class CenterFragment extends Fragment {
     private static final int PICK_PHOTO_FOR_AVATAR = 1;
-
     public CenterFragment() {
 
     }
@@ -39,6 +40,8 @@ public class CenterFragment extends Fragment {
     private void getId(View v) {
         Home.rela_layout_center = (RelativeLayout) v.findViewById(R.id.rela_layout_center);
         Home.rela_main_center = (RelativeLayout) v.findViewById(R.id.rela_main_center);
+        Home.layout_listapp = (LinearLayout) v.findViewById(R.id.linear_list_app);
+        Home.editSearch = (EditText) v.findViewById(R.id.edit_Search);
         Home.gridListApp = (GridView) v.findViewById(R.id.gridListApp);
         Home.rotateLoading = (RotateLoading) v.findViewById(R.id.rotateloading);
         Home.rotateLoading.stop();

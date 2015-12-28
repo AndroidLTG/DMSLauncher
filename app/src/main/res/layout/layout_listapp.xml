@@ -1,12 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<GridView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/gridListApp"
-    android:visibility="gone"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/linear_list_app"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:numColumns="4"
-    android:verticalSpacing="16dp"
-    android:horizontalSpacing="16dp"
-    android:scrollbars="none"
-    android:padding="16dp"
-    android:gravity="center_horizontal|center_vertical" />
+    android:visibility="gone"
+    android:orientation="vertical"
+    >
+
+
+    <EditText
+        android:id="@+id/edit_Search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableRight="@drawable/from_btn"
+        style="@style/Widget.AppCompat.EditText"
+        android:gravity="left|center_horizontal"
+        android:hint="@string/hint_search_app"
+        android:paddingRight="10dp"
+        android:textColor="@android:color/white"
+        android:textColorHint="@color/card_shadow"
+         />
+
+    <GridView
+        android:id="@+id/gridListApp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal|center_vertical"
+        android:horizontalSpacing="16dp"
+        android:numColumns="4"
+        android:padding="16dp"
+        android:scrollbars="none"
+        android:verticalSpacing="16dp" />
+
+</LinearLayout>

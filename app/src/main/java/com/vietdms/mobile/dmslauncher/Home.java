@@ -20,6 +20,8 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +30,7 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -52,14 +55,18 @@ import com.victor.loading.rotate.RotateLoading;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
 
-public class Home extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemLongClickListener, AdapterView.OnItemClickListener, RecyclerItemClickListener.OnItemClickListener {
+public class Home extends AppCompatActivity implements ViewPager.OnPageChangeListener, TextWatcher, View.OnClickListener, AdapterView.OnItemLongClickListener, AdapterView.OnItemClickListener, RecyclerItemClickListener.OnItemClickListener {
+    private static final String PACKAGE = "package:";
     private DevicePolicyManager devicePolicyManager;
     private ComponentName dmsDeviceAdmin;
     private ViewPager viewPager;
     public static GridView gridListApp;
+    public static LinearLayout layout_listapp;
     private ViewPagerAdapter adapter;
     static final int ACTIVATION_REQUEST = 47; // identifies our request id
     public static int LIMITROW = 10;
@@ -77,7 +84,11 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
     private ViewGroup.LayoutParams defaultparams;
     public static TextView txtTitle;
     public static DialogPlus dialog = null;
-
+    public static EditText editSearch;
+    private CustomAdapterGripView adapterGripView;
+    public static Toolbar toolbar;
+    public static RelativeLayout rela_checkin, rela_main, rela_checkout;
+    public static LinearLayout linearLogin, linearChangePass, linearListOrder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,19 +101,19 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
         init();
     }
 
-    private void Awake() {
-        CustomActivityOnCrash.install(this);
+    private void Awake() {//startup
+        CustomActivityOnCrash.install(this);// report crash
         LocationAlarmManager alarmManager = new LocationAlarmManager();
         startService(new Intent(this, BackgroundService.class));
         if (alarmManager != null) alarmManager.SetAlarm(getApplicationContext());
         else {
-            MyMethod.showToast(this, "Alarm is null");
+            MyMethod.showToast(this, getString(R.string.alarm_null));
         }
     }
 
 
     @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
+    public void onWindowFocusChanged(boolean hasFocus) {// event when lost focus and start animation so cool
         Animation animA;
         if (hasFocus) {
             animA = AnimationUtils.loadAnimation(getApplicationContext(),
@@ -116,12 +127,12 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
     }
 
 
-    private void getId() {
+    private void getId() {//get every id i had
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         imgCenter = (ImageView) findViewById(R.id.imgCenterSwipe);
         linearMenu = (LinearLayout) findViewById(R.id.linearMenu);
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinatorLayout);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         txtTitle = (TextView) findViewById(R.id.txtTile);
     }
@@ -133,7 +144,10 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
                 MyMethod.callPhone(v.getContext());
                 break;
             case R.id.btn_Menu:
-                showApps(v);
+                MyMethod.showApps(v.getContext(), manager, viewPager, allItems, adapterGripView);
+                gridListApp.setOnItemLongClickListener(Home.this);
+                gridListApp.setOnItemClickListener(this);
+                editSearch.addTextChangedListener(this);
                 break;
             case R.id.btn_SmS:
                 MyMethod.showSms(v.getContext());
@@ -149,7 +163,7 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
         }
     }
 
-    private void init() {
+    private void init() {// go to in this heart
         //Create viewpager with three fragment
         setupViewPager(viewPager);
         //Get permission ADMIN DEVICE
@@ -162,7 +176,7 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
         findViewById(R.id.btn_Lock).setOnClickListener(this);
     }
 
-    private void setupViewPager(final ViewPager viewPager) {
+    private void setupViewPager(final ViewPager viewPager) {// setup view page fragment
         adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFragment(new LeftFragment(), getString(R.string.calllog));
         adapter.addFragment(new CenterFragment(), getString(R.string.home));
@@ -170,53 +184,14 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
         viewPager.setAdapter(adapter);
         viewPager.setOffscreenPageLimit(3);
         defaultparams = viewPager.getLayoutParams();
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                switch (position) {
-                    case 0:
-                        txtTitle.setText(getString(R.string.calllog));
-                        imgCenter.setImageResource(R.drawable.swipeleft);
-                        viewPager.setLayoutParams(defaultparams);
-                        linearMenu.setVisibility(View.VISIBLE);
-                        break;
-                    case 1:
-                        txtTitle.setText(getString(R.string.home));
-                        imgCenter.setImageResource(R.drawable.swipecenter);
-                        viewPager.setLayoutParams(defaultparams);
-                        linearMenu.setVisibility(View.VISIBLE);
-                        break;
-                    case 2:
-                        txtTitle.setText(getString(R.string.app_dms));
-                        linearMenu.setVisibility(View.GONE);
-                        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT);
-                        viewPager.setLayoutParams(params);
-                        imgCenter.setImageResource(R.drawable.swiperight);
-                        break;
-                    default:
-                        linearMenu.setVisibility(View.VISIBLE);
-                        imgCenter.setImageResource(R.drawable.swipecenter);
-                        break;
-                }
-
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-            }
-        });
+        viewPager.addOnPageChangeListener(this);
         //Set current page is center fragment
         viewPager.setCurrentItem(1);
 
     }
 
 
-    private void getPermission() {
+    private void getPermission() {// open activity get permission ADMIN DEVICE
         devicePolicyManager = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
         dmsDeviceAdmin = new ComponentName(this, DMSDeviceAdminReceiver.class);
         Intent intent = new Intent(
@@ -230,7 +205,7 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
 
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-        Uri packageUri = Uri.parse("package:" + allItems.get(position).name);
+        Uri packageUri = Uri.parse(PACKAGE + allItems.get(position).name);
         Intent uninstallIntent =
                 new Intent(Intent.ACTION_DELETE, packageUri);
         startActivity(uninstallIntent);
@@ -244,6 +219,79 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
 
     @Override
     public void onItemClick(View view, int position) {
+
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+    }
+
+    private Timer timer = new Timer();
+
+    @Override
+    public void afterTextChanged(Editable s) {
+        timer.cancel();
+        timer = new Timer();
+        long DELAY = 500;
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                // you will probably need to use runOnUiThread(Runnable action) for some specific actions
+
+            }
+
+        }, DELAY);
+        //Do that
+        MyMethod.showApps(getApplicationContext(), manager, viewPager, allItems, adapterGripView, editSearch.getText().toString());
+
+    }
+
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        switch (position) {
+            case 0:
+                txtTitle.setText(getString(R.string.calllog));
+                imgCenter.setImageResource(R.drawable.swipeleft);
+                viewPager.setLayoutParams(defaultparams);
+                linearMenu.setVisibility(View.VISIBLE);
+                break;
+            case 1:
+                if (layout_listapp != null)
+                    if (MyMethod.isVisible(layout_listapp))
+                        txtTitle.setText(getString(R.string.list_app));
+                    else txtTitle.setText(getString(R.string.home));
+                imgCenter.setImageResource(R.drawable.swipecenter);
+                viewPager.setLayoutParams(defaultparams);
+                linearMenu.setVisibility(View.VISIBLE);
+                break;
+            case 2:
+                txtTitle.setText(getString(R.string.app_dms));
+                linearMenu.setVisibility(View.GONE);
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT);
+                viewPager.setLayoutParams(params);
+                imgCenter.setImageResource(R.drawable.swiperight);
+                break;
+            default:
+                linearMenu.setVisibility(View.VISIBLE);
+                imgCenter.setImageResource(R.drawable.swipecenter);
+                break;
+        }
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
 
     }
 
@@ -346,66 +394,36 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
     }
 
 
-    public void showApps(View v) {//Show list app in device
-        rotateLoading.start();
-        gridListApp.setOnItemLongClickListener(this);
-        allItems = loadApps();
-        CustomAdapterGripView adapterGripView = new CustomAdapterGripView(Home.this, allItems);
-        gridListApp.setAdapter(adapterGripView);
-        gridListApp.setOnItemClickListener(this);
-    }
-
-    private List<AppsDetail> loadApps() {
-        manager = getPackageManager();
-        List<AppsDetail> apps = new ArrayList<>();
-        Intent i = new Intent(Intent.ACTION_MAIN, null);
-        i.addCategory(Intent.CATEGORY_LAUNCHER);
-        List<ResolveInfo> availableActivities = manager.queryIntentActivities(i, 0);
-        for (ResolveInfo ri : availableActivities) {
-            AppsDetail app = new AppsDetail();
-            app.label = ri.loadLabel(manager);
-            app.name = ri.activityInfo.packageName;
-            app.icon = ri.activityInfo.loadIcon(manager);
-            app.role = 2;
-            apps.add(app);
-        }
-        rotateLoading.stop();
-        rela_layout_center.setVisibility(View.GONE);
-        gridListApp.setVisibility(View.VISIBLE);
-        if (viewPager.getCurrentItem() != 1) viewPager.setCurrentItem(1);
-        return apps;
-    }
-
-
     @Override
     public void onBackPressed() {
         switch (viewPager.getCurrentItem()) {
             case 0:
                 break;
             case 1:
-                if (MyMethod.isVisible(adapter.getItem(1).getView().findViewById(R.id.gridListApp))) {
-                    MyMethod.setGone(adapter.getItem(1).getView().findViewById(R.id.gridListApp));
-                    MyMethod.setVisible(adapter.getItem(1).getView().findViewById(R.id.rela_layout_center));
-
+                if (MyMethod.isVisible(layout_listapp)) {
+                    MyMethod.setGone(layout_listapp);
+                    MyMethod.setVisible(rela_layout_center);
+                    txtTitle.setText(getString(R.string.home));
                 }
                 break;
             case 2:
                 //if in check in
-                if (MyMethod.isVisible(adapter.getItem(2).getView().findViewById(R.id.rela_layout_checkin))) {
-                    MyMethod.setGone(adapter.getItem(2).getView().findViewById(R.id.rela_layout_checkin));
-                    MyMethod.setVisible(adapter.getItem(2).getView().findViewById(R.id.rela_layout_main));
+                if (MyMethod.isVisible(rela_checkin)) {
+                    MyMethod.setGone(rela_checkin);
+                    MyMethod.setVisible(rela_main);
                 }
                 //if in check out
-                else if (MyMethod.isVisible(adapter.getItem(2).getView().findViewById(R.id.rela_layout_checkout))) {
-                    MyMethod.setGone(adapter.getItem(2).getView().findViewById(R.id.rela_layout_checkout));
-                    MyMethod.setVisible(adapter.getItem(2).getView().findViewById(R.id.rela_layout_main));
-                } else if (MyMethod.isVisible(adapter.getItem(2).getView().findViewById(R.id.linear_change_pass))) {
-                    MyMethod.setGone(adapter.getItem(2).getView().findViewById(R.id.linear_change_pass));
-                    MyMethod.setVisible(adapter.getItem(2).getView().findViewById(R.id.rela_layout_main));
+                else if (MyMethod.isVisible(rela_checkout)) {
+                    MyMethod.setGone(rela_checkout);
+                    MyMethod.setVisible(rela_main);
+                } else if (MyMethod.isVisible(linearChangePass)) {
+                    MyMethod.setGone(linearChangePass);
+                    MyMethod.setVisible(rela_main);
 
-                } else if (MyMethod.isVisible(adapter.getItem(2).getView().findViewById(R.id.linear_list_order))) {
-                    MyMethod.setGone(adapter.getItem(2).getView().findViewById(R.id.linear_list_order));
-                    MyMethod.setVisible(adapter.getItem(2).getView().findViewById(R.id.rela_layout_main));
+                } else if (MyMethod.isVisible(linearListOrder)) {
+                    MyMethod.setGone(linearListOrder);
+                    MyMethod.setVisible(rela_main);
+
                     if (dialog != null) dialog.dismiss();
 
                 } else
@@ -425,10 +443,9 @@ public class Home extends AppCompatActivity implements View.OnClickListener, Ada
                     ((intent.getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT)
                             != Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
             if (alreadyOnHome) {
-                adapter.getItem(1).getView().findViewById(R.id.gridListApp).setVisibility(View.GONE);
-                adapter.getItem(1).getView().findViewById(R.id.rela_layout_center).setVisibility(View.VISIBLE);
+                MyMethod.setGone(layout_listapp);
+                MyMethod.setVisible(rela_layout_center);
                 if (dialog != null) dialog.dismiss();
-                Log.d("whatever", "Home pressed");
             }
         }
     }

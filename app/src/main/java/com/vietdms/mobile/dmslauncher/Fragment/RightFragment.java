@@ -44,7 +44,7 @@ import CommonLib.EventType;
  */
 public class RightFragment extends Fragment implements View.OnClickListener, RecyclerItemClickListener.OnItemClickListener {
 
-    private RelativeLayout rela_checkin, rela_main, rela_checkout, rela_setting, rela_notify, rela_location;
+
     private EditText editName, editPass, editPassOld, editPassNew, editPassNewAgain;
     private TextInputLayout inputLayoutName, inputLayoutPassword, inputLayoutPasswordOld, inputLayoutPasswordNew, inputLayoutPasswordNewAgain;
     private RecyclerView recyclerProducts;
@@ -52,7 +52,6 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
     private RecyclerViewAdapter adapter;
     private LoadingView loadingLogin;
     private int positionClick;
-    private LinearLayout linearLogin, linearChangePass, linearListOrder;
     private CheckBox checkLogin;
     private String passWordStore = "", userNameStore = "";
 
@@ -129,9 +128,9 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
         editPass = (EditText) v.findViewById(R.id.input_password);
         inputLayoutName = (TextInputLayout) v.findViewById(R.id.input_layout_name);
         inputLayoutPassword = (TextInputLayout) v.findViewById(R.id.input_layout_password);
-        linearLogin = (LinearLayout) v.findViewById(R.id.linear_login);
-        linearChangePass = (LinearLayout) v.findViewById(R.id.linear_change_pass);
-        linearListOrder = (LinearLayout) v.findViewById(R.id.linear_list_order);
+        Home.linearLogin = (LinearLayout) v.findViewById(R.id.linear_login);
+        Home.linearChangePass = (LinearLayout) v.findViewById(R.id.linear_change_pass);
+        Home.linearListOrder = (LinearLayout) v.findViewById(R.id.linear_list_order);
         recyclerProducts = (RecyclerView) v.findViewById(R.id.recyclerView);
         recyclerProducts.setHasFixedSize(true);
         LinearLayoutManager manager = new LinearLayoutManager(v.getContext());
@@ -139,9 +138,9 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
         recyclerProducts.setLayoutManager(manager);
         adapter = new RecyclerViewAdapter(productsArrayList, v.getContext());
         recyclerProducts.setAdapter(adapter);
-        rela_checkout = (RelativeLayout) v.findViewById(R.id.rela_layout_checkout);
-        rela_checkin = (RelativeLayout) v.findViewById(R.id.rela_layout_checkin);
-        rela_main = (RelativeLayout) v.findViewById(R.id.rela_layout_main);
+        Home.rela_checkout = (RelativeLayout) v.findViewById(R.id.rela_layout_checkout);
+        Home.rela_checkin = (RelativeLayout) v.findViewById(R.id.rela_layout_checkin);
+        Home.rela_main = (RelativeLayout) v.findViewById(R.id.rela_layout_main);
         RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         v.setLayoutParams(p);
         v.requestLayout();
@@ -296,18 +295,18 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
     private void showLayout(Layouts layout) {
         switch (layout) {
             case CheckIn:
-                rela_checkin.setVisibility(View.VISIBLE);
-                rela_main.setVisibility(View.GONE);
-                linearLogin.setVisibility(View.GONE);
-                linearChangePass.setVisibility(View.GONE);
-                linearListOrder.setVisibility(View.GONE);
+                Home.rela_checkin.setVisibility(View.VISIBLE);
+                Home.rela_main.setVisibility(View.GONE);
+                Home.linearLogin.setVisibility(View.GONE);
+                Home.linearChangePass.setVisibility(View.GONE);
+                Home.linearListOrder.setVisibility(View.GONE);
                 break;
             case CheckOut:
-                rela_checkout.setVisibility(View.VISIBLE);
-                rela_main.setVisibility(View.GONE);
-                linearLogin.setVisibility(View.GONE);
-                linearChangePass.setVisibility(View.GONE);
-                linearListOrder.setVisibility(View.GONE);
+                Home.rela_checkout.setVisibility(View.VISIBLE);
+                Home.rela_main.setVisibility(View.GONE);
+                Home.linearLogin.setVisibility(View.GONE);
+                Home.linearChangePass.setVisibility(View.GONE);
+                Home.linearListOrder.setVisibility(View.GONE);
                 break;
             case Notify:
                 break;
@@ -318,46 +317,46 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
             case LogIn:
                 //show hide layouts....
                 loadingLogin.setLoading(false);
-                rela_checkin.setVisibility(View.GONE);
-                rela_checkout.setVisibility(View.GONE);
-                rela_main.setVisibility(View.GONE);
-                linearLogin.setVisibility(View.VISIBLE);
-                linearChangePass.setVisibility(View.GONE);
-                linearListOrder.setVisibility(View.GONE);
+                Home.rela_checkin.setVisibility(View.GONE);
+                Home.rela_checkout.setVisibility(View.GONE);
+                Home.rela_main.setVisibility(View.GONE);
+                Home.linearLogin.setVisibility(View.VISIBLE);
+                Home.linearChangePass.setVisibility(View.GONE);
+                Home.linearListOrder.setVisibility(View.GONE);
                 break;
             case ChangePass:
-                rela_checkin.setVisibility(View.GONE);
-                rela_checkout.setVisibility(View.GONE);
-                rela_main.setVisibility(View.GONE);
-                linearLogin.setVisibility(View.GONE);
-                linearChangePass.setVisibility(View.VISIBLE);
-                linearListOrder.setVisibility(View.GONE);
+                Home.rela_checkin.setVisibility(View.GONE);
+                Home.rela_checkout.setVisibility(View.GONE);
+                Home.rela_main.setVisibility(View.GONE);
+                Home.linearLogin.setVisibility(View.GONE);
+                Home.linearChangePass.setVisibility(View.VISIBLE);
+                Home.linearListOrder.setVisibility(View.GONE);
                 break;
             case Map:
-                rela_checkin.setVisibility(View.GONE);
-                rela_checkout.setVisibility(View.GONE);
-                rela_main.setVisibility(View.GONE);
-                linearLogin.setVisibility(View.GONE);
-                linearChangePass.setVisibility(View.GONE);
-                linearListOrder.setVisibility(View.GONE);
+                Home.rela_checkin.setVisibility(View.GONE);
+                Home.rela_checkout.setVisibility(View.GONE);
+                Home.rela_main.setVisibility(View.GONE);
+                Home.linearLogin.setVisibility(View.GONE);
+                Home.linearChangePass.setVisibility(View.GONE);
+                Home.linearListOrder.setVisibility(View.GONE);
                 break;
             case ListOrder:
                 //
-                rela_checkin.setVisibility(View.GONE);
-                rela_checkout.setVisibility(View.GONE);
-                rela_main.setVisibility(View.GONE);
-                linearLogin.setVisibility(View.GONE);
-                linearChangePass.setVisibility(View.GONE);
-                linearListOrder.setVisibility(View.VISIBLE);
+                Home.rela_checkin.setVisibility(View.GONE);
+                Home.rela_checkout.setVisibility(View.GONE);
+                Home.rela_main.setVisibility(View.GONE);
+                Home.linearLogin.setVisibility(View.GONE);
+                Home.linearChangePass.setVisibility(View.GONE);
+                Home.linearListOrder.setVisibility(View.VISIBLE);
                 break;
             case Main:
                 loadingLogin.setLoading(false);
-                rela_checkin.setVisibility(View.GONE);
-                rela_checkout.setVisibility(View.GONE);
-                rela_main.setVisibility(View.VISIBLE);
-                linearLogin.setVisibility(View.GONE);
-                linearChangePass.setVisibility(View.GONE);
-                linearListOrder.setVisibility(View.GONE);
+                Home.rela_checkin.setVisibility(View.GONE);
+                Home.rela_checkout.setVisibility(View.GONE);
+                Home.rela_main.setVisibility(View.VISIBLE);
+                Home.linearLogin.setVisibility(View.GONE);
+                Home.linearChangePass.setVisibility(View.GONE);
+                Home.linearListOrder.setVisibility(View.GONE);
                 break;
             case MenuOrderClick:
                 ArrayAdapter<String> dialogadapter = new ArrayAdapter<>(getContext(), R.layout.dialog_menu_custom);
@@ -423,10 +422,10 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
         boolean result = false;
         switch (layouts) {
             case ChangePass:
-                result = (linearChangePass.getVisibility() == View.VISIBLE) ? true : false;
+                result = (MyMethod.isVisible(Home.linearChangePass)) ? true : false;
                 break;
             case LogIn:
-                result = (linearLogin.getVisibility() == View.VISIBLE) ? true : false;
+                result = (MyMethod.isVisible(Home.linearLogin)) ? true : false;
                 break;
         }
         return result;

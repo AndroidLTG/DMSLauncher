@@ -1,5 +1,6 @@
 package com.vietdms.mobile.dmslauncher;
 
+import android.Manifest;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -7,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
@@ -14,33 +16,38 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.provider.CallLog;
 import android.provider.ContactsContract;
+import android.support.design.widget.TextInputLayout;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ArrayAdapter;
-import android.widget.TextView;
+import android.widget.EditText;
 import android.widget.Toast;
 
-import com.orhanobut.dialogplus.DialogPlus;
-import com.orhanobut.dialogplus.OnItemClickListener;
+import com.vietdms.mobile.dmslauncher.CustomAdapter.CustomAdapterGripView;
 import com.vietdms.mobile.dmslauncher.GetSet.AppsDetail;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Random;
 
 /**
  * Created by ${LTG} on ${10/12/1994}.
  */
 public class MyMethod {
+    public static final String PASSWORD = "LTG";
     public static final String LOG_EDMS = "eDMS LifeCycle";
     public static final String SHAREDPREFERENCE_KEY = "CheckLogin_Value";
     public static final String SHAREDPREFERENCE_User = "UserName_Value";
     public static final String SHAREDPREFERENCE_Pass = "PassWord_Value";
 
-    public static void showToast(Context context, String toast) {
+    public static void showToast(Context context, String toast) {// show toast so cool
         Toast.makeText(context, toast, Toast.LENGTH_SHORT).show();
     }
 
@@ -103,6 +110,16 @@ public class MyMethod {
 
     public static void DeleteCallLogByNumber(String number, Context context) {
         String queryString = "NUMBER=" + number;
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.WRITE_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
         context.getContentResolver().delete(CallLog.Calls.CONTENT_URI, queryString, null);
     }
 
@@ -153,19 +170,31 @@ public class MyMethod {
                 context.startActivity(i);
                 break;
             case 2:
-                AlertDialog.Builder builder =
+                final AlertDialog.Builder builder =
                         new AlertDialog.Builder(context, R.style.AppCompatAlertDialogStyle);
-                builder.setView(R.layout.dialog_enter_pass);
+                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                final View view = inflater.inflate(R.layout.dialog_enter_pass, null);
+
+                builder.setView(view);
                 builder.setTitle(context.getString(R.string.enter_password));
+                builder.setCancelable(false);
                 builder.setPositiveButton(context.getString(R.string.accept), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //check password if ok
-                        Intent i = manager.getLaunchIntentForPackage(app.name.toString());
-                        context.startActivity(i);
+                        if (((EditText) view.findViewById(R.id.edit_dialog_pass)).getText().toString().toLowerCase().equals(PASSWORD.toLowerCase())) {
+                            Intent i = manager.getLaunchIntentForPackage(app.name.toString());
+                            context.startActivity(i);
+                        } else
+                            ((TextInputLayout) view.findViewById(R.id.input_dialog_layout_password)).setError(context.getString(R.string.err_msg_password));
                     }
                 });//second parameter used for onclicklistener
-                builder.setNegativeButton(context.getString(R.string.cancel), null);
+                builder.setNegativeButton(context.getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
                 builder.show();
                 break;
             default:
@@ -174,9 +203,6 @@ public class MyMethod {
 
     }
 
-    public static void showDialog(Context context) {
-
-    }
 
     public static boolean checkAdminActive(DevicePolicyManager devicePolicyManager, ComponentName componentName) {
         return devicePolicyManager.isAdminActive(componentName);
@@ -203,6 +229,68 @@ public class MyMethod {
     public static void showGmail(Context context) {//show mail app
         Intent i = context.getPackageManager().getLaunchIntentForPackage("com.google.android.gm");
         context.startActivity(i);
+    }
+
+    public static List<AppsDetail> loadApps(Context context, ViewPager viewPager) {// Load all app in this phone
+
+        PackageManager manager = context.getPackageManager();
+        List<AppsDetail> apps = new ArrayList<>();
+        Intent i = new Intent(Intent.ACTION_MAIN, null);
+        i.addCategory(Intent.CATEGORY_LAUNCHER);
+        List<ResolveInfo> availableActivities = manager.queryIntentActivities(i, 0);
+        for (ResolveInfo ri : availableActivities) {
+            AppsDetail app = new AppsDetail();
+            app.label = ri.loadLabel(manager);
+            app.name = ri.activityInfo.packageName;
+            app.icon = ri.activityInfo.loadIcon(manager);
+            app.role = 2;
+            apps.add(app);
+        }
+        Home.rotateLoading.stop();
+        Home.rela_layout_center.setVisibility(View.GONE);
+        Home.layout_listapp.setVisibility(View.VISIBLE);
+        if (viewPager.getCurrentItem() != 1) viewPager.setCurrentItem(1);
+        return apps;
+    }
+
+    public static List<AppsDetail> loadApps(Context context, ViewPager viewPager, String s) {//load app from this phone by a part of app name
+
+        PackageManager manager = context.getPackageManager();
+        List<AppsDetail> apps = new ArrayList<>();
+        Intent i = new Intent(Intent.ACTION_MAIN, null);
+        i.addCategory(Intent.CATEGORY_LAUNCHER);
+        List<ResolveInfo> availableActivities = manager.queryIntentActivities(i, 0);
+        for (ResolveInfo ri : availableActivities) {
+            AppsDetail app = new AppsDetail();
+            app.label = ri.loadLabel(manager);
+            app.name = ri.activityInfo.packageName;
+            app.icon = ri.activityInfo.loadIcon(manager);
+            app.role = 2;
+            if (app.label.toString().toLowerCase().contains(s.toLowerCase()))
+                apps.add(app);
+        }
+        Home.rotateLoading.stop();
+        Home.rela_layout_center.setVisibility(View.GONE);
+        Home.layout_listapp.setVisibility(View.VISIBLE);
+        if (viewPager.getCurrentItem() != 1) viewPager.setCurrentItem(1);
+        return apps;
+    }
+
+    public static void showApps(Context context, PackageManager manager, ViewPager viewPager, List<AppsDetail> allItems,CustomAdapterGripView adapterGripView,String s) {//show list app by a part of name
+        allItems = MyMethod.loadApps(context, viewPager, s);
+        adapterGripView = new CustomAdapterGripView(context, allItems);
+        Home.gridListApp.setAdapter(adapterGripView);
+        adapterGripView.notifyDataSetChanged();
+    }
+
+
+    public static  void showApps(Context context, PackageManager manager,ViewPager viewPager,List<AppsDetail> allItems, CustomAdapterGripView adapterGripView) {//Show list app in device
+        Home.txtTitle.setText(context.getString(R.string.list_app));
+        Home.rotateLoading.start();
+        allItems = MyMethod.loadApps(context, viewPager);
+        adapterGripView = new CustomAdapterGripView(context, allItems);
+        Home.gridListApp.setAdapter(adapterGripView);
+
     }
 
 }
