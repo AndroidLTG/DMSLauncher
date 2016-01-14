@@ -7,7 +7,7 @@
     https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend&keyType=CLIENT_SIDE_ANDROID&r=39:B3:03:D1:9F:26:C4:15:9A:9F:08:72:85:AE:65:BC:77:83:07:83%3Bcom.example.dmsv4.dmslauncher
 
     You can also add your credentials to an existing key, using this line:
-    39:B3:03:D1:9F:26:C4:15:9A:9F:08:72:85:AE:65:BC:77:83:07:83;com.vietdms.mobile.dmslauncher
+    39:B3:03:D1:9F:26:C4:15:9A:9F:08:72:85:AE:65:BC:77:83:07:83;com.example.dmsv4.dmslauncher
 
     Alternatively, follow the directions here:
     https://developers.google.com/maps/documentation/android/start#get-key
@@ -16,6 +16,6 @@
     string in this file.
     -->
     <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">
-        AIzaSyCY4bHbd6MpOZTtxzs6IKqfBANdvPCnTnE
+        AIzaSyAb9eFQXyPUvMcOHBWv3WLcnUN1M9oGjgc
     </string>
 </resources>

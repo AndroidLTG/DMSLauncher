@@ -8,10 +8,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.graphics.Color;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
@@ -25,8 +22,6 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
@@ -37,8 +32,9 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.orhanobut.dialogplus.DialogPlus;
+import com.victor.loading.rotate.RotateLoading;
 import com.vietdms.mobile.dmslauncher.CustomAdapter.CustomAdapterGripView;
 import com.vietdms.mobile.dmslauncher.CustomAdapter.CustomAdapterListView;
 import com.vietdms.mobile.dmslauncher.Fragment.CenterFragment;
@@ -50,51 +46,48 @@ import com.vietdms.mobile.dmslauncher.Receiver.DMSDeviceAdminReceiver;
 import com.vietdms.mobile.dmslauncher.Receiver.LocationAlarmManager;
 import com.vietdms.mobile.dmslauncher.RecycleView.RecyclerItemClickListener;
 import com.vietdms.mobile.dmslauncher.Service.BackgroundService;
-import com.orhanobut.dialogplus.DialogPlus;
-import com.victor.loading.rotate.RotateLoading;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
-
 public class Home extends AppCompatActivity implements ViewPager.OnPageChangeListener, TextWatcher, View.OnClickListener, AdapterView.OnItemLongClickListener, AdapterView.OnItemClickListener, RecyclerItemClickListener.OnItemClickListener {
+    static final int ACTIVATION_REQUEST = 47; // identifies our request id
     private static final String PACKAGE = "package:";
-    private DevicePolicyManager devicePolicyManager;
-    private ComponentName dmsDeviceAdmin;
-    private ViewPager viewPager;
     public static GridView gridListApp;
     public static LinearLayout layout_listapp;
-    private ViewPagerAdapter adapter;
-    static final int ACTIVATION_REQUEST = 47; // identifies our request id
     public static int LIMITROW = 10;
     public static ListView lstHistory;//row in call history
     public static CustomAdapterListView adapterListView = null;
     public static ArrayList<CallHistory> arrCall = new ArrayList<>();
     public static boolean flag_loading = false;
-    private PackageManager manager;
-    private List<AppsDetail> allItems;
+    public static List<AppsDetail> allItems;
     public static RelativeLayout rela_layout_center, rela_main_center;
     public static RotateLoading rotateLoading;
-    private CoordinatorLayout coordinatorLayout;
     public static LinearLayout linearMenu;
-    private ImageView imgCenter;
-    private ViewGroup.LayoutParams defaultparams;
     public static TextView txtTitle;
     public static DialogPlus dialog = null;
     public static EditText editSearch;
-    private CustomAdapterGripView adapterGripView;
     public static Toolbar toolbar;
     public static RelativeLayout rela_checkin, rela_main, rela_checkout;
     public static LinearLayout linearLogin, linearChangePass, linearListOrder;
+    public static CustomAdapterGripView adapterGripView;
+    private DevicePolicyManager devicePolicyManager;
+    private ComponentName dmsDeviceAdmin;
+    private ViewPager viewPager;
+    private PackageManager manager;
+    private CoordinatorLayout coordinatorLayout;
+    private ImageView imgCenter;
+    private ViewGroup.LayoutParams defaultparams;
+    private Timer timer = new Timer();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.w("onCreate", "onCreate");
+        startService(new Intent(this, BackgroundService.class));
         Awake();
         MyMethod.changeColorStatusBar(getWindow());
         getId();
@@ -102,15 +95,10 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
     }
 
     private void Awake() {//startup
-        CustomActivityOnCrash.install(this);// report crash
+        // CustomActivityOnCrash.install(this);// report crash
         LocationAlarmManager alarmManager = new LocationAlarmManager();
-        startService(new Intent(this, BackgroundService.class));
-        if (alarmManager != null) alarmManager.SetAlarm(getApplicationContext());
-        else {
-            MyMethod.showToast(this, getString(R.string.alarm_null));
-        }
+        alarmManager.SetAlarm(getApplicationContext());
     }
-
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {// event when lost focus and start animation so cool
@@ -125,7 +113,6 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
             coordinatorLayout.startAnimation(animA);
         }
     }
-
 
     private void getId() {//get every id i had
         viewPager = (ViewPager) findViewById(R.id.viewpager);
@@ -144,7 +131,9 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
                 MyMethod.callPhone(v.getContext());
                 break;
             case R.id.btn_Menu:
-                MyMethod.showApps(v.getContext(), manager, viewPager, allItems, adapterGripView);
+                editSearch.setText("");
+                editSearch.clearFocus();
+                MyMethod.showApps(v.getContext(), viewPager);
                 gridListApp.setOnItemLongClickListener(Home.this);
                 gridListApp.setOnItemClickListener(this);
                 editSearch.addTextChangedListener(this);
@@ -177,21 +166,20 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
     }
 
     private void setupViewPager(final ViewPager viewPager) {// setup view page fragment
-        adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFragment(new LeftFragment(), getString(R.string.calllog));
         adapter.addFragment(new CenterFragment(), getString(R.string.home));
         adapter.addFragment(new RightFragment(), getString(R.string.app_dms));
         viewPager.setAdapter(adapter);
-        viewPager.setOffscreenPageLimit(3);
+        viewPager.setOffscreenPageLimit(0);
         defaultparams = viewPager.getLayoutParams();
         viewPager.addOnPageChangeListener(this);
         //Set current page is center fragment
         viewPager.setCurrentItem(1);
-
     }
 
-
     private void getPermission() {// open activity get permission ADMIN DEVICE
+        manager = getPackageManager();
         devicePolicyManager = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
         dmsDeviceAdmin = new ComponentName(this, DMSDeviceAdminReceiver.class);
         Intent intent = new Intent(
@@ -214,7 +202,7 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        MyMethod.runApp(allItems.get(position), manager, view.getContext());
+        MyMethod.runApp(allItems.get(position), manager, view.getRootView().getContext());
     }
 
     @Override
@@ -232,8 +220,6 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
 
     }
 
-    private Timer timer = new Timer();
-
     @Override
     public void afterTextChanged(Editable s) {
         timer.cancel();
@@ -248,7 +234,7 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
 
         }, DELAY);
         //Do that
-        MyMethod.showApps(getApplicationContext(), manager, viewPager, allItems, adapterGripView, editSearch.getText().toString());
+        MyMethod.showApps(getApplicationContext(), viewPager, editSearch.getText().toString());
 
     }
 
@@ -294,36 +280,6 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
     public void onPageScrollStateChanged(int state) {
 
     }
-
-    class ViewPagerAdapter extends FragmentPagerAdapter {//Adapter for fragment
-        private final List<Fragment> mFragmentList = new ArrayList<>();
-        private final List<String> mFragmentTitleList = new ArrayList<>();
-
-        public ViewPagerAdapter(FragmentManager manager) {
-            super(manager);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            return mFragmentList.get(position);
-        }
-
-        @Override
-        public int getCount() {
-            return mFragmentList.size();
-        }
-
-        public void addFragment(Fragment fragment, String title) {
-            mFragmentList.add(fragment);
-            mFragmentTitleList.add(title);
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return mFragmentTitleList.get(position);
-        }
-    }
-
 
     //LIFE CYCLE
     @Override
@@ -393,7 +349,6 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-
     @Override
     public void onBackPressed() {
         switch (viewPager.getCurrentItem()) {
@@ -445,8 +400,38 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
             if (alreadyOnHome) {
                 MyMethod.setGone(layout_listapp);
                 MyMethod.setVisible(rela_layout_center);
+                MyMethod.closeFocus(rela_layout_center);
                 if (dialog != null) dialog.dismiss();
             }
+        }
+    }
+
+    class ViewPagerAdapter extends FragmentPagerAdapter {//Adapter for fragment
+        private final List<Fragment> mFragmentList = new ArrayList<>();
+        private final List<String> mFragmentTitleList = new ArrayList<>();
+
+        public ViewPagerAdapter(FragmentManager manager) {
+            super(manager);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return mFragmentList.get(position);
+        }
+
+        @Override
+        public int getCount() {
+            return mFragmentList.size();
+        }
+
+        public void addFragment(Fragment fragment, String title) {
+            mFragmentList.add(fragment);
+            mFragmentTitleList.add(title);
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return mFragmentTitleList.get(position);
         }
     }
 

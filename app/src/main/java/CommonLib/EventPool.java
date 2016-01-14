@@ -25,8 +25,7 @@ public class EventPool {
         return instance_view;
     }
 
-    private LinkedList<EventType.EventBase> events = new LinkedList<>();
-
+    private LinkedList<EventType.EventBase> events = new LinkedList<EventType.EventBase>();
     public void enQueue(EventType.EventBase event) {
         synchronized (this) {
             events.add(event);

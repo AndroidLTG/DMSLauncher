@@ -63,7 +63,10 @@
     <string name="downline"> \n</string>
     <string name="spaceline">\t▒\t</string>
     <string name="enter_password">Nhập mật khẩu mở khóa</string>
-    <string name="hint_search_app">Tìm ứng dụng.../string>
+    <string name="hint_search_app">Tìm ứng dụng...</string>
     <string name="list_app">Danh sách ứng dụng</string>
     <string name="alarm_null">Alarm is null</string>
+    <string name="sms_location">vnd.android-dir/mms-sms</string>
+    <string name="gmail_location">com.google.android.gm</string>
+    <string name="phone_location">com.android.contacts</string>
 </resources>

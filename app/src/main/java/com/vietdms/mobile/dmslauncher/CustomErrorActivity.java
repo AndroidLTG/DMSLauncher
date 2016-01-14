@@ -29,10 +29,8 @@ import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
  * Created by DMSv4 on 12/21/2015.
  */
 public class CustomErrorActivity extends Activity {
-    private Button btnSendError;
     private Session session;
     private ProgressBar progressBar;
-    private boolean sendRp = false;
     private Intent intent;
 
     @Override
@@ -81,8 +79,6 @@ public class CustomErrorActivity extends Activity {
                 message.setSubject("Báo lỗi phần mềm DMS từ " + Build.MODEL + " phiên bản Android : " + Build.VERSION.RELEASE);
                 message.setContent(CustomActivityOnCrash.getAllErrorDetailsFromIntent(getApplicationContext(), getIntent()), "text/html; charset=utf-8");
                 Transport.send(message);
-            } catch (MessagingException e) {
-                e.printStackTrace();
             } catch (Exception e) {
                 e.printStackTrace();
             }

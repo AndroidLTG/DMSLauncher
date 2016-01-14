@@ -150,8 +150,6 @@ public class MyMethod {
 
     public static void setGone(View v) {
         v.setVisibility(View.GONE);
-
-
     }
 
     public static void changeColorStatusBar(Window window) {
@@ -174,7 +172,6 @@ public class MyMethod {
                         new AlertDialog.Builder(context, R.style.AppCompatAlertDialogStyle);
                 LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 final View view = inflater.inflate(R.layout.dialog_enter_pass, null);
-
                 builder.setView(view);
                 builder.setTitle(context.getString(R.string.enter_password));
                 builder.setCancelable(false);
@@ -210,14 +207,14 @@ public class MyMethod {
 
     //MAIN MENU
     public static void callPhone(Context context) {// Show call app
-        Intent i = context.getPackageManager().getLaunchIntentForPackage("com.android.contacts");
+        Intent i = context.getPackageManager().getLaunchIntentForPackage(context.getString(R.string.phone_location));
         context.startActivity(i);
     }
 
     public static void showSms(Context context) {// Show sms app
         Intent intent = new Intent(Intent.ACTION_MAIN);
         intent.addCategory(Intent.CATEGORY_DEFAULT);
-        intent.setType("vnd.android-dir/mms-sms");
+        intent.setType(context.getString(R.string.sms_location));
         context.startActivity(intent);
     }
 
@@ -227,7 +224,7 @@ public class MyMethod {
 
 
     public static void showGmail(Context context) {//show mail app
-        Intent i = context.getPackageManager().getLaunchIntentForPackage("com.google.android.gm");
+        Intent i = context.getPackageManager().getLaunchIntentForPackage(context.getString(R.string.gmail_location));
         context.startActivity(i);
     }
 
@@ -276,21 +273,20 @@ public class MyMethod {
         return apps;
     }
 
-    public static void showApps(Context context, PackageManager manager, ViewPager viewPager, List<AppsDetail> allItems,CustomAdapterGripView adapterGripView,String s) {//show list app by a part of name
-        allItems = MyMethod.loadApps(context, viewPager, s);
-        adapterGripView = new CustomAdapterGripView(context, allItems);
-        Home.gridListApp.setAdapter(adapterGripView);
-        adapterGripView.notifyDataSetChanged();
+    public static void showApps(Context context, ViewPager viewPager, String s) {//show list app by a part of name
+        Home.allItems = MyMethod.loadApps(context, viewPager, s);
+        Home.adapterGripView = new CustomAdapterGripView(context, Home.allItems);
+        Home.gridListApp.setAdapter(Home.adapterGripView);
+        Home.adapterGripView.notifyDataSetChanged();
     }
 
 
-    public static  void showApps(Context context, PackageManager manager,ViewPager viewPager,List<AppsDetail> allItems, CustomAdapterGripView adapterGripView) {//Show list app in device
+    public static void showApps(Context context, ViewPager viewPager) {//Show list app in device
         Home.txtTitle.setText(context.getString(R.string.list_app));
         Home.rotateLoading.start();
-        allItems = MyMethod.loadApps(context, viewPager);
-        adapterGripView = new CustomAdapterGripView(context, allItems);
-        Home.gridListApp.setAdapter(adapterGripView);
-
+        Home.allItems = MyMethod.loadApps(context, viewPager);
+        Home.adapterGripView = new CustomAdapterGripView(context, Home.allItems);
+        Home.gridListApp.setAdapter(Home.adapterGripView);
     }
 
 }

@@ -16,6 +16,11 @@ import com.vietdms.mobile.dmslauncher.MyMethod;
 import com.vietdms.mobile.dmslauncher.R;
 import com.vietdms.mobile.dmslauncher.Service.BackgroundService;
 
+import CommonLib.Const;
+import CommonLib.EventPool;
+import CommonLib.EventType;
+import CommonLib.WakeLock;
+
 /**
  * Created by DMSv4 on 12/22/2015.
  */
@@ -31,73 +36,68 @@ public class LocationAlarmManager extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-        PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, context.getString(R.string.tagWL));
-        //Acquire the lock
-        wl.acquire();
-
+        WakeLock.inst().acquire();
+        EventPool.control().enQueue(new EventType.EventBase(EventType.Type.SendTracking));
         //Send location
-        initializeLocationManager(context);
-        try {
-            mLocationManager.requestLocationUpdates(
-                    LocationManager.NETWORK_PROVIDER, LOCATION_INTERVAL, LOCATION_DISTANCE,
-                    mLocationListeners[1]);
-        } catch (java.lang.SecurityException ex) {
-        } catch (IllegalArgumentException ex) {
-        }
-        try {
-            mLocationManager.requestLocationUpdates(
-                    LocationManager.GPS_PROVIDER, LOCATION_INTERVAL, LOCATION_DISTANCE,
-                    mLocationListeners[0]);
-
-        } catch (java.lang.SecurityException ex) {
-        } catch (IllegalArgumentException ex) {
-        }
-
-        wl.release();
-
+//        if (mLocationManager == null) {
+//            mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+//        }
+//        try {
+//            mLocationManager.requestLocationUpdates(
+//                    LocationManager.NETWORK_PROVIDER, LOCATION_INTERVAL, LOCATION_DISTANCE,
+//                    mLocationListeners[1]);
+//        } catch (java.lang.SecurityException ex) {
+//        } catch (IllegalArgumentException ex) {
+//        }
+//        try {
+//            mLocationManager.requestLocationUpdates(
+//                    LocationManager.GPS_PROVIDER, LOCATION_INTERVAL, LOCATION_DISTANCE,
+//                    mLocationListeners[0]);
+//
+//        } catch (java.lang.SecurityException ex) {
+//        } catch (IllegalArgumentException ex) {
+//        }
     }
 
-    private class LocationListener implements android.location.LocationListener {
-
-
-        public LocationListener(String provider) {
-            Log.w(TAG, GETBY + provider);
-            mLastLocation = new Location(provider);
-        }
-
-        @Override
-        public void onLocationChanged(Location location) {
-            Log.w(TAG, NOW + location);
-
-            mLastLocation.set(location);
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-        }
-    }
-
-    LocationListener[] mLocationListeners = new LocationListener[]{
-            new LocationListener(LocationManager.GPS_PROVIDER),
-            new LocationListener(LocationManager.NETWORK_PROVIDER)
-    };
+//    private class LocationListener implements android.location.LocationListener {
+//
+//
+//        public LocationListener(String provider) {
+//            Log.w(TAG, GETBY + provider);
+//            mLastLocation = new Location(provider);
+//        }
+//
+//        @Override
+//        public void onLocationChanged(Location location) {
+//            Log.w(TAG, NOW + location);
+//
+//            mLastLocation.set(location);
+//        }
+//
+//        @Override
+//        public void onProviderDisabled(String provider) {
+//        }
+//
+//        @Override
+//        public void onProviderEnabled(String provider) {
+//        }
+//
+//        @Override
+//        public void onStatusChanged(String provider, int status, Bundle extras) {
+//        }
+//    }
+//
+//    LocationListener[] mLocationListeners = new LocationListener[]{
+//            new LocationListener(LocationManager.GPS_PROVIDER),
+//            new LocationListener(LocationManager.NETWORK_PROVIDER)
+//    };
 
     public void SetAlarm(Context context) {
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, LocationAlarmManager.class);
         intent.putExtra(context.getString(R.string.setAlarm), Boolean.FALSE);
         PendingIntent pi = PendingIntent.getBroadcast(context, 0, intent, 0);
-        //After 5 minute
-        am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 1000 * 60, pi);
+        am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), Const.LocationUpdateIntervalInSeconds * 1000, pi);
     }
 
     public void CancelAlarm(Context context) {
@@ -107,21 +107,14 @@ public class LocationAlarmManager extends BroadcastReceiver {
         alarmManager.cancel(sender);
 
         //location
-        if (mLocationManager != null) {
-            for (int i = 0; i < mLocationListeners.length; i++) {
-                try {
-                    mLocationManager.removeUpdates(mLocationListeners[i]);
-                } catch (Exception ex) {
-                }
-            }
-        }
-    }
-
-    private void initializeLocationManager(Context context) {
-        Log.w(TAG, INITIALIZE);
-        if (mLocationManager == null) {
-            mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        }
+//        if (mLocationManager != null) {
+//            for (int i = 0; i < mLocationListeners.length; i++) {
+//                try {
+//                    mLocationManager.removeUpdates(mLocationListeners[i]);
+//                } catch (Exception ex) {
+//                }
+//            }
+//        }
     }
 
 }

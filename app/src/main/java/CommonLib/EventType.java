@@ -9,18 +9,15 @@ public abstract class EventType {
     public static enum Type {
         Login,
         ChangePass,
-        LoadOrders
+        LoadOrders,
+        SendTracking
     }
-
-    ;
 
     public static class EventBase {
         public Type type;
-
         public EventBase(Type type) {
             this.type = type;
         }
-
     }
 
     public static class EventLoginRequest extends EventBase {
