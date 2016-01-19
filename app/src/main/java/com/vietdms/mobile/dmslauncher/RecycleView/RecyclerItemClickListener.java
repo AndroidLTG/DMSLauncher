@@ -1,7 +1,7 @@
 package com.vietdms.mobile.dmslauncher.RecycleView;
 
 /**
- * Created by DMSv4 on 12/17/2015.
+ * Created by ${LTG} was born ${10/12/1994}.
  */
 
 import android.content.Context;

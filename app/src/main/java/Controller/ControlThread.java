@@ -1,12 +1,13 @@
 package Controller;
 
-import android.app.usage.UsageEvents;
 import android.content.Context;
 import android.util.Log;
 
+import java.util.HashMap;
+
 import CommonLib.Const;
-import CommonLib.EventType;
 import CommonLib.EventPool;
+import CommonLib.EventType;
 import CommonLib.Model;
 import CommonLib.PhoneState;
 import CommonLib.WakeLock;
@@ -14,10 +15,15 @@ import CommonLib.WakeLock;
 /**
  * Created by My PC on 27/11/2015.
  */
-public class ControlThread extends Thread{
+public class ControlThread extends Thread {
     private static ControlThread instance = null;
-    private ControlThread() { super(); }
-    public synchronized static ControlThread inst(){
+    private boolean isRunning = false;
+
+    private ControlThread() {
+        super();
+    }
+
+    public synchronized static ControlThread inst() {
         if (instance == null) {
             instance = new ControlThread();
             Log.d("ControlThread", "Create new instance");
@@ -38,7 +44,6 @@ public class ControlThread extends Thread{
         NetworkTransaction.inst().getConfigs();
     }
 
-    private boolean isRunning = false;
     public void requestStop() {
         isRunning = false;
         LocationDetector.inst().stop();
@@ -49,17 +54,16 @@ public class ControlThread extends Thread{
         isRunning = true;
         initInWorkingThread();
         try {
-            while(isRunning) {
+            while (isRunning) {
                 Log.v("QueueTimerControl", "timedout");
                 EventType.EventBase event = EventPool.control().deQueue();
                 if (event == null) {
                     sleep(Const.QueueTimerControl);
-                }
-                else {
+                } else {
                     processEvent(event);
                 }
             }
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -73,11 +77,21 @@ public class ControlThread extends Thread{
                 EventPool.view().enQueue(new EventType.EventChangeResult(true, "OK"));
                 break;
             case LoadOrders:
-                EventPool.view().enQueue(new EventType.EventLoadResult(true, "OK", null));
+                EventPool.view().enQueue(new EventType.EventLoadOrderResult(true, "OK", null));
+                break;
+            case LoadCustomers:
+                EventPool.view().enQueue(new EventType.EventLoadCustomerResult(true, "OK", null));
                 break;
             case SendTracking:
                 NetworkTransaction.inst().sendTracking();
                 WakeLock.inst().release();
+                break;
+            case SendListApp:
+                HashMap<String, Integer> listAppRole = new HashMap<>();
+                //Load role from webservice and send view
+                //To do this
+
+                EventPool.view().enQueue(new EventType.EventListAppResult(listAppRole));
                 break;
             default:
                 Log.w("Control_processEvent", "unhandled " + event.type);

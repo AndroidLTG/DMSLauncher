@@ -1,9 +1,18 @@
 package com.vietdms.mobile.dmslauncher.Fragment;
 
+import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
@@ -12,48 +21,76 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.orhanobut.dialogplus.DialogPlus;
+import com.orhanobut.dialogplus.Holder;
+import com.orhanobut.dialogplus.ListHolder;
+import com.orhanobut.dialogplus.OnItemClickListener;
+import com.vietdms.mobile.dmslauncher.CustomAdapter.DialogAdapter;
 import com.vietdms.mobile.dmslauncher.Home;
 import com.vietdms.mobile.dmslauncher.MyMethod;
 import com.vietdms.mobile.dmslauncher.R;
+import com.vietdms.mobile.dmslauncher.RecycleView.Customer;
 import com.vietdms.mobile.dmslauncher.RecycleView.Products;
 import com.vietdms.mobile.dmslauncher.RecycleView.RecyclerItemClickListener;
-import com.vietdms.mobile.dmslauncher.RecycleView.RecyclerViewAdapter;
-import com.orhanobut.dialogplus.DialogPlus;
-import com.orhanobut.dialogplus.OnItemClickListener;
+import com.vietdms.mobile.dmslauncher.RecycleView.RecyclerViewAdapterCustomer;
+import com.vietdms.mobile.dmslauncher.RecycleView.RecyclerViewAdapterOrder;
 
 import org.buraktamturk.loadingview.LoadingView;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import CommonLib.Const;
 import CommonLib.EventPool;
 import CommonLib.EventType;
+import CommonLib.Model;
 
 /**
  * Created by DMSv4 on 12/3/2015.
  */
 public class RightFragment extends Fragment implements View.OnClickListener, RecyclerItemClickListener.OnItemClickListener {
-
-
+    private static final int ACTION_TAKE_CARMERA = 999;
     private EditText editName, editPass, editPassOld, editPassNew, editPassNewAgain;
+    private ImageView imagePhotoIn, imagePhotoOut;
     private TextInputLayout inputLayoutName, inputLayoutPassword, inputLayoutPasswordOld, inputLayoutPasswordNew, inputLayoutPasswordNewAgain;
-    private RecyclerView recyclerProducts;
+    private RecyclerView recyclerOrder, recyclerCustomer;
     private ArrayList<Products> productsArrayList = new ArrayList<>();
-    private RecyclerViewAdapter adapter;
+    private ArrayList<Customer> customersArrayList = new ArrayList<>();
+    private RecyclerViewAdapterOrder adapterOrder;
+    private RecyclerViewAdapterCustomer adapterCustomer;
     private LoadingView loadingLogin;
     private int positionClick;
     private CheckBox checkLogin;
     private String passWordStore = "", userNameStore = "";
+    private String imagePath;
+    private File carmeraFile;
+    private boolean isRunning = false;
+    private Handler handler = new Handler();
+    private Context context;
+    private Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            Log.v("QueueTimerView", "timedout");
+            EventType.EventBase event = EventPool.view().deQueue();
+            while (event != null) {
+                processEvent(event);
+                if (!isRunning) break;
+                event = EventPool.view().deQueue();
+            }
+            if (isRunning) handler.postDelayed(this, Const.QueueTimerView);
+        }
+    };
 
     //MAP
     public RightFragment() {
@@ -76,7 +113,6 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
         return v;
     }
 
-
     private void checkLogin() {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         boolean checkLoginValue = preferences.getBoolean(MyMethod.SHAREDPREFERENCE_KEY, false);
@@ -89,33 +125,35 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
         }
     }
 
-
     private void event(final View v) {
         v.findViewById(R.id.btnCheckIn).setOnClickListener(this);
         v.findViewById(R.id.btnCheckOut).setOnClickListener(this);
         v.findViewById(R.id.btnNotify).setOnClickListener(this);
-        v.findViewById(R.id.btnLocation).setOnClickListener(this);
+        v.findViewById(R.id.btnCustomer).setOnClickListener(this);
         v.findViewById(R.id.btnSetting).setOnClickListener(this);
         v.findViewById(R.id.btn_signin).setOnClickListener(this);
         v.findViewById(R.id.btn_changepass).setOnClickListener(this);
+        v.findViewById(R.id.btn_logout).setOnClickListener(this);
         v.findViewById(R.id.btnOrder).setOnClickListener(this);
         v.findViewById(R.id.btnReport).setOnClickListener(this);
         v.findViewById(R.id.btnSetting).setOnClickListener(this);
         v.findViewById(R.id.btnUpdate).setOnClickListener(this);
         v.findViewById(R.id.btn_get_checkin).setOnClickListener(this);
-        v.findViewById(R.id.btn_get_photo).setOnClickListener(this);
+        v.findViewById(R.id.btn_get_photo_checkin).setOnClickListener(this);
+        v.findViewById(R.id.btn_get_checkout).setOnClickListener(this);
+        v.findViewById(R.id.btn_get_photo_checkout).setOnClickListener(this);
         v.findViewById(R.id.btn_save_send_checkin).setOnClickListener(this);
         editName.addTextChangedListener(new MyTextWatcher(editName));
         editPass.addTextChangedListener(new MyTextWatcher(editPass));
         editPassOld.addTextChangedListener(new MyTextWatcher(editPassOld));
         editPassNew.addTextChangedListener(new MyTextWatcher(editPassNew));
         editPassNewAgain.addTextChangedListener(new MyTextWatcher(editPassNewAgain));
-        recyclerProducts.addOnItemTouchListener(new RecyclerItemClickListener(getContext(), this));
-
+        recyclerOrder.addOnItemTouchListener(new RecyclerItemClickListener(getContext(), this));
+        recyclerCustomer.addOnItemTouchListener(new RecyclerItemClickListener(getContext(), this));
     }
 
     private void getId(View v) {
-
+        context = getContext();
         checkLogin = (CheckBox) v.findViewById(R.id.checkLogin);
         loadingLogin = (LoadingView) v.findViewById(R.id.loginLoadingView);
         editPassNew = (EditText) v.findViewById(R.id.input_password_new);
@@ -126,18 +164,29 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
         inputLayoutPasswordNewAgain = (TextInputLayout) v.findViewById(R.id.input_layout_password_new_again);
         editName = (EditText) v.findViewById(R.id.input_name);
         editPass = (EditText) v.findViewById(R.id.input_password);
+        imagePhotoIn = (ImageView) v.findViewById(R.id.imagePhotoIn);
+        imagePhotoOut = (ImageView) v.findViewById(R.id.imagePhotoOut);
         inputLayoutName = (TextInputLayout) v.findViewById(R.id.input_layout_name);
         inputLayoutPassword = (TextInputLayout) v.findViewById(R.id.input_layout_password);
         Home.linearLogin = (LinearLayout) v.findViewById(R.id.linear_login);
         Home.linearChangePass = (LinearLayout) v.findViewById(R.id.linear_change_pass);
         Home.linearListOrder = (LinearLayout) v.findViewById(R.id.linear_list_order);
-        recyclerProducts = (RecyclerView) v.findViewById(R.id.recyclerView);
-        recyclerProducts.setHasFixedSize(true);
-        LinearLayoutManager manager = new LinearLayoutManager(v.getContext());
-        manager.setOrientation(LinearLayoutManager.VERTICAL);
-        recyclerProducts.setLayoutManager(manager);
-        adapter = new RecyclerViewAdapter(productsArrayList, v.getContext());
-        recyclerProducts.setAdapter(adapter);
+        Home.linearCustomer = (LinearLayout) v.findViewById(R.id.linear_customer);
+        Home.mapView = (LinearLayout) v.findViewById(R.id.mapView);
+        recyclerOrder = (RecyclerView) v.findViewById(R.id.recyclerOrder);
+        recyclerOrder.setHasFixedSize(true);
+        recyclerCustomer = (RecyclerView) v.findViewById(R.id.recyclerCustomer);
+        recyclerCustomer.setHasFixedSize(true);
+        LinearLayoutManager managerOrder = new LinearLayoutManager(v.getContext());
+        managerOrder.setOrientation(LinearLayoutManager.VERTICAL);
+        LinearLayoutManager managerCustomer = new LinearLayoutManager(v.getContext());
+        managerCustomer.setOrientation(LinearLayoutManager.VERTICAL);
+        recyclerOrder.setLayoutManager(managerOrder);
+        recyclerCustomer.setLayoutManager(managerCustomer);
+        adapterOrder = new RecyclerViewAdapterOrder(productsArrayList, v.getContext());
+        adapterCustomer = new RecyclerViewAdapterCustomer(customersArrayList, v.getContext());
+        recyclerOrder.setAdapter(adapterOrder);
+        recyclerCustomer.setAdapter(adapterCustomer);
         Home.rela_checkout = (RelativeLayout) v.findViewById(R.id.rela_layout_checkout);
         Home.rela_checkin = (RelativeLayout) v.findViewById(R.id.rela_layout_checkin);
         Home.rela_main = (RelativeLayout) v.findViewById(R.id.rela_layout_main);
@@ -178,16 +227,75 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
     }
 
     @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == Activity.RESULT_OK && requestCode == ACTION_TAKE_CARMERA) {
+            BitmapFactory.Options options;
+            Bitmap bitmap = null;
+            try {
+                options = new BitmapFactory.Options();
+                options.inSampleSize = 4;// 1/4 of origin image size from width and height
+                bitmap = BitmapFactory.decodeFile(imagePath, options);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (MyMethod.CHECKIN) {
+
+                imagePhotoIn.setVisibility(View.VISIBLE);
+                imagePhotoIn.setImageBitmap(bitmap);
+            } else {
+                imagePhotoOut.setVisibility(View.VISIBLE);
+                imagePhotoOut.setImageBitmap(bitmap);
+            }
+            EventPool.control().enQueue(new EventType.EventTakePhoto(imagePath, Model.inst().getServerTime()));
+            MyMethod.showToast(getContext(), imagePath);
+        }
+    }
+
+    private void takePhoto() {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        File fileDir = new File(Environment.getExternalStorageDirectory()
+                + "/DMSData");
+        if (!fileDir.exists()) {
+            fileDir.mkdirs();
+        }
+        if (MyMethod.CHECKIN)
+            imagePath = Environment.getExternalStorageDirectory() + "/DMSData/" + "IN_"
+                    + System.currentTimeMillis() + ".jpg";
+        else
+            imagePath = Environment.getExternalStorageDirectory() + "/DMSData/" + "OUT_"
+                    + System.currentTimeMillis() + ".jpg";
+        carmeraFile = new File(imagePath);
+        Uri imageCarmeraUri = Uri.fromFile(carmeraFile);
+        intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
+                imageCarmeraUri);
+        try {
+            intent.putExtra("return-data", true);
+            this.startActivityForResult(intent, ACTION_TAKE_CARMERA);
+        } catch (ActivityNotFoundException e) {
+            // Do nothing for now
+        }
+    }
+
+    @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.btn_get_checkout:
+                showLayout(Layouts.Map);
+                break;
+            case R.id.btn_get_photo_checkout:
+                //GET CAMERA PHOTO
+                takePhoto();
+                break;
             case R.id.btn_get_checkin:
                 showLayout(Layouts.Map);
                 break;
-            case R.id.btn_get_photo:
+            case R.id.btn_get_photo_checkin:
                 //GET CAMERA PHOTO
+                takePhoto();
                 break;
             case R.id.btn_save_send_checkin:
                 //SAVE AND SEND CHECK IN DATA
+                showLayout(Layouts.Main);
                 break;
             case R.id.btnCheckIn:
                 showLayout(Layouts.CheckIn);
@@ -195,16 +303,24 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
             case R.id.btnCheckOut:
                 showLayout(Layouts.CheckOut);
                 break;
-            case R.id.btnLocation:
-                showLayout(Layouts.Location);
+            case R.id.btnCustomer:
+                Customer customer = new Customer();
+                customer.setCustomerNo_("KH01");
+                customer.setCustomerName_("khách hàng của Lãng Tử Gió");
+                customer.setCustomerAddress_("Gò cẩm đệm");
+                customer.setCustomerPhoto_(null);
+                customersArrayList.add(customer);
+                adapterCustomer.notifyDataSetChanged();
+                EventPool.control().enQueue(new EventType.EventLoadCustomerRequest());
                 break;
             case R.id.btnReport:
                 showLayout(Layouts.Notify);
                 break;
             case R.id.btn_signin:
-                //XU LY DANG NHAP
                 submitFormLogin(v);
-
+                break;
+            case R.id.btn_logout:
+                showLayout(Layouts.LogIn);
                 break;
             case R.id.btn_changepass:
                 //XU LY DOI PASS
@@ -230,16 +346,17 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
                 products.setProductQuantity_((float) 1);
                 products.setProductType_("Cái");
                 productsArrayList.add(products);
-                adapter.notifyDataSetChanged();
-                EventPool.control().enQueue(new EventType.EventLoadRequest());
+                adapterOrder.notifyDataSetChanged();
+                EventPool.control().enQueue(new EventType.EventLoadOrderRequest());
                 break;
         }
     }
 
     @Override
     public void onItemClick(View view, int position) {
-        positionClick = position;
-        showLayout(Layouts.MenuOrderClick);
+        if (MyMethod.isVisible(Home.linearListOrder))
+            showLayout(Layouts.MenuOrderClick);
+        else showLayout(Layouts.MenuCustomerClick);
     }
 
     private void submitFormLogin(View v) {
@@ -271,52 +388,45 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
         //showLayout(Layouts.LogIn);
     }
 
-    private boolean isRunning = false;
-    private Handler handler = new Handler();
-    private Runnable runnable = new Runnable() {
-        @Override
-        public void run() {
-            Log.v("QueueTimerView", "timedout");
-            EventType.EventBase event = EventPool.view().deQueue();
-            while (event != null) {
-                processEvent(event);
-                if (!isRunning) break;
-                event = EventPool.view().deQueue();
-            }
-            if (isRunning) handler.postDelayed(this, Const.QueueTimerView);
-        }
-    };
-
-
-    private enum Layouts {
-        CheckIn, CheckOut, Notify, Location, Setting, LogIn, ChangePass, ListOrder, Main, MenuOrderClick, Map
-    }
-
     private void showLayout(Layouts layout) {
         switch (layout) {
             case CheckIn:
+                MyMethod.CHECKIN = true;
+                imagePhotoIn.setVisibility(View.GONE);
                 Home.rela_checkin.setVisibility(View.VISIBLE);
                 Home.rela_main.setVisibility(View.GONE);
                 Home.linearLogin.setVisibility(View.GONE);
                 Home.linearChangePass.setVisibility(View.GONE);
                 Home.linearListOrder.setVisibility(View.GONE);
+                Home.linearCustomer.setVisibility(View.GONE);
                 break;
             case CheckOut:
+                MyMethod.CHECKIN = false;
+                imagePhotoOut.setVisibility(View.GONE);
                 Home.rela_checkout.setVisibility(View.VISIBLE);
                 Home.rela_main.setVisibility(View.GONE);
                 Home.linearLogin.setVisibility(View.GONE);
                 Home.linearChangePass.setVisibility(View.GONE);
                 Home.linearListOrder.setVisibility(View.GONE);
+                Home.linearCustomer.setVisibility(View.GONE);
                 break;
             case Notify:
                 break;
-            case Location:
+            case Customer:
+                Home.rela_checkin.setVisibility(View.GONE);
+                Home.rela_checkout.setVisibility(View.GONE);
+                Home.rela_main.setVisibility(View.GONE);
+                Home.linearLogin.setVisibility(View.GONE);
+                Home.linearChangePass.setVisibility(View.GONE);
+                Home.linearListOrder.setVisibility(View.GONE);
+                Home.linearCustomer.setVisibility(View.VISIBLE);
                 break;
             case Setting:
                 break;
             case LogIn:
                 //show hide layouts....
                 loadingLogin.setLoading(false);
+                Home.linearCustomer.setVisibility(View.GONE);
                 Home.rela_checkin.setVisibility(View.GONE);
                 Home.rela_checkout.setVisibility(View.GONE);
                 Home.rela_main.setVisibility(View.GONE);
@@ -325,6 +435,7 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
                 Home.linearListOrder.setVisibility(View.GONE);
                 break;
             case ChangePass:
+                Home.linearCustomer.setVisibility(View.GONE);
                 Home.rela_checkin.setVisibility(View.GONE);
                 Home.rela_checkout.setVisibility(View.GONE);
                 Home.rela_main.setVisibility(View.GONE);
@@ -333,12 +444,14 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
                 Home.linearListOrder.setVisibility(View.GONE);
                 break;
             case Map:
+                Home.linearCustomer.setVisibility(View.GONE);
                 Home.rela_checkin.setVisibility(View.GONE);
                 Home.rela_checkout.setVisibility(View.GONE);
                 Home.rela_main.setVisibility(View.GONE);
                 Home.linearLogin.setVisibility(View.GONE);
                 Home.linearChangePass.setVisibility(View.GONE);
                 Home.linearListOrder.setVisibility(View.GONE);
+                Home.mapView.setVisibility(View.VISIBLE);
                 break;
             case ListOrder:
                 //
@@ -348,6 +461,7 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
                 Home.linearLogin.setVisibility(View.GONE);
                 Home.linearChangePass.setVisibility(View.GONE);
                 Home.linearListOrder.setVisibility(View.VISIBLE);
+                Home.linearCustomer.setVisibility(View.GONE);
                 break;
             case Main:
                 loadingLogin.setLoading(false);
@@ -357,64 +471,81 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
                 Home.linearLogin.setVisibility(View.GONE);
                 Home.linearChangePass.setVisibility(View.GONE);
                 Home.linearListOrder.setVisibility(View.GONE);
+                Home.linearCustomer.setVisibility(View.GONE);
                 break;
             case MenuOrderClick:
-                ArrayAdapter<String> dialogadapter = new ArrayAdapter<>(getContext(), R.layout.dialog_menu_custom);
-
-                dialogadapter.add(getString(R.string.check_in));
-                dialogadapter.add(getString(R.string.check_out));
-                dialogadapter.add(getString(R.string.cancel));
-                Home.dialog = DialogPlus.newDialog(getContext())
-                        .setAdapter(dialogadapter)
+                Holder holderOrder = new ListHolder();
+                DialogAdapter dialogOrder = new DialogAdapter(getContext());
+                Home.dialogOrder = DialogPlus.newDialog(getContext())
+                        .setContentHolder(holderOrder)
                         .setHeader(R.layout.header_dialog)
                         .setFooter(R.layout.footer_dialog)
+                        .setCancelable(true)
+                        .setGravity(Gravity.BOTTOM)
+                        .setAdapter(dialogOrder)
                         .setOnItemClickListener(new OnItemClickListener() {
                             @Override
                             public void onItemClick(DialogPlus dialog, Object item, View view, int position) {
+                                TextView textView = (TextView) view.findViewById(R.id.text_view);
+                                switch (textView.getText().toString()) {
+                                    case "Ghi nhận vào":
+                                        MyMethod.showToast(context, "Ghi nhận vào");
+                                        break;
+                                    case "Ghi nhận ra":
+                                        MyMethod.showToast(context, "Ghi nhận ra");
+                                        break;
+                                    case "Hủy bỏ":
+                                        dialog.dismiss();
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                //        dialog.dismiss();
                             }
                         })
-                        .setExpanded(true)  // This will enable the expand feature, (similar to android L share dialog)
+                        .setExpanded(false)
                         .create();
-                Home.dialog.findViewById(R.id.footer_dialog).requestFocus();
-                Home.dialog.show();
-                ((TextView) Home.dialog.findViewById(R.id.header_dialog)).setText(productsArrayList.get(positionClick).getProductName_());
+                Home.dialogOrder.findViewById(R.id.footer_dialog).requestFocus();
+                Home.dialogOrder.show();
+                ((TextView) Home.dialogOrder.findViewById(R.id.header_dialog)).setText(productsArrayList.get(positionClick).getProductName_());
 
                 break;
-        }
-    }
-
-    private class MyTextWatcher implements TextWatcher {
-
-        private View view;
-
-        private MyTextWatcher(View view) {
-            this.view = view;
-        }
-
-        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-        }
-
-        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-        }
-
-        public void afterTextChanged(Editable editable) {
-            switch (view.getId()) {
-                case R.id.input_name:
-                    validateName();
-                    break;
-                case R.id.input_password:
-                    validatePassword();
-                    break;
-                case R.id.input_password_old:
-                    validatePasswordOld();
-                    break;
-                case R.id.input_password_new:
-                    validatePasswordNew();
-                    break;
-                case R.id.input_password_new_again:
-                    validatePasswordNewAgain();
-                    break;
-            }
+            case MenuCustomerClick:
+                Holder holderCustomer = new ListHolder();
+                DialogAdapter dialogCustomer = new DialogAdapter(getContext());
+                Home.dialogCustomer = DialogPlus.newDialog(getContext())
+                        .setContentHolder(holderCustomer)
+                        .setHeader(R.layout.header_dialog)
+                        .setFooter(R.layout.footer_dialog)
+                        .setCancelable(true)
+                        .setGravity(Gravity.BOTTOM)
+                        .setAdapter(dialogCustomer)
+                        .setOnItemClickListener(new OnItemClickListener() {
+                            @Override
+                            public void onItemClick(DialogPlus dialog, Object item, View view, int position) {
+                                TextView textView = (TextView) view.findViewById(R.id.text_view);
+                                switch (textView.getText().toString()) {
+                                    case "Ghi nhận vào":
+                                        MyMethod.showToast(context, "Ghi nhận vào");
+                                        break;
+                                    case "Ghi nhận ra":
+                                        MyMethod.showToast(context, "Ghi nhận ra");
+                                        break;
+                                    case "Hủy bỏ":
+                                        dialog.dismiss();
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                //        dialog.dismiss();
+                            }
+                        })
+                        .setExpanded(false)
+                        .create();
+                Home.dialogCustomer.findViewById(R.id.footer_dialog).requestFocus();
+                Home.dialogCustomer.show();
+                ((TextView) Home.dialogCustomer.findViewById(R.id.header_dialog)).setText(customersArrayList.get(positionClick).getCustomerName_());
+                break;
         }
     }
 
@@ -422,10 +553,10 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
         boolean result = false;
         switch (layouts) {
             case ChangePass:
-                result = (MyMethod.isVisible(Home.linearChangePass)) ? true : false;
+                result = (MyMethod.isVisible(Home.linearChangePass));
                 break;
             case LogIn:
-                result = (MyMethod.isVisible(Home.linearLogin)) ? true : false;
+                result = (MyMethod.isVisible(Home.linearLogin));
                 break;
         }
         return result;
@@ -441,7 +572,6 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
         }
         return true;
     }
-
 
     private boolean validatePassword() {
         if (editPass.getText().toString().trim().isEmpty() && isVisible(Layouts.LogIn)) {
@@ -491,7 +621,6 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
         return true;
     }
 
-
     private void processEvent(EventType.EventBase event) {
         switch (event.type) {
             case Login:
@@ -529,9 +658,51 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
             case LoadOrders:
                 showLayout(Layouts.ListOrder);
                 break;
+            case LoadCustomers:
+                showLayout(Layouts.Customer);
+                break;
             default:
                 Log.w("View_processEvent", "unhandled " + event.type);
                 break;
+        }
+    }
+
+    private enum Layouts {
+        CheckIn, CheckOut, Notify, Customer, Setting, LogIn, ChangePass, ListOrder, Main, MenuOrderClick, MenuCustomerClick, Map
+    }
+
+    private class MyTextWatcher implements TextWatcher {
+
+        private View view;
+
+        private MyTextWatcher(View view) {
+            this.view = view;
+        }
+
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        }
+
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        }
+
+        public void afterTextChanged(Editable editable) {
+            switch (view.getId()) {
+                case R.id.input_name:
+                    validateName();
+                    break;
+                case R.id.input_password:
+                    validatePassword();
+                    break;
+                case R.id.input_password_old:
+                    validatePasswordOld();
+                    break;
+                case R.id.input_password_new:
+                    validatePasswordNew();
+                    break;
+                case R.id.input_password_new_again:
+                    validatePasswordNewAgain();
+                    break;
+            }
         }
     }
 }

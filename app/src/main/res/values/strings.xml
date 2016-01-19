@@ -69,4 +69,6 @@
     <string name="sms_location">vnd.android-dir/mms-sms</string>
     <string name="gmail_location">com.google.android.gm</string>
     <string name="phone_location">com.android.contacts</string>
+    <string name="customer">Khách hàng</string>
+    <string name="log_out">Đăng xuất</string>
 </resources>

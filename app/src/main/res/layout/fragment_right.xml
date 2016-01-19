@@ -5,6 +5,10 @@
     android:background="@drawable/centerbg">
 
     <include
+        layout="@layout/layout_map"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+    <include
         layout="@layout/layout_checkin"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
@@ -23,7 +27,10 @@
         layout="@layout/layout_change_password"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-
+    <include
+        layout="@layout/layout_customer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
     <include
         layout="@layout/layout_list_order"
         android:layout_width="match_parent"
@@ -128,15 +135,15 @@
                     android:background="@color/colorIcon" />
 
                 <Button
-                    android:id="@+id/btnLocation"
+                    android:id="@+id/btnCustomer"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:alpha="1"
                     android:background="@drawable/button_drawable"
-                    android:drawableTop="@drawable/markerto_btn"
+                    android:drawableTop="@drawable/customer_icon"
                     android:paddingTop="5dp"
-                    android:text="@string/position"
+                    android:text="@string/customer"
                     android:textColor="@drawable/text_drawable" />
 
                 <View

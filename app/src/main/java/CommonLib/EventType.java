@@ -1,6 +1,9 @@
 package CommonLib;
 
+import com.vietdms.mobile.dmslauncher.RecycleView.Customer;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by My PC on 26/11/2015.
@@ -10,13 +13,46 @@ public abstract class EventType {
         Login,
         ChangePass,
         LoadOrders,
-        SendTracking
+        LoadCustomers,
+        SendTracking,
+        SendListApp,
+        SendLogCrash,
+        TakePhoto
     }
 
     public static class EventBase {
         public Type type;
+
         public EventBase(Type type) {
             this.type = type;
+        }
+    }
+
+    public static class EventTakePhoto extends EventBase {
+        public String imagePath;
+        public long imageTime;
+
+        public EventTakePhoto(String imagePath,long imageTime) {
+            super(Type.TakePhoto);
+            this.imagePath = imagePath;
+            this.imageTime = imageTime;
+        }
+    }
+    public static class EventLogCrash extends EventBase {
+        public String logCrash;
+
+        public EventLogCrash(String logCrash) {
+            super(Type.SendLogCrash);
+            this.logCrash = logCrash;
+        }
+    }
+
+    public static class EventListApp extends EventBase {
+        public HashMap<String, String> listApp;
+
+        public EventListApp(HashMap<String, String> listApp) {
+            super(Type.SendListApp);
+            this.listApp = listApp;
         }
     }
 
@@ -41,10 +77,25 @@ public abstract class EventType {
 
         }
     }
-
-    public static class EventLoadRequest extends EventBase {
-        public EventLoadRequest() {
+    public static class EventLoadOrderRequest extends EventBase {
+        public EventLoadOrderRequest() {
             super(Type.LoadOrders);
+        }
+    }
+
+    public static class EventLoadCustomerRequest extends EventBase {
+        public EventLoadCustomerRequest() {
+            super(Type.LoadCustomers);
+        }
+    }
+
+
+    public static class EventListAppResult extends EventBase {
+        public HashMap<String, Integer> listAppRole;
+
+        public EventListAppResult(HashMap<String, Integer> listAppRole) {
+            super(Type.SendListApp);
+            this.listAppRole = listAppRole;
         }
     }
 
@@ -69,17 +120,28 @@ public abstract class EventType {
             this.message = message;
         }
     }
-
-    public static class EventLoadResult extends EventBase {
+    public static class EventLoadOrderResult extends EventBase {
         public boolean success;
         public String message;
         public ArrayList<Order> arrOrder;
 
-        public EventLoadResult(boolean success, String message, ArrayList<Order> arrOrder) {
+        public EventLoadOrderResult(boolean success, String message, ArrayList<Order> arrOrder) {
             super(Type.LoadOrders);
             this.success = success;
             this.message = message;
             this.arrOrder = arrOrder;
+        }
+    }
+    public static class EventLoadCustomerResult extends EventBase {
+        public boolean success;
+        public String message;
+        public ArrayList<Customer> arrCustomer;
+
+        public EventLoadCustomerResult(boolean success, String message, ArrayList<Customer> arrCustomer) {
+            super(Type.LoadCustomers);
+            this.success = success;
+            this.message = message;
+            this.arrCustomer = arrCustomer;
         }
     }
 }

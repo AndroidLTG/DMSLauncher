@@ -16,11 +16,11 @@ import java.util.List;
 /**
  * Created by ${LTG} was born ${10/12/1994}.
  */
-public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ContactViewHolder> {
+public class RecyclerViewAdapterOrder extends RecyclerView.Adapter<RecyclerViewAdapterOrder.ContactViewHolder> {
     private List<Products> ProductList;
     private Context context;
 
-    public RecyclerViewAdapter(List<Products> ProductList, Context context) {
+    public RecyclerViewAdapterOrder(List<Products> ProductList, Context context) {
         this.ProductList = ProductList;
         this.context = context;
     }

@@ -23,8 +23,8 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.vietdms.mobile.dmslauncher.GetSet.CallHistory;
 import com.vietdms.mobile.dmslauncher.CustomAdapter.CustomAdapterListView;
+import com.vietdms.mobile.dmslauncher.GetSet.CallHistory;
 import com.vietdms.mobile.dmslauncher.Home;
 import com.vietdms.mobile.dmslauncher.MyMethod;
 import com.vietdms.mobile.dmslauncher.R;
@@ -107,7 +107,6 @@ public class LeftFragment extends Fragment {
         }
         managedCursor.close();
         Home.adapterListView.notifyDataSetChanged();
-        Home.flag_loading = false;
     }
 
     private void loadLeft_() {

@@ -34,11 +34,12 @@ import com.vietdms.mobile.dmslauncher.GetSet.AppsDetail;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
 /**
- * Created by ${LTG} on ${10/12/1994}.
+ * Created by ${LTG} was born ${10/12/1994}.
  */
 public class MyMethod {
     public static final String PASSWORD = "LTG";
@@ -46,6 +47,8 @@ public class MyMethod {
     public static final String SHAREDPREFERENCE_KEY = "CheckLogin_Value";
     public static final String SHAREDPREFERENCE_User = "UserName_Value";
     public static final String SHAREDPREFERENCE_Pass = "PassWord_Value";
+    public static boolean CHECKIN = false;//true is open rela_checkin false is open rela_checkout
+    public static boolean ORDER = false;// true is open order false is open customer
 
     public static void showToast(Context context, String toast) {// show toast so cool
         Toast.makeText(context, toast, Toast.LENGTH_SHORT).show();
@@ -61,7 +64,8 @@ public class MyMethod {
     public static void closeFocus(View view) {
         if (view != null) {
             InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            if (imm.isAcceptingText())
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
 
@@ -251,7 +255,6 @@ public class MyMethod {
     }
 
     public static List<AppsDetail> loadApps(Context context, ViewPager viewPager, String s) {//load app from this phone by a part of app name
-
         PackageManager manager = context.getPackageManager();
         List<AppsDetail> apps = new ArrayList<>();
         Intent i = new Intent(Intent.ACTION_MAIN, null);
@@ -273,6 +276,17 @@ public class MyMethod {
         return apps;
     }
 
+    public static HashMap<String, String> getListApp(Context context) {
+        PackageManager manager = context.getPackageManager();
+        HashMap<String, String> listApp = new HashMap<>();
+        Intent i = new Intent(Intent.ACTION_MAIN, null);
+        i.addCategory(Intent.CATEGORY_LAUNCHER);
+        List<ResolveInfo> availableActivities = manager.queryIntentActivities(i, 0);
+        for (ResolveInfo ri : availableActivities)
+            listApp.put(ri.activityInfo.name, ri.activityInfo.packageName);
+        return listApp;
+    }
+
     public static void showApps(Context context, ViewPager viewPager, String s) {//show list app by a part of name
         Home.allItems = MyMethod.loadApps(context, viewPager, s);
         Home.adapterGripView = new CustomAdapterGripView(context, Home.allItems);
@@ -288,5 +302,6 @@ public class MyMethod {
         Home.adapterGripView = new CustomAdapterGripView(context, Home.allItems);
         Home.gridListApp.setAdapter(Home.adapterGripView);
     }
+
 
 }

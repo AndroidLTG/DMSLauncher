@@ -1,13 +1,5 @@
 package CommonLib;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.location.Location;
-import android.os.BatteryManager;
-import android.telephony.TelephonyManager;
-import android.telephony.gsm.GsmCellLocation;
-
 /**
  * Created by My PC on 29/12/2015.
  */

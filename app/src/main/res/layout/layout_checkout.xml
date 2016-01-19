@@ -1,11 +1,11 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rela_layout_checkout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/centerbg"
     android:visibility="gone"
-    tools:context="info.androidhive.materialtabs.fragments.OneFragment">
+    >
+
 
     <TextView
         android:id="@+id/textTitle"
@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:background="@android:color/white"
         android:gravity="center_vertical|center_horizontal"
-        android:text="GHI NHẬN VÀO"
+        android:text="GHI NHẬN RA"
         android:textColor="@color/colorBlue"
         android:textStyle="bold" />
 
@@ -32,26 +32,28 @@
             android:weightSum="2">
 
             <Button
+                android:id="@+id/btn_get_checkout"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:alpha="0.8"
-                android:textColor="@drawable/text_drawable"
                 android:background="@drawable/button_drawable"
                 android:drawableTop="@drawable/getlocation_btn"
                 android:paddingTop="5dp"
-                android:text="@string/get_location" />
+                android:text="@string/get_location"
+                android:textColor="@drawable/text_drawable" />
 
             <Button
+                android:id="@+id/btn_get_photo_checkout"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:alpha="0.8"
-                android:textColor="@drawable/text_drawable"
                 android:background="@drawable/button_drawable"
                 android:drawableTop="@drawable/camera_btn"
                 android:paddingTop="5dp"
-                android:text="@string/take_picture" />
+                android:text="@string/take_picture"
+                android:textColor="@drawable/text_drawable" />
         </LinearLayout>
 
         <LinearLayout
@@ -74,7 +76,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_weight="0.5"
             android:orientation="horizontal"
             android:weightSum="2">
 
@@ -82,20 +84,25 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:alpha="0.8"
-                android:textColor="@drawable/text_drawable"
                 android:background="@drawable/button_drawable"
                 android:drawableTop="@drawable/v_btn"
                 android:paddingTop="5dp"
-                android:text="@string/save_send" />
+                android:text="@string/save_send"
+                android:textColor="@drawable/text_drawable" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_weight="1.5"
             android:orientation="horizontal"
             android:weightSum="2">
-
+            <ImageView
+                android:id="@+id/imagePhotoOut"
+                android:layout_width="match_parent"
+                android:src="@mipmap/ic_launcher"
+                android:visibility="gone"
+                android:layout_height="match_parent" />
         </LinearLayout>
     </LinearLayout>
 

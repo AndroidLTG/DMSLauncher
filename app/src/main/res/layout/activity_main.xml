@@ -26,8 +26,7 @@
                 android:layout_height="match_parent"
                 android:gravity="center_vertical|center_horizontal"
                 android:text="Tiêu đề"
-                android:textStyle="bold"
-                 />
+                android:textStyle="bold" />
 
 
         </android.support.v7.widget.Toolbar>
@@ -48,6 +47,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="8"
+            android:animateLayoutChanges="true"
             app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
         <LinearLayout
@@ -82,7 +82,7 @@
                     android:id="@+id/btn_Call"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_margin="16dp"
+                    android:layout_margin="@dimen/margin_button_size"
                     android:layout_weight="1"
                     android:background="@android:color/transparent"
                     android:src="@drawable/phone_btn" />
@@ -91,7 +91,7 @@
                     android:id="@+id/btn_SmS"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_margin="16dp"
+                    android:layout_margin="@dimen/margin_button_size"
                     android:layout_weight="1"
                     android:background="@android:color/transparent"
                     android:src="@drawable/sms_btn" />
@@ -108,7 +108,7 @@
                     android:id="@+id/btn_Email"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_margin="16dp"
+                    android:layout_margin="@dimen/margin_button_size"
                     android:layout_weight="1"
                     android:background="@null"
                     android:src="@drawable/gmail_btn" />
@@ -117,7 +117,7 @@
                     android:id="@+id/btn_Lock"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_margin="16dp"
+                    android:layout_margin="@dimen/margin_button_size"
                     android:layout_weight="1"
                     android:background="@android:color/transparent"
                     android:src="@drawable/screenoff_btn" />

@@ -51,6 +51,42 @@ class LocationDetector implements GoogleApiClient.ConnectionCallbacks, GoogleApi
         }
     }
 
+    public boolean setHighAccuracy() {
+        LocationRequest mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(30 * 1000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        try {
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        }
+        catch (SecurityException ex) {
+            Log.e("GoogleApiClient", "setHighAccuracy access denied");
+            return false;
+        }
+        catch (Exception ex) {
+            Log.e("GoogleApiClient", "setHighAccuracy error " + ex.toString());
+            return false;
+        }
+        return true;
+    }
+    public boolean setNormalAccuracy() {
+        LocationRequest mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(Const.LocationUpdateIntervalInSeconds * 1000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        try {
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        }
+        catch (SecurityException ex) {
+            Log.e("GoogleApiClient", "setNormalAccuracy access denied");
+            return false;
+        }
+        catch (Exception ex) {
+            Log.e("GoogleApiClient", "setNormalAccuracy error " + ex.toString());
+            return false;
+        }
+        return true;
+    }
+
+
     @Override
     public void onConnected(Bundle connectionHint) {
         Log.i("GoogleApiClient", "Connected to Google Play services!");
@@ -63,15 +99,13 @@ class LocationDetector implements GoogleApiClient.ConnectionCallbacks, GoogleApi
             else {
                 Log.w("GoogleApiClient", "cannot get current location");
             }
-
-            LocationRequest mLocationRequest = new LocationRequest();
-            mLocationRequest.setInterval(Const.LocationUpdateIntervalInSeconds * 1000);
-            //mLocationRequest.setFastestInterval(10000);
-            mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+            setNormalAccuracy();
         }
         catch (SecurityException ex) {
             Log.e("GoogleApiClient", "access denied");
+        }
+        catch (Exception ex) {
+            Log.e("GoogleApiClient", "error " + ex.toString());
         }
     }
 

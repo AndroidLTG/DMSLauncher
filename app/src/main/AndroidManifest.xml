@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.vietdms.mobile.dmslauncher">
 
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
     <uses-permission android:name="android.permission.WRITE_CALL_LOG" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
@@ -15,6 +16,9 @@
     -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:clearTaskOnLaunch="true"
@@ -74,6 +78,14 @@
              sign the APK for publishing.
              You can define the keys for the debug and release targets in src/debug/ and src/release/. 
         -->
+
+        <receiver
+            android:name=".Receiver.BootReceiver"
+            android:label="BootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />

@@ -1,9 +1,13 @@
 package CommonLib;
 
 import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 import android.content.Context;
 import android.location.Location;
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.util.Log;
 
@@ -56,4 +60,20 @@ public class Model {
     private int lastAckLocationID = -1;
     public synchronized int getLastAckLocationID() { return lastAckLocationID; }
     public synchronized void setLastAckLocationID(int lastId) { lastAckLocationID = lastId; }
+
+    private long serverTime = -1;
+    private long serverTimeClientTick = -1;
+    public void setServerTime(long serverTime) {
+        this.serverTime = serverTime;
+        serverTimeClientTick = SystemClock.elapsedRealtime();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z"); // the format of your date
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT+7")); // give a timezone reference for formating
+        Log.i("setServerTime", sdf.format(new Date(serverTime)));
+    }
+    public long getServerTime() {
+        if (serverTime >= 0 && serverTimeClientTick >= 0) {
+            return serverTime + SystemClock.elapsedRealtime() - serverTimeClientTick;
+        }
+        return System.currentTimeMillis();
+    }
 }

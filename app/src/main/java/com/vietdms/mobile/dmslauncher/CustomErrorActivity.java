@@ -6,27 +6,24 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.view.Window;
-import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import java.util.Properties;
-
-import javax.mail.Authenticator;
 import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import CommonLib.EventPool;
+import CommonLib.EventType;
 import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
 
 /**
- * Created by DMSv4 on 12/21/2015.
+ * Created by ${LTG} was born ${10/12/1994}.
  */
 public class CustomErrorActivity extends Activity {
     private Session session;
@@ -45,30 +42,40 @@ public class CustomErrorActivity extends Activity {
         intent = new Intent(getApplicationContext(), Home.class);
 
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        Properties props = new Properties();
-        props.put("mail.smtp.host", "smtp.gmail.com");
-        props.put("mail.smtp.socketFactory.port", "465");
-        props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.port", "465");
+//        Properties props = new Properties();
+//        props.put("mail.smtp.host", "smtp.gmail.com");
+//        props.put("mail.smtp.socketFactory.port", "465");
+//        props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+//        props.put("mail.smtp.auth", "true");
+//        props.put("mail.smtp.port", "465");
+//
+//        session = Session.getDefaultInstance(props, new Authenticator() {
+//            protected PasswordAuthentication getPasswordAuthentication() {
+//                return new PasswordAuthentication("vietdmsreport@gmail.com", "vietdms.com");
+//            }
+//        });
+//
+//        //    pdialog = ProgressDialog.show(getApplicationContext(), "", "Đang gửi...", true);
+//
+//        RetreiveFeedTask task = new RetreiveFeedTask();
+//        task.execute();
+        EventPool.control().enQueue(new EventType.EventLogCrash(CustomActivityOnCrash.getAllErrorDetailsFromIntent(getApplicationContext(), getIntent())));
 
-        session = Session.getDefaultInstance(props, new Authenticator() {
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication("vietdmsreport@gmail.com", "vietdms.com");
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // Do something after 5s = 5000ms
+                MyMethod.showToast(getApplicationContext(), "Báo lỗi đã gửi đi, cảm ơn bạn");
+                progressBar.setVisibility(View.GONE);
+                CustomActivityOnCrash.restartApplicationWithIntent(CustomErrorActivity.this, intent);
             }
-        });
-
-        //    pdialog = ProgressDialog.show(getApplicationContext(), "", "Đang gửi...", true);
-
-        RetreiveFeedTask task = new RetreiveFeedTask();
-        task.execute();
+        }, 3000);
 
     }
 
 
     class RetreiveFeedTask extends AsyncTask<String, Void, String> {
-
-
         @Override
         protected String doInBackground(String... params) {
 

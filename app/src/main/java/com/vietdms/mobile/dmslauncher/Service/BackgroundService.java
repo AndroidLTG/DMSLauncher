@@ -1,30 +1,18 @@
 package com.vietdms.mobile.dmslauncher.Service;
 
-import android.Manifest;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.location.Location;
-import android.os.Build;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
-import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
+import com.vietdms.mobile.dmslauncher.Receiver.LocationAlarmManager;
 
-import CommonLib.Model;
 import Controller.ControlThread;
 
-public class BackgroundService extends Service{
+public class BackgroundService extends Service {
 
     public BackgroundService() {
     }
@@ -52,6 +40,8 @@ public class BackgroundService extends Service{
         Log.d("BackgroundService", "onStartCommand");
         // We want this service to continue running until it is explicitly
         // stopped, so return sticky.
+        LocationAlarmManager alarmManager = new LocationAlarmManager();
+        alarmManager.SetAlarm(getApplicationContext());
         return START_STICKY;
     }
 
@@ -60,5 +50,4 @@ public class BackgroundService extends Service{
         // TODO: Return the communication channel to the service.
         throw new UnsupportedOperationException("Not yet implemented");
     }
-
 }

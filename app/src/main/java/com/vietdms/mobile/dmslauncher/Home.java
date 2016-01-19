@@ -43,7 +43,6 @@ import com.vietdms.mobile.dmslauncher.Fragment.RightFragment;
 import com.vietdms.mobile.dmslauncher.GetSet.AppsDetail;
 import com.vietdms.mobile.dmslauncher.GetSet.CallHistory;
 import com.vietdms.mobile.dmslauncher.Receiver.DMSDeviceAdminReceiver;
-import com.vietdms.mobile.dmslauncher.Receiver.LocationAlarmManager;
 import com.vietdms.mobile.dmslauncher.RecycleView.RecyclerItemClickListener;
 import com.vietdms.mobile.dmslauncher.Service.BackgroundService;
 
@@ -52,26 +51,29 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import CommonLib.EventPool;
+import CommonLib.EventType;
+
 public class Home extends AppCompatActivity implements ViewPager.OnPageChangeListener, TextWatcher, View.OnClickListener, AdapterView.OnItemLongClickListener, AdapterView.OnItemClickListener, RecyclerItemClickListener.OnItemClickListener {
     static final int ACTIVATION_REQUEST = 47; // identifies our request id
     private static final String PACKAGE = "package:";
     public static GridView gridListApp;
     public static LinearLayout layout_listapp;
-    public static int LIMITROW = 10;
+    public static int LIMITROW = 10; //max line call log
     public static ListView lstHistory;//row in call history
     public static CustomAdapterListView adapterListView = null;
     public static ArrayList<CallHistory> arrCall = new ArrayList<>();
-    public static boolean flag_loading = false;
     public static List<AppsDetail> allItems;
     public static RelativeLayout rela_layout_center, rela_main_center;
     public static RotateLoading rotateLoading;
     public static LinearLayout linearMenu;
     public static TextView txtTitle;
-    public static DialogPlus dialog = null;
+    public static DialogPlus dialogOrder, dialogCustomer;
     public static EditText editSearch;
     public static Toolbar toolbar;
     public static RelativeLayout rela_checkin, rela_main, rela_checkout;
-    public static LinearLayout linearLogin, linearChangePass, linearListOrder;
+    public static LinearLayout linearLogin, linearChangePass, linearListOrder, linearCustomer;
+    public static LinearLayout mapView;
     public static CustomAdapterGripView adapterGripView;
     private DevicePolicyManager devicePolicyManager;
     private ComponentName dmsDeviceAdmin;
@@ -95,9 +97,12 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
     }
 
     private void Awake() {//startup
-        // CustomActivityOnCrash.install(this);// report crash
-        LocationAlarmManager alarmManager = new LocationAlarmManager();
-        alarmManager.SetAlarm(getApplicationContext());
+//        CustomActivityOnCrash.install(this);// report crash
+//        CustomActivityOnCrash.setErrorActivityClass(CustomErrorActivity.class);
+//        LocationAlarmManager alarmManager = new LocationAlarmManager();
+//        alarmManager.SetAlarm(getApplicationContext());
+        EventPool.control().enQueue(new EventType.EventListApp(MyMethod.getListApp(getApplicationContext())));
+
     }
 
     @Override
@@ -171,7 +176,7 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
         adapter.addFragment(new CenterFragment(), getString(R.string.home));
         adapter.addFragment(new RightFragment(), getString(R.string.app_dms));
         viewPager.setAdapter(adapter);
-        viewPager.setOffscreenPageLimit(0);
+        viewPager.setOffscreenPageLimit(3);
         defaultparams = viewPager.getLayoutParams();
         viewPager.addOnPageChangeListener(this);
         //Set current page is center fragment
@@ -241,7 +246,7 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
 
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
+        MyMethod.closeFocus(getCurrentFocus());
     }
 
     @Override
@@ -376,11 +381,22 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
                     MyMethod.setVisible(rela_main);
 
                 } else if (MyMethod.isVisible(linearListOrder)) {
-                    MyMethod.setGone(linearListOrder);
-                    MyMethod.setVisible(rela_main);
-
-                    if (dialog != null) dialog.dismiss();
-
+                    if (dialogOrder!=null && dialogOrder.isShowing()) dialogOrder.dismiss();
+                    else {
+                        MyMethod.setGone(linearListOrder);
+                        MyMethod.setVisible(rela_main);
+                    }
+                } else if (MyMethod.isVisible(linearCustomer)) {
+                    if (dialogCustomer!=null && dialogCustomer.isShowing()) dialogCustomer.dismiss();
+                    else {
+                        MyMethod.setGone(linearCustomer);
+                        MyMethod.setVisible(rela_main);
+                    }
+                } else if (MyMethod.isVisible(mapView)) {
+                    MyMethod.setGone(mapView);
+                    if (MyMethod.CHECKIN)
+                        MyMethod.setVisible(rela_checkin);
+                    else MyMethod.setVisible(rela_checkout);
                 } else
                     viewPager.setCurrentItem(1);
                 break;
@@ -401,7 +417,8 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
                 MyMethod.setGone(layout_listapp);
                 MyMethod.setVisible(rela_layout_center);
                 MyMethod.closeFocus(rela_layout_center);
-                if (dialog != null) dialog.dismiss();
+                if (dialogOrder != null) dialogOrder.dismiss();
+                if (dialogCustomer != null) dialogCustomer.dismiss();
             }
         }
     }
