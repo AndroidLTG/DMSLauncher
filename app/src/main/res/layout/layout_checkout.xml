@@ -81,6 +81,7 @@
             android:weightSum="2">
 
             <Button
+                android:id="@+id/btn_save_send_checkout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:alpha="0.8"
@@ -95,8 +96,16 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1.5"
-            android:orientation="horizontal"
-            android:weightSum="2">
+            android:orientation="vertical"
+           >
+            <TextView
+                android:id="@+id/txtAddressOut"
+                android:textColor="@android:color/black"
+                android:background="@android:color/white"
+                android:gravity="center_horizontal|center_vertical"
+                android:layout_width="match_parent"
+                android:text="@string/location_none"
+                android:layout_height="wrap_content" />
             <ImageView
                 android:id="@+id/imagePhotoOut"
                 android:layout_width="match_parent"

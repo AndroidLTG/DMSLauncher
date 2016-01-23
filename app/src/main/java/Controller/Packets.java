@@ -214,6 +214,7 @@ abstract class Packets {
                     write(item.accuracy);
                     write(item.speed);
                     write(item.distanceMeter);
+                    write(item.milisecElapsed);
                     write(item.note, false);
                     write(item.getType);
                     write(item.getMethod);

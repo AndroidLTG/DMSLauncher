@@ -2,6 +2,7 @@ package Controller;
 
 import android.graphics.AvoidXfermode;
 import android.location.Location;
+import android.os.Bundle;
 import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
@@ -15,8 +16,6 @@ import CommonLib.Const;
 import CommonLib.Model;
 import CommonLib.PhoneState;
 import CommonLib.TrackingItem;
-
-import com.loopj.android.http.*;
 
 /**
  * Created by My PC on 04/12/2015.
@@ -38,13 +37,16 @@ class NetworkTransaction {
         return instance;
     }
     private URL defaultUrl = null;
-    private AsyncHttpClient client = new AsyncHttpClient();
 
     public synchronized void sendTracking() {
         int lastAckLocationID = Model.inst().getLastAckLocationID();
         if (lastAckLocationID < 0) {
             Log.w("sendTracking", "lastAckLocationID not set");
-            getConfigs();
+            if (!getConfigs()) {
+                if (PhoneState.inst().isWifi() != 1 && PhoneState.inst().is3G() != 1) {
+                    PhoneState.inst().turn3GOnOff(true);
+                }
+            }
             return;
         }
         Location location = Model.inst().getLastLocation();
@@ -54,10 +56,22 @@ class NetworkTransaction {
             item.longitude = location.getLongitude();
             item.accuracy = location.getAccuracy();
             item.speed = location.getSpeed();
+            Bundle extras = location.getExtras();
+            if (extras != null) {
+                item.distanceMeter = extras.getFloat("distanceMeter", 0.0f);
+                item.milisecElapsed = extras.getInt("milisecElapsed", 0);
+            }
             item.locationDate = location.getTime();
+        }
+        else {
+            item.locationDate = Model.inst().getServerTime();
         }
         item.cellInfo = PhoneState.inst().getCellInfo();
         item.batteryLevel = PhoneState.inst().getBatteryLevel();
+        item.isWifi = PhoneState.inst().isWifi();
+        item.is3G = PhoneState.inst().is3G();
+        item.isGPS = PhoneState.inst().isGPS();
+        item.isAirplaneMode = PhoneState.inst().isAirplaneMode();
         if (LocalDB.inst().addTracking(item) < 0) {
             Log.e("sendTracking", "cannot add TrackingItem to LocalDB");
             return;
@@ -130,6 +144,20 @@ class NetworkTransaction {
                     Model.inst().setServerTime(timestamp);
                 }
             }
+            String intervalNormal = packetGetConfig.map.get(Const.ConfigKeys.AlarmIntervalNormal);
+            if (intervalNormal != null) {
+                int sec = Integer.parseInt(intervalNormal);
+                if (sec > 0) {
+                    Model.inst().setAlarmIntervalNormal(sec);
+                }
+            }
+            String intervalBoosted = packetGetConfig.map.get(Const.ConfigKeys.AlarmIntervalBoosted);
+            if (intervalBoosted != null) {
+                int sec = Integer.parseInt(intervalBoosted);
+                if (sec > 0) {
+                    Model.inst().setAlarmIntervalBoosted(sec);
+                }
+            }
             return true;
         }
         else {
@@ -148,66 +176,53 @@ class NetworkTransaction {
         }
         return null;
     }
-    public boolean sendPostRequest(URL url, byte[] send, ByteArrayOutputStream recv) {
-        RequestParams params = new RequestParams();
-        String[] types = {"application/octet-stream"};
-        client.post(Const.HttpEndpoint, params, new BinaryHttpResponseHandler(types) {
-            @Override
-            public void onSuccess(int i, byte[] bytes) {
-                super.onSuccess(i, bytes);
-                Log.i("sendPostRequest", "success");
+    public static boolean sendPostRequest(URL url, byte[] send, ByteArrayOutputStream recv) {
+        HttpURLConnection conn = null;
+        InputStream reader = null;
+        try
+        {
+            conn = (HttpURLConnection)url.openConnection();
+            if (!url.getHost().equals(conn.getURL().getHost())) {
+                throw new Exception("Host redirected!");
             }
-
-            @Override
-            public void onFailure(Throwable throwable, byte[] bytes) {
-                super.onFailure(throwable, bytes);
-                Log.i("sendPostRequest", "failure");
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/octet-stream");
+            conn.setDoOutput(true);
+            conn.setDoInput(true);
+            conn.setFixedLengthStreamingMode(send.length);
+            conn.connect();
+            OutputStream wr = conn.getOutputStream();
+            wr.write(send);
+            wr.flush();
+            int responseCode = conn.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                reader = conn.getInputStream();
+                byte[] buff = new byte[4096];
+                int read = reader.read(buff);
+                while (read > 0) {
+                    if (recv != null) recv.write(buff, 0, read);
+                    read = reader.read(buff);
+                }
+                return true;
             }
-
-        });
-        return false;
+            Log.w("sendPostRequest", "Response Code=" + responseCode);
+            return false;
+        }
+        catch(Exception ex)
+        {
+            Log.e("sendPostRequest", ex.toString());
+            return false;
+        }
+        finally
+        {
+            try
+            {
+                if (reader != null)
+                    reader.close();
+                if (conn != null)
+                    conn.disconnect();
+            }
+            catch(Exception ex) {}
+        }
     }
-//    public static boolean sendPostRequest(URL url, byte[] send, ByteArrayOutputStream recv) {
-//        HttpURLConnection conn = null;
-//        InputStream reader = null;
-//        try
-//        {
-//            conn = (HttpURLConnection)url.openConnection();
-//            if (!url.getHost().equals(conn.getURL().getHost())) {
-//                throw new Exception("Host redirected!");
-//            }
-//            conn.setDoOutput(true);
-//            conn.setDoInput(true);
-//            conn.setFixedLengthStreamingMode(send.length);
-//            OutputStream wr = conn.getOutputStream();
-//            wr.write(send);
-//            wr.flush();
-//            int responseCode = conn.getResponseCode();
-//            Log.i("sendPostRequest", "Response Code=" + responseCode);
-//            reader = conn.getInputStream();
-//            byte[] buff = new byte[4096];
-//            int read = reader.read(buff);
-//            while (read > 0) {
-//                if (recv != null) recv.write(buff, 0, read);
-//                read = reader.read(buff);
-//            }
-//            return true;
-//        }
-//        catch(Exception ex)
-//        {
-//            Log.e("sendPostRequest", ex.toString());
-//            return false;
-//        }
-//        finally
-//        {
-//            try
-//            {
-//                if (reader != null)
-//                    reader.close();
-//                if (conn != null)
-//                    conn.disconnect();
-//            }
-//            catch(Exception ex) {}
-//        }
-//    }
 }

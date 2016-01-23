@@ -148,7 +148,7 @@ class LocalDB {
     private DbHelper dbHelper = null;
     private class DbHelper extends SQLiteOpenHelper {
         // If you change the database schema, you must increment the database version.
-        public static final int DATABASE_VERSION = 2;
+        public static final int DATABASE_VERSION = 3;
         public static final String DATABASE_NAME = "edms_local.db";
         public static final String TABLE_NAME = "tblTracking";
         public static final String CONFIG_NAME = "tblConfig";
@@ -157,8 +157,8 @@ class LocalDB {
                 + ",DeviceID nvarchar(30)"
                 + ",VisitedID nvarchar(30)"
                 + ",VisitedType tinyint"
-                + ",Latitude real"
-                + ",Longitude real"
+                + ",Latitude float"
+                + ",Longitude float"
                 + ",Accuracy float"
                 + ",Speed float"
                 + ",DistanceMeter float"

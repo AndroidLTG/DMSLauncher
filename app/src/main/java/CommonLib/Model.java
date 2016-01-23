@@ -7,6 +7,7 @@ import java.util.TimeZone;
 
 import android.content.Context;
 import android.location.Location;
+import android.os.Bundle;
 import android.os.SystemClock;
 import android.provider.Settings;
 import android.util.Log;
@@ -50,11 +51,40 @@ public class Model {
     }
 
     private Location lastLocation = null;
+    private Location lastValidLocation = null;
     public synchronized Location getLastLocation() {
         return lastLocation;
     }
+    public synchronized Location getLastValidLocation() {
+        return lastValidLocation;
+    }
     public synchronized void setLastLocation(Location location) {
         lastLocation = location;
+        if (lastLocation != null) {
+            if (lastValidLocation != null) {
+                float distanceMeter = lastLocation.distanceTo(lastValidLocation);
+                int milisecElapsed = (int)(lastLocation.getTime() - lastValidLocation.getTime());
+                Bundle extras = new Bundle();
+                extras.putFloat("distanceMeter", distanceMeter);
+                extras.putInt("milisecElapsed", milisecElapsed);
+                lastLocation.setExtras(extras);
+                if (milisecElapsed > 0) {
+                    float accuracy = 0.0f;//(lastLocation.getAccuracy() + lastValidLocation.getAccuracy()) / 2;
+                    float speed = (distanceMeter - accuracy) * 1000 / milisecElapsed;
+                    if (speed > Const.BoostedSpeedMPS) {
+                        int interval = getAlarmIntervalBoosted();
+                        LocationDetector.inst().setInterval(interval);
+                        AlarmTimer.inst().setAlarmInterval(interval);
+                    }
+                    else {
+                        int interval = getAlarmIntervalNormal();
+                        LocationDetector.inst().setInterval(interval);
+                        AlarmTimer.inst().setAlarmInterval(interval);
+                    }
+                }
+            }
+            lastValidLocation = lastLocation;
+        }
     }
 
     private int lastAckLocationID = -1;
@@ -63,17 +93,34 @@ public class Model {
 
     private long serverTime = -1;
     private long serverTimeClientTick = -1;
-    public void setServerTime(long serverTime) {
+    public synchronized void setServerTime(long serverTime) {
         this.serverTime = serverTime;
         serverTimeClientTick = SystemClock.elapsedRealtime();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z"); // the format of your date
         sdf.setTimeZone(TimeZone.getTimeZone("GMT+7")); // give a timezone reference for formating
         Log.i("setServerTime", sdf.format(new Date(serverTime)));
     }
-    public long getServerTime() {
+    public synchronized long getServerTime() {
         if (serverTime >= 0 && serverTimeClientTick >= 0) {
             return serverTime + SystemClock.elapsedRealtime() - serverTimeClientTick;
         }
         return System.currentTimeMillis();
+    }
+
+    private int alarmIntervalNormal = Const.DefaultAlarmIntervalInSeconds;
+    private int alarmIntervalBoosted = Const.DefaultAlarmIntervalInSeconds;
+    public synchronized void setAlarmIntervalNormal(int sec) {
+        alarmIntervalNormal = sec;
+        Log.i("setAlarmIntervalNormal", String.valueOf(sec));
+    }
+    public synchronized void setAlarmIntervalBoosted(int sec) {
+        alarmIntervalBoosted = sec;
+        Log.i("setAlarmIntervalBoosted", String.valueOf(sec));
+    }
+    public synchronized int getAlarmIntervalNormal() {
+        return alarmIntervalNormal;
+    }
+    public synchronized int getAlarmIntervalBoosted() {
+        return alarmIntervalBoosted;
     }
 }

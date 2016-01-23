@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -14,6 +15,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -32,6 +34,10 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
 import com.orhanobut.dialogplus.DialogPlus;
 import com.orhanobut.dialogplus.Holder;
 import com.orhanobut.dialogplus.ListHolder;
@@ -59,8 +65,9 @@ import CommonLib.Model;
 /**
  * Created by DMSv4 on 12/3/2015.
  */
-public class RightFragment extends Fragment implements View.OnClickListener, RecyclerItemClickListener.OnItemClickListener {
+public class RightFragment extends Fragment implements OnMapReadyCallback, View.OnClickListener, RecyclerItemClickListener.OnItemClickListener {
     private static final int ACTION_TAKE_CARMERA = 999;
+    private GoogleMap googleMap;
     private EditText editName, editPass, editPassOld, editPassNew, editPassNewAgain;
     private ImageView imagePhotoIn, imagePhotoOut;
     private TextInputLayout inputLayoutName, inputLayoutPassword, inputLayoutPasswordOld, inputLayoutPasswordNew, inputLayoutPasswordNewAgain;
@@ -70,14 +77,16 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
     private RecyclerViewAdapterOrder adapterOrder;
     private RecyclerViewAdapterCustomer adapterCustomer;
     private LoadingView loadingLogin;
-    private int positionClick;
     private CheckBox checkLogin;
     private String passWordStore = "", userNameStore = "";
     private String imagePath;
-    private File carmeraFile;
     private boolean isRunning = false;
     private Handler handler = new Handler();
     private Context context;
+    private SupportMapFragment mapFragment;
+    private Location location = null;
+
+    private int positionClick = 0;
     private Runnable runnable = new Runnable() {
         @Override
         public void run() {
@@ -121,11 +130,14 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
         if (!checkLoginValue)
             showLayout(Layouts.LogIn);
         else {
-            showLayout(Layouts.Main);
+            EventPool.control().enQueue(new EventType.EventLoginRequest(userNameStore, passWordStore));
         }
     }
 
     private void event(final View v) {
+        mapFragment = (SupportMapFragment) getChildFragmentManager()
+                .findFragmentById(R.id.map);
+        v.findViewById(R.id.fab).setOnClickListener(this);
         v.findViewById(R.id.btnCheckIn).setOnClickListener(this);
         v.findViewById(R.id.btnCheckOut).setOnClickListener(this);
         v.findViewById(R.id.btnNotify).setOnClickListener(this);
@@ -143,6 +155,7 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
         v.findViewById(R.id.btn_get_checkout).setOnClickListener(this);
         v.findViewById(R.id.btn_get_photo_checkout).setOnClickListener(this);
         v.findViewById(R.id.btn_save_send_checkin).setOnClickListener(this);
+        v.findViewById(R.id.btn_save_send_checkout).setOnClickListener(this);
         editName.addTextChangedListener(new MyTextWatcher(editName));
         editPass.addTextChangedListener(new MyTextWatcher(editPass));
         editPassOld.addTextChangedListener(new MyTextWatcher(editPassOld));
@@ -166,13 +179,15 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
         editPass = (EditText) v.findViewById(R.id.input_password);
         imagePhotoIn = (ImageView) v.findViewById(R.id.imagePhotoIn);
         imagePhotoOut = (ImageView) v.findViewById(R.id.imagePhotoOut);
+        Home.txtAddressIn = (TextView) v.findViewById(R.id.txtAddressIn);
+        Home.txtAddressOut = (TextView) v.findViewById(R.id.txtAddressOut);
         inputLayoutName = (TextInputLayout) v.findViewById(R.id.input_layout_name);
         inputLayoutPassword = (TextInputLayout) v.findViewById(R.id.input_layout_password);
         Home.linearLogin = (LinearLayout) v.findViewById(R.id.linear_login);
         Home.linearChangePass = (LinearLayout) v.findViewById(R.id.linear_change_pass);
         Home.linearListOrder = (LinearLayout) v.findViewById(R.id.linear_list_order);
         Home.linearCustomer = (LinearLayout) v.findViewById(R.id.linear_customer);
-        Home.mapView = (LinearLayout) v.findViewById(R.id.mapView);
+        Home.mapView = (CoordinatorLayout) v.findViewById(R.id.mapView);
         recyclerOrder = (RecyclerView) v.findViewById(R.id.recyclerOrder);
         recyclerOrder.setHasFixedSize(true);
         recyclerCustomer = (RecyclerView) v.findViewById(R.id.recyclerCustomer);
@@ -239,7 +254,6 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
                 e.printStackTrace();
             }
             if (MyMethod.CHECKIN) {
-
                 imagePhotoIn.setVisibility(View.VISIBLE);
                 imagePhotoIn.setImageBitmap(bitmap);
             } else {
@@ -264,7 +278,7 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
         else
             imagePath = Environment.getExternalStorageDirectory() + "/DMSData/" + "OUT_"
                     + System.currentTimeMillis() + ".jpg";
-        carmeraFile = new File(imagePath);
+        File carmeraFile = new File(imagePath);
         Uri imageCarmeraUri = Uri.fromFile(carmeraFile);
         intent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
                 imageCarmeraUri);
@@ -279,6 +293,23 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.fab:
+                if (location != null) {
+                    if (MyMethod.CHECKIN) {
+                        showLayout(Layouts.CheckIn);
+                        Home.txtAddressIn.setText(MyMethod.getAddress(location, context));
+
+                    } else {
+                        showLayout(Layouts.CheckOut);
+                        Home.txtAddressOut.setText(MyMethod.getAddress(location, context));
+                    }
+                } else {
+                    MyMethod.refreshMap(googleMap);
+                    EventPool.control().enQueue(new EventType.EventLoadHighPrecisionLocationRequest());
+                    MyMethod.showToast(context, context.getString(R.string.location_wait));
+                }
+
+                break;
             case R.id.btn_get_checkout:
                 showLayout(Layouts.Map);
                 break;
@@ -294,14 +325,23 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
                 takePhoto();
                 break;
             case R.id.btn_save_send_checkin:
-                //SAVE AND SEND CHECK IN DATA
-                showLayout(Layouts.Main);
+
+                if (MyMethod.checkInputSaveSend(Home.txtAddressIn, imagePhotoIn, context)) {
+                    //SAVE AND SEND CHECK IN DATA
+                    showLayout(Layouts.Main);
+                }
                 break;
             case R.id.btnCheckIn:
                 showLayout(Layouts.CheckIn);
                 break;
             case R.id.btnCheckOut:
                 showLayout(Layouts.CheckOut);
+                break;
+            case R.id.btn_save_send_checkout:
+                if (MyMethod.checkInputSaveSend(Home.txtAddressOut, imagePhotoOut, context)) {
+                    //SAVE AND SEND CHECK IN DATA
+                    showLayout(Layouts.Main);
+                }
                 break;
             case R.id.btnCustomer:
                 Customer customer = new Customer();
@@ -399,6 +439,7 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
                 Home.linearChangePass.setVisibility(View.GONE);
                 Home.linearListOrder.setVisibility(View.GONE);
                 Home.linearCustomer.setVisibility(View.GONE);
+                Home.mapView.setVisibility(View.GONE);
                 break;
             case CheckOut:
                 MyMethod.CHECKIN = false;
@@ -409,6 +450,7 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
                 Home.linearChangePass.setVisibility(View.GONE);
                 Home.linearListOrder.setVisibility(View.GONE);
                 Home.linearCustomer.setVisibility(View.GONE);
+                Home.mapView.setVisibility(View.GONE);
                 break;
             case Notify:
                 break;
@@ -420,6 +462,7 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
                 Home.linearChangePass.setVisibility(View.GONE);
                 Home.linearListOrder.setVisibility(View.GONE);
                 Home.linearCustomer.setVisibility(View.VISIBLE);
+                Home.mapView.setVisibility(View.GONE);
                 break;
             case Setting:
                 break;
@@ -431,6 +474,7 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
                 Home.rela_checkout.setVisibility(View.GONE);
                 Home.rela_main.setVisibility(View.GONE);
                 Home.linearLogin.setVisibility(View.VISIBLE);
+                Home.mapView.setVisibility(View.GONE);
                 Home.linearChangePass.setVisibility(View.GONE);
                 Home.linearListOrder.setVisibility(View.GONE);
                 break;
@@ -441,6 +485,7 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
                 Home.rela_main.setVisibility(View.GONE);
                 Home.linearLogin.setVisibility(View.GONE);
                 Home.linearChangePass.setVisibility(View.VISIBLE);
+                Home.mapView.setVisibility(View.GONE);
                 Home.linearListOrder.setVisibility(View.GONE);
                 break;
             case Map:
@@ -452,6 +497,7 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
                 Home.linearChangePass.setVisibility(View.GONE);
                 Home.linearListOrder.setVisibility(View.GONE);
                 Home.mapView.setVisibility(View.VISIBLE);
+                mapFragment.getMapAsync(this);
                 break;
             case ListOrder:
                 //
@@ -460,6 +506,7 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
                 Home.rela_main.setVisibility(View.GONE);
                 Home.linearLogin.setVisibility(View.GONE);
                 Home.linearChangePass.setVisibility(View.GONE);
+                Home.mapView.setVisibility(View.GONE);
                 Home.linearListOrder.setVisibility(View.VISIBLE);
                 Home.linearCustomer.setVisibility(View.GONE);
                 break;
@@ -471,6 +518,7 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
                 Home.linearLogin.setVisibility(View.GONE);
                 Home.linearChangePass.setVisibility(View.GONE);
                 Home.linearListOrder.setVisibility(View.GONE);
+                Home.mapView.setVisibility(View.GONE);
                 Home.linearCustomer.setVisibility(View.GONE);
                 break;
             case MenuOrderClick:
@@ -661,11 +709,31 @@ public class RightFragment extends Fragment implements View.OnClickListener, Rec
             case LoadCustomers:
                 showLayout(Layouts.Customer);
                 break;
+            case HighPrecisionLocation:
+                EventType.EventLoadHighPrecisionLocationResult locationResult = (EventType.EventLoadHighPrecisionLocationResult) event;
+                if (locationResult.location != null) {
+                    location = locationResult.location;
+                    MyMethod.loadMap(googleMap, location, context);
+                } else {
+                    MyMethod.showToast(context, context.getString(R.string.location_none));
+                }
+
+                break;
             default:
                 Log.w("View_processEvent", "unhandled " + event.type);
                 break;
         }
     }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        if (googleMap != null) {
+            EventPool.control().enQueue(new EventType.EventLoadHighPrecisionLocationRequest());
+            this.googleMap = googleMap;
+        }
+
+    }
+
 
     private enum Layouts {
         CheckIn, CheckOut, Notify, Customer, Setting, LogIn, ChangePass, ListOrder, Main, MenuOrderClick, MenuCustomerClick, Map

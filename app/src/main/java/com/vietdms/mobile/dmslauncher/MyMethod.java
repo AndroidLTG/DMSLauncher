@@ -11,6 +11,10 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.graphics.Typeface;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
@@ -18,24 +22,39 @@ import android.provider.CallLog;
 import android.provider.ContactsContract;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.vietdms.mobile.dmslauncher.CustomAdapter.CustomAdapterGripView;
 import com.vietdms.mobile.dmslauncher.GetSet.AppsDetail;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 
 /**
@@ -47,6 +66,7 @@ public class MyMethod {
     public static final String SHAREDPREFERENCE_KEY = "CheckLogin_Value";
     public static final String SHAREDPREFERENCE_User = "UserName_Value";
     public static final String SHAREDPREFERENCE_Pass = "PassWord_Value";
+    
     public static boolean CHECKIN = false;//true is open rela_checkin false is open rela_checkout
     public static boolean ORDER = false;// true is open order false is open customer
 
@@ -304,4 +324,119 @@ public class MyMethod {
     }
 
 
+    public static String getAddress(Location lastLocation, Context context) {
+        Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+        try {
+            List<Address> addresses = geocoder.getFromLocation(lastLocation.getLatitude(), lastLocation.getLongitude(), 1);
+            String add = "";
+            Address obj = addresses.get(0);
+            for (int i = 0; i < obj.getMaxAddressLineIndex(); i++)
+                add += obj.getAddressLine(i) + " ";
+            return add;
+
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return "";
+        }
+
+    }
+
+    public static void addMarker(GoogleMap googleMap, LatLng latLng, String title, String snippet, final Context context) {
+        googleMap.addMarker(new MarkerOptions()
+                        .position(latLng)
+                        .title(title)
+                        .snippet(snippet)
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.markerto_btn))
+        ).showInfoWindow();
+        googleMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+
+            @Override
+            public View getInfoWindow(Marker arg0) {
+                return null;
+            }
+
+            @Override
+            public View getInfoContents(Marker marker) {
+
+                LinearLayout info = new LinearLayout(context);
+                info.setOrientation(LinearLayout.VERTICAL);
+
+                TextView title = new TextView(context);
+                title.setTextColor(Color.BLUE);
+                title.setGravity(Gravity.CENTER);
+                title.setTypeface(null, Typeface.BOLD);
+                title.setText(marker.getTitle());
+
+                TextView snippet = new TextView(context);
+                snippet.setTextColor(Color.GRAY);
+                snippet.setText(marker.getSnippet());
+                info.addView(title);
+                info.addView(snippet);
+
+                return info;
+            }
+        });
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 16);
+        googleMap.animateCamera(cameraUpdate);
+    }
+
+    public static void loadMap(GoogleMap googleMap, Location location, final Context context) {
+
+        googleMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(location.getLatitude(), location.getLongitude())
+                        )
+                        .title(context.getString(R.string.location_here))
+                        .snippet(MyMethod.getAddress(location, context))
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.markerto_btn))
+        ).showInfoWindow();
+        googleMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+
+            @Override
+            public View getInfoWindow(Marker arg0) {
+                return null;
+            }
+
+            @Override
+            public View getInfoContents(Marker marker) {
+
+                LinearLayout info = new LinearLayout(context);
+                info.setOrientation(LinearLayout.VERTICAL);
+
+                TextView title = new TextView(context);
+                title.setTextColor(Color.BLUE);
+                title.setGravity(Gravity.CENTER);
+                title.setTypeface(null, Typeface.BOLD);
+                title.setText(marker.getTitle());
+
+                TextView snippet = new TextView(context);
+                snippet.setTextColor(Color.GRAY);
+                snippet.setText(marker.getSnippet());
+                info.addView(title);
+                info.addView(snippet);
+
+                return info;
+            }
+        });
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 16);
+        googleMap.animateCamera(cameraUpdate);
+    }
+
+
+    public static void refreshMap(GoogleMap googleMap) {
+        googleMap.clear();
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(15.8669512, 101.299562), 10);
+        googleMap.animateCamera(cameraUpdate);
+    }
+
+    public static boolean checkInputSaveSend(TextView textView, ImageView imageView, Context context) {
+        if (textView.getText().toString().equals(context.getString(R.string.location_none))) {
+            showToast(context, context.getString(R.string.notify_location));
+            return false;
+        } else if (imageView.getDrawable().getBounds().equals(ContextCompat.getDrawable(context, R.mipmap.ic_launcher).getBounds())) {
+            showToast(context, context.getString(R.string.notify_take_photo));
+            return false;
+        } else
+            return true;
+    }
 }

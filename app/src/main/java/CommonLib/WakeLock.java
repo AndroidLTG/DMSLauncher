@@ -24,10 +24,15 @@ public class WakeLock {
     private PowerManager.WakeLock wakeLock = null;
     private int lockCount = 0;
     public synchronized boolean init(Context context) {
-        PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-        if (pm == null) return false;
-        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, context.getString(R.string.tagWL));
-        if (wakeLock == null) return false;
+        try {
+            PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+            if (pm == null) return false;
+            wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, context.getString(R.string.tagWL));
+            if (wakeLock == null) return false;
+        }
+        catch (Exception ex) {
+            return false;
+        }
         return true;
     }
     public synchronized boolean acquire() {

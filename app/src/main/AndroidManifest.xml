@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.vietdms.mobile.dmslauncher">
+    package="com.vietdms.mobile.dmslauncher" >
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
@@ -18,6 +18,8 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -31,13 +33,13 @@
         android:stateNotNeeded="true"
         android:taskAffinity=""
         android:theme="@style/MyMaterialTheme"
-        android:windowSoftInputMode="adjustPan">
+        android:windowSoftInputMode="adjustPan" >
         <activity
             android:name=".Home"
             android:clearTaskOnLaunch="true"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
-            android:stateNotNeeded="true">
+            android:stateNotNeeded="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -48,7 +50,6 @@
             </intent-filter>
         </activity>
 
-
         <service
             android:name=".Service.BackgroundService"
             android:description="@string/app_design_name"
@@ -57,7 +58,7 @@
 
         <receiver
             android:name=".Receiver.DMSDeviceAdminReceiver"
-            android:permission="android.permission.BIND_DEVICE_ADMIN">
+            android:permission="android.permission.BIND_DEVICE_ADMIN" >
             <intent-filter>
 
                 <!-- This action is required -->
@@ -69,7 +70,7 @@
                 android:name="android.app.device_admin"
                 android:resource="@xml/device_admin_dms" />
         </receiver>
-        <receiver android:name=".Receiver.LocationAlarmManager"></receiver>
+        <receiver android:name=".Receiver.AlarmReceiver" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -81,24 +82,26 @@
 
         <receiver
             android:name=".Receiver.BootReceiver"
-            android:label="BootReceiver">
+            android:label="BootReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
+
         <activity
-            android:name="com.vietdms.mobile.dmslauncher.CustomErrorActivity"
-            android:process=":error_activity">
+            android:name=".CustomErrorActivity"
+            android:process=":error_activity" >
             <intent-filter>
+
                 <!-- ... -->
                 <action android:name="cat.ereza.customactivityoncrash.ERROR" />
             </intent-filter>
         </activity>
-
-
+       
     </application>
 
 </manifest>

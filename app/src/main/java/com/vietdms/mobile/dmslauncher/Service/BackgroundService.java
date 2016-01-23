@@ -8,8 +8,6 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.vietdms.mobile.dmslauncher.Receiver.LocationAlarmManager;
-
 import Controller.ControlThread;
 
 public class BackgroundService extends Service {
@@ -40,8 +38,6 @@ public class BackgroundService extends Service {
         Log.d("BackgroundService", "onStartCommand");
         // We want this service to continue running until it is explicitly
         // stopped, so return sticky.
-        LocationAlarmManager alarmManager = new LocationAlarmManager();
-        alarmManager.SetAlarm(getApplicationContext());
         return START_STICKY;
     }
 

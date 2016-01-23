@@ -1,5 +1,7 @@
 package CommonLib;
 
+import android.location.Location;
+
 import com.vietdms.mobile.dmslauncher.RecycleView.Customer;
 
 import java.util.ArrayList;
@@ -14,10 +16,11 @@ public abstract class EventType {
         ChangePass,
         LoadOrders,
         LoadCustomers,
-        SendTracking,
+        AlarmTrigger,
         SendListApp,
         SendLogCrash,
-        TakePhoto
+        TakePhoto,
+        HighPrecisionLocation
     }
 
     public static class EventBase {
@@ -82,6 +85,11 @@ public abstract class EventType {
             super(Type.LoadOrders);
         }
     }
+    public static class EventLoadHighPrecisionLocationRequest extends EventBase {
+        public EventLoadHighPrecisionLocationRequest() {
+            super(Type.HighPrecisionLocation);
+        }
+    }
 
     public static class EventLoadCustomerRequest extends EventBase {
         public EventLoadCustomerRequest() {
@@ -144,5 +152,16 @@ public abstract class EventType {
             this.arrCustomer = arrCustomer;
         }
     }
+    public static class EventLoadHighPrecisionLocationResult extends EventBase {
+        public Location location;
+        public String message;
+
+        public EventLoadHighPrecisionLocationResult(Location location, String message) {
+            super(Type.HighPrecisionLocation);
+            this.location = location;
+            this.message = message;
+        }
+    }
+
 }
 

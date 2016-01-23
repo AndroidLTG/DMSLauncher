@@ -5,9 +5,11 @@ import android.util.Log;
 
 import java.util.HashMap;
 
+import CommonLib.AlarmTimer;
 import CommonLib.Const;
 import CommonLib.EventPool;
 import CommonLib.EventType;
+import CommonLib.LocationDetector;
 import CommonLib.Model;
 import CommonLib.PhoneState;
 import CommonLib.WakeLock;
@@ -37,6 +39,7 @@ public class ControlThread extends Thread {
         WakeLock.inst().init(context);
         LocalDB.inst().init(context);
         LocationDetector.inst().start(context);
+        AlarmTimer.inst().start(context);
         super.start();
     }
 
@@ -82,8 +85,9 @@ public class ControlThread extends Thread {
             case LoadCustomers:
                 EventPool.view().enQueue(new EventType.EventLoadCustomerResult(true, "OK", null));
                 break;
-            case SendTracking:
+            case AlarmTrigger:
                 NetworkTransaction.inst().sendTracking();
+                AlarmTimer.inst().continueTimer();
                 WakeLock.inst().release();
                 break;
             case SendListApp:
@@ -92,6 +96,9 @@ public class ControlThread extends Thread {
                 //To do this
 
                 EventPool.view().enQueue(new EventType.EventListAppResult(listAppRole));
+                break;
+            case HighPrecisionLocation:
+                EventPool.view().enQueue(new EventType.EventLoadHighPrecisionLocationResult(Model.inst().getLastLocation(), "OK"));
                 break;
             default:
                 Log.w("Control_processEvent", "unhandled " + event.type);

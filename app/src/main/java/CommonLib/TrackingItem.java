@@ -11,7 +11,7 @@ public class TrackingItem {
         public int MNC;
     }
     public int rowID = -1;
-    public String deviceId = Model.inst().getDeviceId();;
+    public String deviceId = Model.inst().getDeviceId();
     public String visitedId;
     public byte visitedType;
     public double latitude;
@@ -19,6 +19,7 @@ public class TrackingItem {
     public float accuracy;
     public float speed;
     public float distanceMeter;
+    public int milisecElapsed;
     public String note;
     public byte getType;
     public byte getMethod;

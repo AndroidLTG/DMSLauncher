@@ -71,4 +71,10 @@
     <string name="phone_location">com.android.contacts</string>
     <string name="customer">Khách hàng</string>
     <string name="log_out">Đăng xuất</string>
+    <string name="location_here">Vị trí hiện tại</string>
+    <string name="location_wait">Đang lấy vị trí, vui lòng đợi trong giây lát.</string>
+    <string name="location_none">Chưa có vị trí</string>
+    <string name="location_none_help">Vui lòng nhấn phím V để lấy lại vị trí</string>
+    <string name="notify_location">Vui lòng lấy vị trí</string>
+    <string name="notify_take_photo">Vui lòng chụp hình</string>
 </resources>

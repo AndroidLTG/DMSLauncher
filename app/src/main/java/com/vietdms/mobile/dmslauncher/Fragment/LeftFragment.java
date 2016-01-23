@@ -53,7 +53,6 @@ public class LeftFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_left, container, false);
         getId(v);
         loadLeft_();
-
         return v;
     }
 
