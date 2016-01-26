@@ -63,9 +63,7 @@ class NetworkTransaction {
             }
             item.locationDate = location.getTime();
         }
-        else {
-            item.locationDate = Model.inst().getServerTime();
-        }
+        item.trackingDate = Model.inst().getServerTime();
         item.cellInfo = PhoneState.inst().getCellInfo();
         item.batteryLevel = PhoneState.inst().getBatteryLevel();
         item.isWifi = PhoneState.inst().isWifi();

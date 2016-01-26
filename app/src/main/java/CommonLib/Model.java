@@ -64,23 +64,26 @@ public class Model {
             if (lastValidLocation != null) {
                 float distanceMeter = lastLocation.distanceTo(lastValidLocation);
                 int milisecElapsed = (int)(lastLocation.getTime() - lastValidLocation.getTime());
-                Bundle extras = new Bundle();
-                extras.putFloat("distanceMeter", distanceMeter);
-                extras.putInt("milisecElapsed", milisecElapsed);
-                lastLocation.setExtras(extras);
                 if (milisecElapsed > 0) {
-                    float accuracy = 0.0f;//(lastLocation.getAccuracy() + lastValidLocation.getAccuracy()) / 2;
+                    float accuracy = (lastLocation.getAccuracy() + lastValidLocation.getAccuracy()) / 2;
                     float speed = (distanceMeter - accuracy) * 1000 / milisecElapsed;
+                    if (speed > Const.DroppedSpeedMPS) {
+                        lastLocation = null;
+                        return;
+                    }
                     if (speed > Const.BoostedSpeedMPS) {
                         int interval = getAlarmIntervalBoosted();
                         LocationDetector.inst().setInterval(interval);
                         AlarmTimer.inst().setAlarmInterval(interval);
-                    }
-                    else {
+                    } else {
                         int interval = getAlarmIntervalNormal();
                         LocationDetector.inst().setInterval(interval);
                         AlarmTimer.inst().setAlarmInterval(interval);
                     }
+                    Bundle extras = new Bundle();
+                    extras.putFloat("distanceMeter", distanceMeter);
+                    extras.putInt("milisecElapsed", milisecElapsed);
+                    lastLocation.setExtras(extras);
                 }
             }
             lastValidLocation = lastLocation;

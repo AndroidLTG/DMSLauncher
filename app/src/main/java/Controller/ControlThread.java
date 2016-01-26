@@ -100,6 +100,13 @@ public class ControlThread extends Thread {
             case HighPrecisionLocation:
                 EventPool.view().enQueue(new EventType.EventLoadHighPrecisionLocationResult(Model.inst().getLastLocation(), "OK"));
                 break;
+            case GCMToken:
+                break;
+            case GCMMessage: {
+                EventType.EventGCMMessage gcmMessage = (EventType.EventGCMMessage) event;
+                EventPool.view().enQueue(new EventType.EventGCMMessage(gcmMessage.message));
+            }
+                break;
             default:
                 Log.w("Control_processEvent", "unhandled " + event.type);
                 break;

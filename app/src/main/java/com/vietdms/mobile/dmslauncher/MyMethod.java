@@ -1,6 +1,9 @@
 package com.vietdms.mobile.dmslauncher;
 
 import android.Manifest;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.WallpaperManager;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -12,9 +15,11 @@ import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
@@ -22,9 +27,11 @@ import android.provider.CallLog;
 import android.provider.ContactsContract;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -66,7 +73,9 @@ public class MyMethod {
     public static final String SHAREDPREFERENCE_KEY = "CheckLogin_Value";
     public static final String SHAREDPREFERENCE_User = "UserName_Value";
     public static final String SHAREDPREFERENCE_Pass = "PassWord_Value";
-    
+    public static final String SENT_TOKEN_TO_SERVER = "sentTokenToServer";
+    public static final String REGISTRATION_COMPLETE = "registrationComplete";
+
     public static boolean CHECKIN = false;//true is open rela_checkin false is open rela_checkout
     public static boolean ORDER = false;// true is open order false is open customer
 
@@ -231,25 +240,41 @@ public class MyMethod {
 
     //MAIN MENU
     public static void callPhone(Context context) {// Show call app
+        try{
         Intent i = context.getPackageManager().getLaunchIntentForPackage(context.getString(R.string.phone_location));
         context.startActivity(i);
+        } catch (Exception e) {
+            Log.d(context.getString(R.string.tagEx), e.toString());
+        }
     }
 
     public static void showSms(Context context) {// Show sms app
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_DEFAULT);
-        intent.setType(context.getString(R.string.sms_location));
-        context.startActivity(intent);
+        try {
+            Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_DEFAULT);
+            intent.setType(context.getString(R.string.sms_location));
+            context.startActivity(intent);
+        } catch (Exception e) {
+            Log.d(context.getString(R.string.tagEx), e.toString());
+        }
     }
 
-    public static void lockDevice(DevicePolicyManager devicePolicyManager) {// Lock screen
-        devicePolicyManager.lockNow();
+    public static void lockDevice(Context context, DevicePolicyManager devicePolicyManager) {// Lock screen
+        try {
+            devicePolicyManager.lockNow();
+        } catch (Exception e) {
+            Log.d(context.getString(R.string.tagEx), e.toString());
+        }
     }
 
 
     public static void showGmail(Context context) {//show mail app
-        Intent i = context.getPackageManager().getLaunchIntentForPackage(context.getString(R.string.gmail_location));
-        context.startActivity(i);
+        try {
+            Intent i = context.getPackageManager().getLaunchIntentForPackage(context.getString(R.string.gmail_location));
+            context.startActivity(i);
+        } catch (Exception e) {
+            Log.d(context.getString(R.string.tagEx), e.toString());
+        }
     }
 
     public static List<AppsDetail> loadApps(Context context, ViewPager viewPager) {// Load all app in this phone
@@ -297,30 +322,38 @@ public class MyMethod {
     }
 
     public static HashMap<String, String> getListApp(Context context) {
-        PackageManager manager = context.getPackageManager();
-        HashMap<String, String> listApp = new HashMap<>();
-        Intent i = new Intent(Intent.ACTION_MAIN, null);
-        i.addCategory(Intent.CATEGORY_LAUNCHER);
-        List<ResolveInfo> availableActivities = manager.queryIntentActivities(i, 0);
-        for (ResolveInfo ri : availableActivities)
-            listApp.put(ri.activityInfo.name, ri.activityInfo.packageName);
-        return listApp;
+            PackageManager manager = context.getPackageManager();
+            HashMap<String, String> listApp = new HashMap<>();
+            Intent i = new Intent(Intent.ACTION_MAIN, null);
+            i.addCategory(Intent.CATEGORY_LAUNCHER);
+            List<ResolveInfo> availableActivities = manager.queryIntentActivities(i, 0);
+            for (ResolveInfo ri : availableActivities)
+                listApp.put(ri.activityInfo.name, ri.activityInfo.packageName);
+            return listApp;
     }
 
     public static void showApps(Context context, ViewPager viewPager, String s) {//show list app by a part of name
-        Home.allItems = MyMethod.loadApps(context, viewPager, s);
-        Home.adapterGripView = new CustomAdapterGripView(context, Home.allItems);
-        Home.gridListApp.setAdapter(Home.adapterGripView);
-        Home.adapterGripView.notifyDataSetChanged();
+        try {
+            Home.allItems = MyMethod.loadApps(context, viewPager, s);
+            Home.adapterGripView = new CustomAdapterGripView(context, Home.allItems);
+            Home.gridListApp.setAdapter(Home.adapterGripView);
+            Home.adapterGripView.notifyDataSetChanged();
+        } catch (Exception e) {
+            Log.d(context.getString(R.string.tagEx), e.toString());
+        }
     }
 
 
     public static void showApps(Context context, ViewPager viewPager) {//Show list app in device
-        Home.txtTitle.setText(context.getString(R.string.list_app));
-        Home.rotateLoading.start();
-        Home.allItems = MyMethod.loadApps(context, viewPager);
-        Home.adapterGripView = new CustomAdapterGripView(context, Home.allItems);
-        Home.gridListApp.setAdapter(Home.adapterGripView);
+        try {
+            Home.txtTitle.setText(context.getString(R.string.list_app));
+            Home.rotateLoading.start();
+            Home.allItems = MyMethod.loadApps(context, viewPager);
+            Home.adapterGripView = new CustomAdapterGripView(context, Home.allItems);
+            Home.gridListApp.setAdapter(Home.adapterGripView);
+        } catch (Exception e) {
+            Log.d(context.getString(R.string.tagEx), e.toString());
+        }
     }
 
 
@@ -343,90 +376,101 @@ public class MyMethod {
     }
 
     public static void addMarker(GoogleMap googleMap, LatLng latLng, String title, String snippet, final Context context) {
-        googleMap.addMarker(new MarkerOptions()
-                        .position(latLng)
-                        .title(title)
-                        .snippet(snippet)
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.markerto_btn))
-        ).showInfoWindow();
-        googleMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+        try {
+            googleMap.addMarker(new MarkerOptions()
+                            .position(latLng)
+                            .title(title)
+                            .snippet(snippet)
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.markerto_btn))
+            ).showInfoWindow();
+            googleMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
 
-            @Override
-            public View getInfoWindow(Marker arg0) {
-                return null;
-            }
+                @Override
+                public View getInfoWindow(Marker arg0) {
+                    return null;
+                }
 
-            @Override
-            public View getInfoContents(Marker marker) {
+                @Override
+                public View getInfoContents(Marker marker) {
 
-                LinearLayout info = new LinearLayout(context);
-                info.setOrientation(LinearLayout.VERTICAL);
+                    LinearLayout info = new LinearLayout(context);
+                    info.setOrientation(LinearLayout.VERTICAL);
 
-                TextView title = new TextView(context);
-                title.setTextColor(Color.BLUE);
-                title.setGravity(Gravity.CENTER);
-                title.setTypeface(null, Typeface.BOLD);
-                title.setText(marker.getTitle());
+                    TextView title = new TextView(context);
+                    title.setTextColor(Color.BLUE);
+                    title.setGravity(Gravity.CENTER);
+                    title.setTypeface(null, Typeface.BOLD);
+                    title.setText(marker.getTitle());
 
-                TextView snippet = new TextView(context);
-                snippet.setTextColor(Color.GRAY);
-                snippet.setText(marker.getSnippet());
-                info.addView(title);
-                info.addView(snippet);
+                    TextView snippet = new TextView(context);
+                    snippet.setTextColor(Color.GRAY);
+                    snippet.setText(marker.getSnippet());
+                    info.addView(title);
+                    info.addView(snippet);
 
-                return info;
-            }
-        });
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 16);
-        googleMap.animateCamera(cameraUpdate);
+                    return info;
+                }
+            });
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 16);
+            googleMap.animateCamera(cameraUpdate);
+        } catch (Exception e) {
+            Log.d(context.getString(R.string.tagEx), e.toString());
+        }
     }
 
     public static void loadMap(GoogleMap googleMap, Location location, final Context context) {
+        try {
+            googleMap.addMarker(new MarkerOptions()
+                            .position(new LatLng(location.getLatitude(), location.getLongitude())
+                            )
+                            .title(context.getString(R.string.location_here))
+                            .snippet(MyMethod.getAddress(location, context))
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.markerto_btn))
+            ).showInfoWindow();
+            googleMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
 
-        googleMap.addMarker(new MarkerOptions()
-                        .position(new LatLng(location.getLatitude(), location.getLongitude())
-                        )
-                        .title(context.getString(R.string.location_here))
-                        .snippet(MyMethod.getAddress(location, context))
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.markerto_btn))
-        ).showInfoWindow();
-        googleMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+                @Override
+                public View getInfoWindow(Marker arg0) {
+                    return null;
+                }
 
-            @Override
-            public View getInfoWindow(Marker arg0) {
-                return null;
-            }
+                @Override
+                public View getInfoContents(Marker marker) {
 
-            @Override
-            public View getInfoContents(Marker marker) {
+                    LinearLayout info = new LinearLayout(context);
+                    info.setOrientation(LinearLayout.VERTICAL);
 
-                LinearLayout info = new LinearLayout(context);
-                info.setOrientation(LinearLayout.VERTICAL);
+                    TextView title = new TextView(context);
+                    title.setTextColor(Color.BLUE);
+                    title.setGravity(Gravity.CENTER);
+                    title.setTypeface(null, Typeface.BOLD);
+                    title.setText(marker.getTitle());
 
-                TextView title = new TextView(context);
-                title.setTextColor(Color.BLUE);
-                title.setGravity(Gravity.CENTER);
-                title.setTypeface(null, Typeface.BOLD);
-                title.setText(marker.getTitle());
+                    TextView snippet = new TextView(context);
+                    snippet.setTextColor(Color.GRAY);
+                    snippet.setText(marker.getSnippet());
+                    info.addView(title);
+                    info.addView(snippet);
 
-                TextView snippet = new TextView(context);
-                snippet.setTextColor(Color.GRAY);
-                snippet.setText(marker.getSnippet());
-                info.addView(title);
-                info.addView(snippet);
-
-                return info;
-            }
-        });
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 16);
-        googleMap.animateCamera(cameraUpdate);
+                    return info;
+                }
+            });
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 16);
+            googleMap.animateCamera(cameraUpdate);
+        } catch (Exception e) {
+            Log.d(context.getString(R.string.tagEx), e.toString());
+        }
     }
 
 
-    public static void refreshMap(GoogleMap googleMap) {
-        googleMap.clear();
-        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(15.8669512, 101.299562), 10);
-        googleMap.animateCamera(cameraUpdate);
+    public static void refreshMap(Context context, GoogleMap googleMap) {
+        try {
+            googleMap.clear();
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(15.8669512, 101.299562), 10);
+            googleMap.animateCamera(cameraUpdate);
+        } catch (Exception e) {
+            Log.d(context.getString(R.string.tagEx), e.toString());
+        }
     }
 
     public static boolean checkInputSaveSend(TextView textView, ImageView imageView, Context context) {
@@ -438,5 +482,48 @@ public class MyMethod {
             return false;
         } else
             return true;
+    }
+
+    public static void sendNotification(Context context, String message) {
+        try {
+            Intent intent = new Intent(context, Home.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0 /* Request code */, intent,
+                    PendingIntent.FLAG_ONE_SHOT);
+
+            Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context)
+                    .setSmallIcon(R.drawable.notice_btn)
+                    .setContentTitle("Thông báo công ty")
+                    .setContentText(message)
+                    .setAutoCancel(true)
+                    .setSound(defaultSoundUri)
+                    .setContentIntent(pendingIntent);
+
+            NotificationManager notificationManager =
+                    (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+            notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+        } catch (Exception e) {
+            Log.d(context.getString(R.string.tagEx), e.toString());
+        }
+    }
+
+    public static Drawable getWallpaper(Context context) {
+        try {
+            final WallpaperManager wallpaperManager = WallpaperManager.getInstance(context);
+            return wallpaperManager.getDrawable();
+        } catch (Exception e) {
+            Log.d(context.getString(R.string.tagEx), e.toString());
+            return ContextCompat.getDrawable(context, R.drawable.background);
+        }
+    }
+
+    public static void showChangeWallpaper(Context context) {
+        try {
+            context.startActivity(new Intent("android.intent.action.SET_WALLPAPER"));
+        } catch (Exception e) {
+            Log.d(context.getString(R.string.tagEx), e.toString());
+        }
     }
 }

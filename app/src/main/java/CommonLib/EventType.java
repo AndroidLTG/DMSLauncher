@@ -20,7 +20,9 @@ public abstract class EventType {
         SendListApp,
         SendLogCrash,
         TakePhoto,
-        HighPrecisionLocation
+        HighPrecisionLocation,
+        GCMToken,
+        GCMMessage
     }
 
     public static class EventBase {
@@ -30,17 +32,25 @@ public abstract class EventType {
             this.type = type;
         }
     }
-
+    //SEND FROM VIEW
+    public static class  EventGCMToken extends EventBase {
+        public String token;
+        public EventGCMToken(String token){
+            super(Type.GCMToken);
+            this.token = token;
+        }
+    }
     public static class EventTakePhoto extends EventBase {
         public String imagePath;
         public long imageTime;
 
-        public EventTakePhoto(String imagePath,long imageTime) {
+        public EventTakePhoto(String imagePath, long imageTime) {
             super(Type.TakePhoto);
             this.imagePath = imagePath;
             this.imageTime = imageTime;
         }
     }
+
     public static class EventLogCrash extends EventBase {
         public String logCrash;
 
@@ -80,11 +90,13 @@ public abstract class EventType {
 
         }
     }
+
     public static class EventLoadOrderRequest extends EventBase {
         public EventLoadOrderRequest() {
             super(Type.LoadOrders);
         }
     }
+
     public static class EventLoadHighPrecisionLocationRequest extends EventBase {
         public EventLoadHighPrecisionLocationRequest() {
             super(Type.HighPrecisionLocation);
@@ -96,8 +108,15 @@ public abstract class EventType {
             super(Type.LoadCustomers);
         }
     }
+//RETURN FROM CONTROL
 
-
+    public static class EventGCMMessage extends EventBase {
+        public String message ;
+        public EventGCMMessage(String message){
+            super(Type.GCMMessage);
+            this.message = message;
+        }
+    }
     public static class EventListAppResult extends EventBase {
         public HashMap<String, Integer> listAppRole;
 
@@ -128,6 +147,7 @@ public abstract class EventType {
             this.message = message;
         }
     }
+
     public static class EventLoadOrderResult extends EventBase {
         public boolean success;
         public String message;
@@ -140,6 +160,7 @@ public abstract class EventType {
             this.arrOrder = arrOrder;
         }
     }
+
     public static class EventLoadCustomerResult extends EventBase {
         public boolean success;
         public String message;
@@ -152,6 +173,7 @@ public abstract class EventType {
             this.arrCustomer = arrCustomer;
         }
     }
+
     public static class EventLoadHighPrecisionLocationResult extends EventBase {
         public Location location;
         public String message;

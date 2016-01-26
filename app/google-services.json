@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_id": "dms-launcher",
+    "project_number": "427976601345",
+    "name": "DMS Launcher"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:427976601345:android:e4cf402d08a2d6f3",
+        "client_id": "android:com.vietdms.mobile.dmslauncher",
+        "client_type": 1,
+        "android_client_info": {
+          "package_name": "com.vietdms.mobile.dmslauncher"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "cloud_messaging_service": {
+          "status": 2,
+          "apns_config": []
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "google_signin_service": {
+          "status": 1
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "client_info": [],
+  "ARTIFACT_VERSION": "1"
+}

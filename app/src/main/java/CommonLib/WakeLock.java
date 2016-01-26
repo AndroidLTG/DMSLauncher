@@ -11,9 +11,11 @@ import com.vietdms.mobile.dmslauncher.R;
  */
 public class WakeLock {
     private static WakeLock instance = null;
+
     private WakeLock() {
     }
-    public synchronized static WakeLock inst(){
+
+    public synchronized static WakeLock inst() {
         if (instance == null) {
             instance = new WakeLock();
             Log.d("WakeLock", "Create new instance");
@@ -23,18 +25,19 @@ public class WakeLock {
 
     private PowerManager.WakeLock wakeLock = null;
     private int lockCount = 0;
+
     public synchronized boolean init(Context context) {
         try {
             PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
             if (pm == null) return false;
             wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, context.getString(R.string.tagWL));
             if (wakeLock == null) return false;
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             return false;
         }
         return true;
     }
+
     public synchronized boolean acquire() {
         if (wakeLock != null) {
             if (lockCount == 0) {
@@ -45,6 +48,7 @@ public class WakeLock {
         }
         return false;
     }
+
     public synchronized boolean release() {
         if (wakeLock != null) {
             lockCount--;

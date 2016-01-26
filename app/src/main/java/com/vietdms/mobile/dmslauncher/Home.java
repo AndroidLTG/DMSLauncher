@@ -4,17 +4,24 @@ import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.admin.DevicePolicyManager;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -25,9 +32,12 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.orhanobut.dialogplus.DialogPlus;
 import com.victor.loading.rotate.RotateLoading;
 import com.vietdms.mobile.dmslauncher.CustomAdapter.CustomAdapterGripView;
@@ -35,6 +45,7 @@ import com.vietdms.mobile.dmslauncher.CustomAdapter.CustomAdapterListView;
 import com.vietdms.mobile.dmslauncher.Fragment.CenterFragment;
 import com.vietdms.mobile.dmslauncher.Fragment.LeftFragment;
 import com.vietdms.mobile.dmslauncher.Fragment.RightFragment;
+import com.vietdms.mobile.dmslauncher.GCM.RegistrationIntentService;
 import com.vietdms.mobile.dmslauncher.GetSet.AppsDetail;
 import com.vietdms.mobile.dmslauncher.GetSet.CallHistory;
 import com.vietdms.mobile.dmslauncher.Receiver.DMSDeviceAdminReceiver;
@@ -46,8 +57,15 @@ import java.util.List;
 
 import CommonLib.EventPool;
 import CommonLib.EventType;
+import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
 
 public class Home extends AppCompatActivity implements ViewPager.OnPageChangeListener, RecyclerItemClickListener.OnItemClickListener {
+    //GCM
+    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    private static final String TAG_GCM = "GCM_LOG";
+    private BroadcastReceiver mRegistrationBroadcastReceiver;
+
+    //---
     static final int ACTIVATION_REQUEST = 47; // identifies our request id
     public static GridView gridListApp;
     public static LinearLayout layout_listapp;
@@ -74,7 +92,9 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
     public static ViewPager viewPager;
     public static PackageManager manager;
     private CoordinatorLayout coordinatorLayout;
-    public static ImageView imgCenter;
+    public static TextView mInformationTextView;
+    public static LinearLayout linearMain;
+    public static RelativeLayout relativeRight,relativeLeft;
 
 
     @Override
@@ -94,6 +114,29 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
 //        CustomActivityOnCrash.setErrorActivityClass(CustomErrorActivity.class);
         EventPool.control().enQueue(new EventType.EventListApp(MyMethod.getListApp(getApplicationContext())));
 
+
+
+        //GCM
+        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                SharedPreferences sharedPreferences =
+                        PreferenceManager.getDefaultSharedPreferences(context);
+                boolean sentToken = sharedPreferences
+                        .getBoolean(MyMethod.SENT_TOKEN_TO_SERVER, false);
+                if (sentToken) {
+                    mInformationTextView.setText(getString(R.string.gcm_send_message));
+                } else {
+                    mInformationTextView.setText(getString(R.string.token_error_message));
+                }
+            }
+        };
+
+        if (checkPlayServices()) {
+            // Start IntentService to register this application with GCM.
+            Intent intent = new Intent(this, RegistrationIntentService.class);
+            startService(intent);
+        }
     }
 
     @Override
@@ -171,8 +214,10 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
         switch (position) {
             case 0:
                 txtTitle.setText(getString(R.string.calllog));
+
                 break;
             case 1:
+
                 if (layout_listapp != null)
                     if (MyMethod.isVisible(layout_listapp))
                         txtTitle.setText(getString(R.string.list_app));
@@ -180,6 +225,7 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
                 break;
             case 2:
                 txtTitle.setText(getString(R.string.app_dms));
+
                 break;
             default:
                 linearMenu.setVisibility(View.VISIBLE);
@@ -203,14 +249,31 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
 //            adapterListView.notifyDataSetChanged();
 //        }
 //        viewPager.setCurrentItem(1);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
         super.onPause();
     }
-
+    private boolean checkPlayServices() {
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        int resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (apiAvailability.isUserResolvableError(resultCode)) {
+                apiAvailability.getErrorDialog(this, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST)
+                        .show();
+            } else {
+                Log.i(TAG_GCM, "This device is not supported.");
+                finish();
+            }
+            return false;
+        }
+        return true;
+    }
     @Override
     protected void onResume() {
         if (!MyMethod.checkAdminActive(devicePolicyManager, dmsDeviceAdmin)) getPermission();
         Log.w("onResume", "onResume");
         super.onResume();
+        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
+                new IntentFilter(MyMethod.REGISTRATION_COMPLETE));
     }
 
     @Override

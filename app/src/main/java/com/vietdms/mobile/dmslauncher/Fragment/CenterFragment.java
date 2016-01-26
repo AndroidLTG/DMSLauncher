@@ -1,7 +1,9 @@
 package com.vietdms.mobile.dmslauncher.Fragment;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -16,6 +18,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.vietdms.mobile.dmslauncher.Home;
 import com.vietdms.mobile.dmslauncher.MyMethod;
@@ -29,8 +32,11 @@ import java.util.TimerTask;
  * Created by DMSv4 on 12/3/2015.
  */
 public class CenterFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemLongClickListener, AdapterView.OnItemClickListener, TextWatcher {
-    private static final String PACKAGE = "package:";;
+    private static final String PACKAGE = "package:";
+    ;
     private Timer timer = new Timer();
+    private Context context;
+
     public CenterFragment() {
 
     }
@@ -50,6 +56,9 @@ public class CenterFragment extends Fragment implements View.OnClickListener, Ad
     }
 
     private void event(View v) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            Home.linearMain.setBackground(MyMethod.getWallpaper(context));
+        }
         v.findViewById(R.id.btn_Call).setOnClickListener(this);
         v.findViewById(R.id.btn_SmS).setOnClickListener(this);
         v.findViewById(R.id.btn_Email).setOnClickListener(this);
@@ -58,6 +67,9 @@ public class CenterFragment extends Fragment implements View.OnClickListener, Ad
     }
 
     private void getId(View v) {
+        context = getContext();
+        Home.linearMain = (LinearLayout) v.findViewById(R.id.linear_chinh);
+        Home.mInformationTextView = (TextView) v.findViewById(R.id.txtNotify);
         Home.rela_layout_center = (RelativeLayout) v.findViewById(R.id.rela_layout_center);
         Home.rela_main_center = (RelativeLayout) v.findViewById(R.id.rela_main_center);
         Home.layout_listapp = (LinearLayout) v.findViewById(R.id.linear_list_app);
@@ -68,7 +80,8 @@ public class CenterFragment extends Fragment implements View.OnClickListener, Ad
         Home.rela_layout_center.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                Home.txtTitle.setText("Long click");
+                Home.txtTitle.setText("Đổi hình nền");
+                MyMethod.showChangeWallpaper(context);
                 return false;
             }
         });

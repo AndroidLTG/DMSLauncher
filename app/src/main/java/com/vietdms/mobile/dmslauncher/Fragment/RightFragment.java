@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -135,6 +136,11 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
     }
 
     private void event(final View v) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            Home.rela_checkin.setBackground(MyMethod.getWallpaper(context));
+            Home.rela_checkout.setBackground(MyMethod.getWallpaper(context));
+            Home.relativeRight.setBackground(MyMethod.getWallpaper(context));
+        }
         mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.map);
         v.findViewById(R.id.fab).setOnClickListener(this);
@@ -204,6 +210,7 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
         recyclerCustomer.setAdapter(adapterCustomer);
         Home.rela_checkout = (RelativeLayout) v.findViewById(R.id.rela_layout_checkout);
         Home.rela_checkin = (RelativeLayout) v.findViewById(R.id.rela_layout_checkin);
+        Home.relativeRight = (RelativeLayout) v.findViewById(R.id.rela_bg_right);
         Home.rela_main = (RelativeLayout) v.findViewById(R.id.rela_layout_main);
         RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         v.setLayoutParams(p);
@@ -229,6 +236,7 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
 
     @Override
     public void onResume() {
+
         Log.w(MyMethod.LOG_EDMS, "onResumeFragment begin");
         super.onResume();
         isRunning = true;
@@ -304,7 +312,7 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
                         Home.txtAddressOut.setText(MyMethod.getAddress(location, context));
                     }
                 } else {
-                    MyMethod.refreshMap(googleMap);
+                    MyMethod.refreshMap(context,googleMap);
                     EventPool.control().enQueue(new EventType.EventLoadHighPrecisionLocationRequest());
                     MyMethod.showToast(context, context.getString(R.string.location_wait));
                 }
@@ -328,6 +336,7 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
 
                 if (MyMethod.checkInputSaveSend(Home.txtAddressIn, imagePhotoIn, context)) {
                     //SAVE AND SEND CHECK IN DATA
+                    Home.txtAddressIn.setText(context.getString(R.string.location_none));
                     showLayout(Layouts.Main);
                 }
                 break;
@@ -340,6 +349,7 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
             case R.id.btn_save_send_checkout:
                 if (MyMethod.checkInputSaveSend(Home.txtAddressOut, imagePhotoOut, context)) {
                     //SAVE AND SEND CHECK IN DATA
+                    Home.txtAddressOut.setText(context.getString(R.string.location_none));
                     showLayout(Layouts.Main);
                 }
                 break;
@@ -718,6 +728,10 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
                     MyMethod.showToast(context, context.getString(R.string.location_none));
                 }
 
+                break;
+            case GCMMessage:
+                EventType.EventGCMMessage gcmMessage = (EventType.EventGCMMessage) event;
+                MyMethod.sendNotification(context,gcmMessage.message);
                 break;
             default:
                 Log.w("View_processEvent", "unhandled " + event.type);

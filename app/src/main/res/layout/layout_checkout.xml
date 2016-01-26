@@ -2,9 +2,8 @@
     android:id="@+id/rela_layout_checkout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/centerbg"
-    android:visibility="gone"
-    >
+    android:background="@drawable/background"
+    android:visibility="gone">
 
 
     <TextView
@@ -13,7 +12,7 @@
         android:layout_height="wrap_content"
         android:background="@android:color/white"
         android:gravity="center_vertical|center_horizontal"
-        android:text="GHI NHẬN RA"
+        android:text="@string/check_out"
         android:textColor="@color/colorBlue"
         android:textStyle="bold" />
 
@@ -54,6 +53,7 @@
                 android:paddingTop="5dp"
                 android:text="@string/take_picture"
                 android:textColor="@drawable/text_drawable" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -96,22 +96,23 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1.5"
-            android:orientation="vertical"
-           >
+            android:orientation="vertical">
+
             <TextView
                 android:id="@+id/txtAddressOut"
-                android:textColor="@android:color/black"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:background="@android:color/white"
                 android:gravity="center_horizontal|center_vertical"
-                android:layout_width="match_parent"
                 android:text="@string/location_none"
-                android:layout_height="wrap_content" />
+                android:textColor="@android:color/black" />
+
             <ImageView
                 android:id="@+id/imagePhotoOut"
                 android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:src="@mipmap/ic_launcher"
-                android:visibility="gone"
-                android:layout_height="match_parent" />
+                android:visibility="gone" />
         </LinearLayout>
     </LinearLayout>
 

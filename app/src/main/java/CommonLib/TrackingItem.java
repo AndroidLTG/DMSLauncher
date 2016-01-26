@@ -20,6 +20,8 @@ public class TrackingItem {
     public float speed;
     public float distanceMeter;
     public int milisecElapsed;
+    public long locationDate;
+    public long trackingDate;
     public String note;
     public byte getType;
     public byte getMethod;
@@ -29,5 +31,4 @@ public class TrackingItem {
     public byte isGPS = -1;
     public CellInfo cellInfo;
     public int batteryLevel = -1;
-    public long locationDate;
 }

@@ -215,6 +215,8 @@ abstract class Packets {
                     write(item.speed);
                     write(item.distanceMeter);
                     write(item.milisecElapsed);
+                    write(item.locationDate);
+                    write(item.trackingDate);
                     write(item.note, false);
                     write(item.getType);
                     write(item.getMethod);
@@ -232,7 +234,6 @@ abstract class Packets {
                         write(false);
                     }
                     write(item.batteryLevel);
-                    write(item.locationDate);
                 }
             }
         }

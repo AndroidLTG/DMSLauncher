@@ -1,17 +1,21 @@
 package com.vietdms.mobile.dmslauncher.Fragment;
 
 
+import android.Manifest;
 import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.CallLog;
 import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +25,7 @@ import android.view.WindowManager;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.vietdms.mobile.dmslauncher.CustomAdapter.CustomAdapterListView;
@@ -37,6 +42,8 @@ import java.util.Date;
  */
 public class LeftFragment extends Fragment {
 
+
+    private Context context;
 
     public LeftFragment() {
     }
@@ -58,15 +65,27 @@ public class LeftFragment extends Fragment {
 
 
     private void getId(View v) {
+        context = getContext();
         Home.lstHistory = (ListView) v.findViewById(R.id.listHistory);
+        Home.relativeLeft = (RelativeLayout) v.findViewById(R.id.rela_bg_left);
 
     }
 
 
     private void getCallDetails() {
-        Cursor managedCursor = getContext().getContentResolver().query(CallLog.Calls.CONTENT_URI, null,
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_CALL_LOG) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        Cursor managedCursor = context.getContentResolver().query(CallLog.Calls.CONTENT_URI, null,
                 null, null, CallLog.Calls.DATE + " DESC");
-        int number = managedCursor.getColumnIndex(CallLog.Calls.NUMBER);
+        int number = managedCursor != null ? managedCursor.getColumnIndex(CallLog.Calls.NUMBER) : 0;
         int type = managedCursor.getColumnIndex(CallLog.Calls.TYPE);
         int date = managedCursor.getColumnIndex(CallLog.Calls.DATE);
         int duration = managedCursor.getColumnIndex(CallLog.Calls.DURATION);
@@ -109,6 +128,9 @@ public class LeftFragment extends Fragment {
     }
 
     private void loadLeft_() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            Home.relativeLeft.setBackground(MyMethod.getWallpaper(context));
+        }
         Home.arrCall = new ArrayList<>();
         Home.adapterListView = new CustomAdapterListView(
                 this.getActivity(),
@@ -121,7 +143,7 @@ public class LeftFragment extends Fragment {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
                 final CallHistory callHistory = (CallHistory) parent.getItemAtPosition(position);
-                final Dialog dialog = new Dialog(getContext());
+                final Dialog dialog = new Dialog(context);
                 dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
                 dialog.setContentView(R.layout.view_listviewlonglick);
                 dialog.getWindow().setLayout(WindowManager.LayoutParams.FILL_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
@@ -136,7 +158,7 @@ public class LeftFragment extends Fragment {
                 // set the custom dialog components - text, image and button
                 txtNameContact.setText(callHistory.getPhoneName() + "\n" + callHistory.getPhoneNumber());
 
-                if (!MyMethod.contactExists(getContext(), callHistory.getPhoneNumber()))
+                if (!MyMethod.contactExists(context, callHistory.getPhoneNumber()))
                     txtViewContact.setText(getString(R.string.add_to_contact));
                 txtViewContact.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -169,9 +191,9 @@ public class LeftFragment extends Fragment {
                 txtCopyCallNumber.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                        ClipData clip = null;
-                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB) {
+                        ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                        ClipData clip;
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                             clip = ClipData.newPlainText(callHistory.getPhoneName(), callHistory.getPhoneNumber());
                             clipboard.setPrimaryClip(clip);
 
@@ -189,7 +211,7 @@ public class LeftFragment extends Fragment {
                 txtDeleteCallLog.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        MyMethod.DeleteCallLogByNumber(callHistory.getPhoneNumber(), getContext());
+                        MyMethod.DeleteCallLogByNumber(callHistory.getPhoneNumber(), context);
                         Home.arrCall.remove(position);
                         getCallDetails();
                         Home.adapterListView.notifyDataSetChanged();
@@ -210,7 +232,7 @@ public class LeftFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 final CallHistory callHistory = (CallHistory) parent.getItemAtPosition(position);
-                if (MyMethod.contactExists(getContext(), callHistory.getPhoneNumber())) {
+                if (MyMethod.contactExists(context, callHistory.getPhoneNumber())) {
                     Uri uri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_URI, String.valueOf(MyMethod.getContactIDFromNumber(callHistory.getPhoneNumber(), getContext())));
                     intent.setData(uri);
                     startActivity(intent);

@@ -61,6 +61,9 @@ class LocalDB {
         cv.put("Accuracy", trackingItem.accuracy);
         cv.put("Speed", trackingItem.speed);
         cv.put("DistanceMeter", trackingItem.distanceMeter);
+        cv.put("MilisecElapsed", trackingItem.milisecElapsed);
+        cv.put("LocationDate", trackingItem.locationDate);
+        cv.put("TrackingDate", trackingItem.trackingDate);
         cv.put("IsWifi", trackingItem.isWifi);
         cv.put("Is3G", trackingItem.is3G);
         cv.put("IsAirplaneMode", trackingItem.isAirplaneMode);
@@ -75,7 +78,6 @@ class LocalDB {
             cv.put("MNC", trackingItem.cellInfo.MNC);
         }
         cv.put("BatteryLevel", trackingItem.batteryLevel);
-        cv.put("LocationDate", trackingItem.locationDate);
         long rowId = db.insert(DbHelper.TABLE_NAME, null, cv);
         if (rowId >= 0) trackingItem.rowID = (int)rowId;
         return rowId;
@@ -112,6 +114,9 @@ class LocalDB {
             trackingItem.accuracy = cursor.getFloat(cursor.getColumnIndex("Accuracy"));
             trackingItem.speed = cursor.getFloat(cursor.getColumnIndex("Speed"));
             trackingItem.distanceMeter = cursor.getFloat(cursor.getColumnIndex("DistanceMeter"));
+            trackingItem.milisecElapsed = cursor.getInt(cursor.getColumnIndex("MilisecElapsed"));
+            trackingItem.locationDate = cursor.getLong(cursor.getColumnIndex("LocationDate"));
+            trackingItem.trackingDate = cursor.getLong(cursor.getColumnIndex("TrackingDate"));
             trackingItem.isWifi = (byte)cursor.getInt(cursor.getColumnIndex("IsWifi"));
             trackingItem.is3G = (byte)cursor.getInt(cursor.getColumnIndex("Is3G"));
             trackingItem.isAirplaneMode = (byte)cursor.getInt(cursor.getColumnIndex("IsAirplaneMode"));
@@ -127,7 +132,6 @@ class LocalDB {
                 trackingItem.cellInfo.MNC = cursor.getInt(cursor.getColumnIndex("MNC"));
             }
             trackingItem.batteryLevel = cursor.getInt(cursor.getColumnIndex("BatteryLevel"));
-            trackingItem.locationDate = cursor.getLong(cursor.getColumnIndex("LocationDate"));
             result[i] = trackingItem;
             cursor.moveToNext();
         }
@@ -148,7 +152,7 @@ class LocalDB {
     private DbHelper dbHelper = null;
     private class DbHelper extends SQLiteOpenHelper {
         // If you change the database schema, you must increment the database version.
-        public static final int DATABASE_VERSION = 3;
+        public static final int DATABASE_VERSION = 4;
         public static final String DATABASE_NAME = "edms_local.db";
         public static final String TABLE_NAME = "tblTracking";
         public static final String CONFIG_NAME = "tblConfig";
@@ -162,6 +166,9 @@ class LocalDB {
                 + ",Accuracy float"
                 + ",Speed float"
                 + ",DistanceMeter float"
+                + ",MilisecElapsed int"
+                + ",LocationDate bigint"
+                + ",TrackingDate bigint"
                 + ",IsWifi bit"
                 + ",Is3G bit"
                 + ",IsAirplaneMode bit"
@@ -174,7 +181,6 @@ class LocalDB {
                 + ",MCC int"
                 + ",MNC int"
                 + ",BatteryLevel int"
-                + ",LocationDate bigint"
                 + ",Acked tinyint"
                 + ");"
                 + "create table " + CONFIG_NAME + " ("
