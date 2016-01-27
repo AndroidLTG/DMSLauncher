@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -36,6 +37,8 @@ import com.vietdms.mobile.dmslauncher.R;
 
 import java.util.ArrayList;
 import java.util.Date;
+
+import jp.wasabeef.blurry.Blurry;
 
 /**
  * Created by DMSv4 on 12/3/2015.
@@ -128,6 +131,7 @@ public class LeftFragment extends Fragment {
     }
 
     private void loadLeft_() {
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             Home.relativeLeft.setBackground(MyMethod.getWallpaper(context));
         }

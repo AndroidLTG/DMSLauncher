@@ -17,6 +17,8 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
+        renderscriptTargetApi 20
+        renderscriptSupportModeEnabled true
     }
     buildTypes {
         release {
@@ -47,7 +49,6 @@ dependencies {
     compile 'com.google.android.gms:play-services-maps:8.4.0'
     compile 'cat.ereza:customactivityoncrash:1.4.0'
     compile 'com.google.android.gms:play-services-gcm:8.4.0'
-
-
+    compile 'jp.wasabeef:blurry:1.0.5'
 }
 apply plugin: 'com.google.gms.google-services'

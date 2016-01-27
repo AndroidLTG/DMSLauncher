@@ -12,7 +12,9 @@ import java.util.HashMap;
  */
 public abstract class EventType {
     public static enum Type {
+        Error,
         Login,
+        Logout,
         ChangePass,
         LoadOrders,
         LoadCustomers,
@@ -32,14 +34,26 @@ public abstract class EventType {
             this.type = type;
         }
     }
+
     //SEND FROM VIEW
-    public static class  EventGCMToken extends EventBase {
+    public static class EventGCMToken extends EventBase {
         public String token;
-        public EventGCMToken(String token){
+
+        public EventGCMToken(String token) {
             super(Type.GCMToken);
             this.token = token;
         }
     }
+
+    public static class EventError extends EventBase {
+        String message;
+
+        public EventError(String message) {
+            super(Type.Error);
+            this.message = message;
+        }
+    }
+
     public static class EventTakePhoto extends EventBase {
         public String imagePath;
         public long imageTime;
@@ -79,6 +93,11 @@ public abstract class EventType {
 
         }
     }
+    public static class EventLogoutRequest extends EventBase {
+        public EventLogoutRequest() {
+            super(Type.Logout);
+        }
+    }
 
     public static class EventChangeRequest extends EventBase {
         public String oldPass, newPass;
@@ -111,12 +130,14 @@ public abstract class EventType {
 //RETURN FROM CONTROL
 
     public static class EventGCMMessage extends EventBase {
-        public String message ;
-        public EventGCMMessage(String message){
+        public String message;
+
+        public EventGCMMessage(String message) {
             super(Type.GCMMessage);
             this.message = message;
         }
     }
+
     public static class EventListAppResult extends EventBase {
         public HashMap<String, Integer> listAppRole;
 
@@ -132,6 +153,16 @@ public abstract class EventType {
 
         public EventLoginResult(boolean success, String message) {
             super(Type.Login);
+            this.success = success;
+            this.message = message;
+        }
+    }
+    public static class EventLogoutResult extends EventBase {
+        public boolean success;
+        public String message;
+
+        public EventLogoutResult(boolean success, String message) {
+            super(Type.Logout);
             this.success = success;
             this.message = message;
         }

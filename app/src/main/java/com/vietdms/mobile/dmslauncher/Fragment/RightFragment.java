@@ -19,6 +19,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -86,6 +87,7 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
     private Context context;
     private SupportMapFragment mapFragment;
     private Location location = null;
+    private TextView txtUserName,txtFullName;
 
     private int positionClick = 0;
     private Runnable runnable = new Runnable() {
@@ -137,10 +139,11 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
 
     private void event(final View v) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            Home.rela_checkin.setBackground(MyMethod.getWallpaper(context));
-            Home.rela_checkout.setBackground(MyMethod.getWallpaper(context));
+            Home.relativeCheckIn.setBackground(MyMethod.getWallpaper(context));
+            Home.relativeCheckOut.setBackground(MyMethod.getWallpaper(context));
             Home.relativeRight.setBackground(MyMethod.getWallpaper(context));
         }
+
         mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.map);
         v.findViewById(R.id.fab).setOnClickListener(this);
@@ -169,10 +172,13 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
         editPassNewAgain.addTextChangedListener(new MyTextWatcher(editPassNewAgain));
         recyclerOrder.addOnItemTouchListener(new RecyclerItemClickListener(getContext(), this));
         recyclerCustomer.addOnItemTouchListener(new RecyclerItemClickListener(getContext(), this));
+
     }
 
     private void getId(View v) {
         context = getContext();
+        txtUserName = (TextView) v.findViewById(R.id.txtUserName);
+        txtFullName = (TextView) v.findViewById(R.id.txtFullName);
         checkLogin = (CheckBox) v.findViewById(R.id.checkLogin);
         loadingLogin = (LoadingView) v.findViewById(R.id.loginLoadingView);
         editPassNew = (EditText) v.findViewById(R.id.input_password_new);
@@ -210,6 +216,8 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
         recyclerCustomer.setAdapter(adapterCustomer);
         Home.rela_checkout = (RelativeLayout) v.findViewById(R.id.rela_layout_checkout);
         Home.rela_checkin = (RelativeLayout) v.findViewById(R.id.rela_layout_checkin);
+        Home.relativeCheckIn = (RelativeLayout) v.findViewById(R.id.rela_bg_checkin);
+        Home.relativeCheckOut =(RelativeLayout) v.findViewById(R.id.rela_bg_checkout);
         Home.relativeRight = (RelativeLayout) v.findViewById(R.id.rela_bg_right);
         Home.rela_main = (RelativeLayout) v.findViewById(R.id.rela_layout_main);
         RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -370,7 +378,7 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
                 submitFormLogin(v);
                 break;
             case R.id.btn_logout:
-                showLayout(Layouts.LogIn);
+                EventPool.control().enQueue(new EventType.EventLogoutRequest());
                 break;
             case R.id.btn_changepass:
                 //XU LY DOI PASS
@@ -441,6 +449,10 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
     private void showLayout(Layouts layout) {
         switch (layout) {
             case CheckIn:
+                if (!MyMethod.blurredCheckIn) {
+                    MyMethod.blur(context, Home.relativeCheckIn);
+                    MyMethod.blurredCheckIn = !MyMethod.blurredCheckIn;
+                }
                 MyMethod.CHECKIN = true;
                 imagePhotoIn.setVisibility(View.GONE);
                 Home.rela_checkin.setVisibility(View.VISIBLE);
@@ -452,6 +464,10 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
                 Home.mapView.setVisibility(View.GONE);
                 break;
             case CheckOut:
+                if (!MyMethod.blurredCheckOut) {
+                    MyMethod.blur(context, Home.relativeCheckOut);
+                    MyMethod.blurredCheckOut = !MyMethod.blurredCheckOut;
+                }
                 MyMethod.CHECKIN = false;
                 imagePhotoOut.setVisibility(View.GONE);
                 Home.rela_checkout.setVisibility(View.VISIBLE);
@@ -681,6 +697,14 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
 
     private void processEvent(EventType.EventBase event) {
         switch (event.type) {
+            case Logout:
+                EventType.EventLogoutResult logoutResult = (EventType.EventLogoutResult) event;
+                if (logoutResult.success) {
+                    showLayout(Layouts.LogIn);
+                } else {
+                    MyMethod.showToast(context,logoutResult.message);
+                }
+                break;
             case Login:
                 EventType.EventLoginResult loginResult = (EventType.EventLoginResult) event;
                 if (loginResult.success) {
@@ -694,8 +718,10 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
                     }
                     //
                     showLayout(Layouts.Main);
+                    txtUserName.setText(Model.inst().getUsername());
+                    txtFullName.setText(Model.inst().getFullname());
                 } else {
-                    MyMethod.showToast(getContext(), getString(R.string.sign_in_fail));
+                    MyMethod.showToast(getContext(), getString(R.string.sign_in_fail)+" : "+loginResult.message);
                     loadingLogin.setLoading(false);
                     showLayout(Layouts.LogIn);
                 }

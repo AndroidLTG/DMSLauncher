@@ -25,6 +25,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.EditText;
@@ -58,6 +59,7 @@ import java.util.List;
 import CommonLib.EventPool;
 import CommonLib.EventType;
 import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
+import jp.wasabeef.blurry.Blurry;
 
 public class Home extends AppCompatActivity implements ViewPager.OnPageChangeListener, RecyclerItemClickListener.OnItemClickListener {
     //GCM
@@ -93,8 +95,9 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
     public static PackageManager manager;
     private CoordinatorLayout coordinatorLayout;
     public static TextView mInformationTextView;
-    public static LinearLayout linearMain;
-    public static RelativeLayout relativeRight,relativeLeft;
+    public static RelativeLayout relaMain;
+    public static RelativeLayout relativeRight, relativeLeft,relativeCheckIn,relativeCheckOut;
+    private Context context;
 
 
     @Override
@@ -115,7 +118,6 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
         EventPool.control().enQueue(new EventType.EventListApp(MyMethod.getListApp(getApplicationContext())));
 
 
-
         //GCM
         mRegistrationBroadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -124,11 +126,11 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
                         PreferenceManager.getDefaultSharedPreferences(context);
                 boolean sentToken = sharedPreferences
                         .getBoolean(MyMethod.SENT_TOKEN_TO_SERVER, false);
-                if (sentToken) {
-                    mInformationTextView.setText(getString(R.string.gcm_send_message));
-                } else {
-                    mInformationTextView.setText(getString(R.string.token_error_message));
-                }
+//                if (sentToken) {
+//                    mInformationTextView.setText(getString(R.string.gcm_send_message));
+//                } else {
+//                    mInformationTextView.setText(getString(R.string.token_error_message));
+//                }
             }
         };
 
@@ -154,6 +156,7 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
     }
 
     private void getId() {//get every id i had
+        context = getApplicationContext();
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         linearMenu = (LinearLayout) findViewById(R.id.linearMenu);
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinatorLayout);
@@ -215,17 +218,28 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
             case 0:
                 txtTitle.setText(getString(R.string.calllog));
 
+                if (!MyMethod.blurredLeft){
+                    MyMethod.blur(context, Home.relativeLeft);
+                    MyMethod.blurredLeft = !MyMethod.blurredLeft;
+                }
+
                 break;
             case 1:
 
                 if (layout_listapp != null)
-                    if (MyMethod.isVisible(layout_listapp))
+                    if (MyMethod.isVisible(layout_listapp)){
                         txtTitle.setText(getString(R.string.list_app));
+                    }
+
                     else txtTitle.setText(getString(R.string.home));
                 break;
             case 2:
                 txtTitle.setText(getString(R.string.app_dms));
+                if (!MyMethod.blurredRight){
+                    MyMethod.blur(context, Home.relativeRight);
 
+                    MyMethod.blurredRight = !MyMethod.blurredRight;
+                }
                 break;
             default:
                 linearMenu.setVisibility(View.VISIBLE);
@@ -252,6 +266,7 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
         super.onPause();
     }
+
     private boolean checkPlayServices() {
         GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
         int resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
@@ -267,8 +282,21 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
         }
         return true;
     }
+
     @Override
     protected void onResume() {
+
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                Home.rela_checkin.setBackground(MyMethod.getWallpaper(context));
+                Home.rela_checkout.setBackground(MyMethod.getWallpaper(context));
+                Home.relativeRight.setBackground(MyMethod.getWallpaper(context));
+                Home.relaMain.setBackground(MyMethod.getWallpaper(context));
+                Home.relativeLeft.setBackground(MyMethod.getWallpaper(context));
+            }
+        } catch (Exception e) {
+            Log.d(context.getString(R.string.tagEx), e.toString());
+        }
         if (!MyMethod.checkAdminActive(devicePolicyManager, dmsDeviceAdmin)) getPermission();
         Log.w("onResume", "onResume");
         super.onResume();
@@ -331,6 +359,10 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
                 break;
             case 1:
                 if (MyMethod.isVisible(layout_listapp)) {
+                    if (MyMethod.blurredMenu) {
+                        Blurry.delete((ViewGroup) Home.relaMain);
+                        MyMethod.blurredMenu = !MyMethod.blurredMenu;
+                    }
                     MyMethod.setGone(layout_listapp);
                     MyMethod.setVisible(rela_layout_center);
                     txtTitle.setText(getString(R.string.home));
@@ -372,8 +404,11 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
                         MyMethod.setVisible(rela_checkout);
                         txtAddressOut.setText(getApplicationContext().getString(R.string.location_none));
                     }
-                } else
+                } else{
                     viewPager.setCurrentItem(1);
+
+                }
+
                 break;
             default:
                 break;

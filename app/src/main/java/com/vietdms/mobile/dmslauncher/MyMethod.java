@@ -35,12 +35,14 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -64,6 +66,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
+import jp.wasabeef.blurry.Blurry;
+
 /**
  * Created by ${LTG} was born ${10/12/1994}.
  */
@@ -78,6 +82,7 @@ public class MyMethod {
 
     public static boolean CHECKIN = false;//true is open rela_checkin false is open rela_checkout
     public static boolean ORDER = false;// true is open order false is open customer
+    public static boolean blurredLeft=false,blurredRight=false,blurredCheckIn=false,blurredCheckOut=false,blurredMenu=false;
 
     public static void showToast(Context context, String toast) {// show toast so cool
         Toast.makeText(context, toast, Toast.LENGTH_SHORT).show();
@@ -521,9 +526,18 @@ public class MyMethod {
 
     public static void showChangeWallpaper(Context context) {
         try {
-            context.startActivity(new Intent("android.intent.action.SET_WALLPAPER"));
+            context.startActivity(new Intent(Intent.ACTION_SET_WALLPAPER));
         } catch (Exception e) {
             Log.d(context.getString(R.string.tagEx), e.toString());
         }
+    }
+
+    public static void blur(Context context, ViewGroup viewGroup) {
+            Blurry.with(context)
+                    .radius(25)
+                    .sampling(2)
+                    .async()
+                    .animate(500)
+                    .onto(viewGroup);
     }
 }

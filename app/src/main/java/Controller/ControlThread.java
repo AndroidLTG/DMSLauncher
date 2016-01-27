@@ -34,10 +34,16 @@ public class ControlThread extends Thread {
     }
 
     public void init(Context context) {
-        Model.inst().getDeviceId(context);
+        if (Model.inst().getDeviceId(context).isEmpty()) {
+            EventPool.view().enQueue(new EventType.EventError("Không thể lấy thông tin thiết bị"));
+            return;
+        }
+        if (!LocalDB.inst().init(context)) {
+            EventPool.view().enQueue(new EventType.EventError("Lỗi dữ liệu cục bộ"));
+            return;
+        }
         PhoneState.inst().init(context);
         WakeLock.inst().init(context);
-        LocalDB.inst().init(context);
         LocationDetector.inst().start(context);
         AlarmTimer.inst().start(context);
         super.start();
@@ -73,11 +79,21 @@ public class ControlThread extends Thread {
 
     private void processEvent(EventType.EventBase event) {
         switch (event.type) {
-            case Login:
-                EventPool.view().enQueue(new EventType.EventLoginResult(true, "OK"));
+            case Login: {
+                EventType.EventLoginRequest loginRequest = (EventType.EventLoginRequest)event;
+                NetworkTransaction.inst().doLogin(loginRequest.userName, loginRequest.passWord);
+            }
                 break;
-            case ChangePass:
+            case Logout:
+                EventPool.view().enQueue(new EventType.EventLogoutResult(true,"OK"));
+                break;
+            case ChangePass: {
+                Model.inst().setLogin("", "", "");
+                LocalDB.inst().setConfigValue(Const.ConfigKeys.LoginToken, "");
+                LocalDB.inst().setConfigValue(Const.ConfigKeys.Username, "");
+                LocalDB.inst().setConfigValue(Const.ConfigKeys.Fullname, "");
                 EventPool.view().enQueue(new EventType.EventChangeResult(true, "OK"));
+            }
                 break;
             case LoadOrders:
                 EventPool.view().enQueue(new EventType.EventLoadOrderResult(true, "OK", null));
@@ -100,7 +116,10 @@ public class ControlThread extends Thread {
             case HighPrecisionLocation:
                 EventPool.view().enQueue(new EventType.EventLoadHighPrecisionLocationResult(Model.inst().getLastLocation(), "OK"));
                 break;
-            case GCMToken:
+            case GCMToken: {
+                EventType.EventGCMToken gcmToken = (EventType.EventGCMToken)event;
+                NetworkTransaction.inst().sendGcmToken(gcmToken.token);
+            }
                 break;
             case GCMMessage: {
                 EventType.EventGCMMessage gcmMessage = (EventType.EventGCMMessage) event;

@@ -72,12 +72,12 @@ abstract class Packets {
                 return result;
             }
         }
-        public static class PacketSendTracking extends Packet {
-            public PacketSendTracking(byte[] data) {
+        public static class PacketIntAck extends Packet {
+            public PacketIntAck(byte[] data) {
                 super(data);
-                lastAckLocationID = readInt();
+                intValue = readInt();
             }
-            public final int lastAckLocationID;
+            public final int intValue;
         }
         public static class PacketGetConfig extends Packet {
             public PacketGetConfig(byte[] data) {
@@ -99,6 +99,21 @@ abstract class Packets {
             }
             public final HashMap<Const.ConfigKeys, String> map = new HashMap<Const.ConfigKeys, String>();
         }
+        public static class PacketLogin extends Packet {
+            public PacketLogin(byte[] data) {
+                super(data);
+                success = readBool();
+                message = readString();
+                token = readString();
+                username = readString();
+                fullname = readString();
+            }
+            public final boolean success;
+            public final String message;
+            public final String token;
+            public final String username;
+            public final String fullname;
+        }
     }
 
     public static abstract class ToServer {
@@ -107,7 +122,8 @@ abstract class Packets {
             Test,
             GetConfig,
             Login,
-            SendTracking
+            SendTracking,
+            SendGcmToken
         }
 
         public static class Packet {
@@ -119,6 +135,7 @@ abstract class Packets {
                 data = new ByteArrayOutputStream(4 + Model.inst().getDeviceId().length() + extrasize);
                 write((short) type.ordinal());
                 write(Model.inst().getDeviceId(), true);
+                write(Model.inst().getLoginToken(), true);
             }
             public byte[] getData() {
                 return data.toByteArray();
@@ -235,6 +252,12 @@ abstract class Packets {
                     }
                     write(item.batteryLevel);
                 }
+            }
+        }
+        public static class PacketSendGcmToken extends Packet {
+            public PacketSendGcmToken(String gcmToken) {
+                super(PacketType.SendGcmToken);
+                write(gcmToken, true);
             }
         }
     }

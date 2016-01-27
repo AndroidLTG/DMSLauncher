@@ -67,10 +67,10 @@ public class Model {
                 if (milisecElapsed > 0) {
                     float accuracy = (lastLocation.getAccuracy() + lastValidLocation.getAccuracy()) / 2;
                     float speed = (distanceMeter - accuracy) * 1000 / milisecElapsed;
-                    if (speed > Const.DroppedSpeedMPS) {
+                    /*if (speed > Const.DroppedSpeedMPS) {
                         lastLocation = null;
                         return;
-                    }
+                    }*/
                     if (speed > Const.BoostedSpeedMPS) {
                         int interval = getAlarmIntervalBoosted();
                         LocationDetector.inst().setInterval(interval);
@@ -126,4 +126,17 @@ public class Model {
     public synchronized int getAlarmIntervalBoosted() {
         return alarmIntervalBoosted;
     }
+
+    private String loginToken = null;
+    private String username = null;
+    private String fullname = null;
+    public synchronized void setLogin(String loginToken, String username, String fullname) {
+        Log.i("setLogin", username + " " + fullname + " " + loginToken);
+        this.loginToken = loginToken;
+        this.username = username;
+        this.fullname = fullname;
+    }
+    public synchronized String getLoginToken() {return loginToken;}
+    public synchronized String getUsername() {return username;}
+    public synchronized String getFullname() {return fullname;}
 }

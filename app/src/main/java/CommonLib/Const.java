@@ -13,10 +13,15 @@ public abstract class Const {
     public static final String HttpEndpoint = "http://indico.vn:8103/HttpService.aspx"; // địa chỉ web service
     //public static final String HttpEndpoint = "http://www.myca.vn:88/HttpService.aspx";
     public enum ConfigKeys { //
+        DeviceID,
+        LoginToken,
+        Username,
+        Fullname,
+        Kickout,
         InitTrackingRowID,
         ServerTime,
         AlarmIntervalNormal,
         AlarmIntervalBoosted,
-        Kickout
+        End
     }
 }

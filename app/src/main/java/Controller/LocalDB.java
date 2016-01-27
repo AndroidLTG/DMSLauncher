@@ -8,6 +8,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import CommonLib.Const;
+import CommonLib.EventPool;
+import CommonLib.EventType;
 import CommonLib.Model;
 import CommonLib.TrackingItem;
 
@@ -29,6 +31,26 @@ class LocalDB {
         dbHelper = new DbHelper(context);
         db = dbHelper.getWritableDatabase();
         Log.i("LocalDB", "database initialized");
+        String deviceId = getConfigValue(Const.ConfigKeys.DeviceID);
+        if (deviceId == null) {
+            if (!setConfigValue(Const.ConfigKeys.DeviceID, Model.inst().getDeviceId())) {
+                Log.e("LocalDB", "cannot save DeviceID");
+                return false;
+            }
+        }
+        else {
+            if (!deviceId.equals(Model.inst().getDeviceId())) {
+                Log.e("LocalDB", "DeviceID mismatched");
+                return false;
+            }
+            String loginToken = getConfigValue(Const.ConfigKeys.LoginToken);
+            if (loginToken != null && !loginToken.isEmpty()) {
+                String username = LocalDB.inst().getConfigValue(Const.ConfigKeys.Username);
+                String fullname = LocalDB.inst().getConfigValue(Const.ConfigKeys.Fullname);
+                Model.inst().setLogin(loginToken, username, fullname);
+                EventPool.view().enQueue(new EventType.EventLoginResult(true, ""));
+            }
+        }
         return true;
     }
 
@@ -152,7 +174,7 @@ class LocalDB {
     private DbHelper dbHelper = null;
     private class DbHelper extends SQLiteOpenHelper {
         // If you change the database schema, you must increment the database version.
-        public static final int DATABASE_VERSION = 4;
+        public static final int DATABASE_VERSION = 5;
         public static final String DATABASE_NAME = "edms_local.db";
         public static final String TABLE_NAME = "tblTracking";
         public static final String CONFIG_NAME = "tblConfig";
@@ -182,14 +204,14 @@ class LocalDB {
                 + ",MNC int"
                 + ",BatteryLevel int"
                 + ",Acked tinyint"
-                + ");"
-                + "create table " + CONFIG_NAME + " ("
+                + ");";
+        public static final String SQL_CREATE_CONFIG = "create table " + CONFIG_NAME + " ("
                 + "RowID integer primary key autoincrement"
                 + ",Key integer unique not null"
                 + ",Value nvarchar(250) not null"
                 + ");";
-        public static final String SQL_DELETE_ENTRIES = "drop table if exists " + TABLE_NAME + ";"
-                + "drop table if exists " + CONFIG_NAME + ";";
+        public static final String SQL_DELETE_ENTRIES = "drop table if exists " + TABLE_NAME + ";";
+        public static final String SQL_DELETE_CONFIG = "drop table if exists " + CONFIG_NAME + ";";
 
         public DbHelper(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -197,6 +219,7 @@ class LocalDB {
         @Override
         public void onCreate(SQLiteDatabase db) {
             db.execSQL(SQL_CREATE_ENTRIES);
+            db.execSQL(SQL_CREATE_CONFIG);
         }
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -204,6 +227,7 @@ class LocalDB {
             // to simply to discard the data and start over
             Log.i("DbHelper", "Change version from " + oldVersion + " to " + newVersion);
             db.execSQL(SQL_DELETE_ENTRIES);
+            db.execSQL(SQL_DELETE_CONFIG);
             onCreate(db);
         }
         @Override

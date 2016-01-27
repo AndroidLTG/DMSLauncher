@@ -30,7 +30,7 @@
         android:layout_below="@+id/progressBar"
         android:background="@android:color/transparent"
         android:gravity="center"
-        android:text="Đang báo cáo lỗi \nvui lòng chờ ứng dụng khởi động lại"
+        android:text="@string/reporting"
         android:textColor="@android:color/white" />
 
 </RelativeLayout>

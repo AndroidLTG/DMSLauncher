@@ -28,6 +28,8 @@ import com.victor.loading.rotate.RotateLoading;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import jp.wasabeef.blurry.Blurry;
+
 /**
  * Created by DMSv4 on 12/3/2015.
  */
@@ -57,7 +59,7 @@ public class CenterFragment extends Fragment implements View.OnClickListener, Ad
 
     private void event(View v) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            Home.linearMain.setBackground(MyMethod.getWallpaper(context));
+            Home.relaMain.setBackground(MyMethod.getWallpaper(context));
         }
         v.findViewById(R.id.btn_Call).setOnClickListener(this);
         v.findViewById(R.id.btn_SmS).setOnClickListener(this);
@@ -68,7 +70,7 @@ public class CenterFragment extends Fragment implements View.OnClickListener, Ad
 
     private void getId(View v) {
         context = getContext();
-        Home.linearMain = (LinearLayout) v.findViewById(R.id.linear_chinh);
+        Home.relaMain = (RelativeLayout) v.findViewById(R.id.rela_Main);
         Home.mInformationTextView = (TextView) v.findViewById(R.id.txtNotify);
         Home.rela_layout_center = (RelativeLayout) v.findViewById(R.id.rela_layout_center);
         Home.rela_main_center = (RelativeLayout) v.findViewById(R.id.rela_main_center);
@@ -95,6 +97,10 @@ public class CenterFragment extends Fragment implements View.OnClickListener, Ad
                 MyMethod.callPhone(v.getContext());
                 break;
             case R.id.btn_Menu:
+                if (!MyMethod.blurredMenu) {
+                    MyMethod.blur(context, Home.relaMain);
+                    MyMethod.blurredMenu = !MyMethod.blurredMenu;
+                }
                 Home.editSearch.setText("");
                 Home.editSearch.clearFocus();
                 MyMethod.showApps(v.getContext(), Home.viewPager);
@@ -109,7 +115,7 @@ public class CenterFragment extends Fragment implements View.OnClickListener, Ad
                 MyMethod.showGmail(v.getContext());
                 break;
             case R.id.btn_Lock:
-                MyMethod.lockDevice(Home.devicePolicyManager);
+                MyMethod.lockDevice(context, Home.devicePolicyManager);
                 break;
             default:
                 break;

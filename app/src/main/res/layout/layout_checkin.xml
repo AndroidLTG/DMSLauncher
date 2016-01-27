@@ -1,11 +1,15 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:background="@drawable/background"
     android:layout_height="match_parent"
     android:visibility="gone"
     android:id="@+id/rela_layout_checkin"
     tools:context="com.vietdms.mobile.dmslauncher.Home">
+    <RelativeLayout
+        android:id="@+id/rela_bg_checkin"
+        android:background="@drawable/background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
     <TextView
         android:layout_width="match_parent"

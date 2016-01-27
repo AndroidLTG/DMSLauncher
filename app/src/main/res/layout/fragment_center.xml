@@ -5,12 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
+    <RelativeLayout
+        android:id="@+id/rela_Main"
+        android:background="@drawable/background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></RelativeLayout>
     <LinearLayout
-        android:id="@+id/linear_chinh"
+
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/background"
+
         android:orientation="vertical"
         android:weightSum="10">
 
