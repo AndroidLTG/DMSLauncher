@@ -84,16 +84,16 @@ public class ControlThread extends Thread {
                 NetworkTransaction.inst().doLogin(loginRequest.userName, loginRequest.passWord);
             }
                 break;
-            case Logout:
-                EventPool.view().enQueue(new EventType.EventLogoutResult(true,"OK"));
-                break;
-            case ChangePass: {
+            case Logout: {
                 Model.inst().setLogin("", "", "");
                 LocalDB.inst().setConfigValue(Const.ConfigKeys.LoginToken, "");
                 LocalDB.inst().setConfigValue(Const.ConfigKeys.Username, "");
                 LocalDB.inst().setConfigValue(Const.ConfigKeys.Fullname, "");
-                EventPool.view().enQueue(new EventType.EventChangeResult(true, "OK"));
+                EventPool.view().enQueue(new EventType.EventLogoutResult(true, "OK"));
             }
+                break;
+            case ChangePass:
+                EventPool.view().enQueue(new EventType.EventChangeResult(true, "OK"));
                 break;
             case LoadOrders:
                 EventPool.view().enQueue(new EventType.EventLoadOrderResult(true, "OK", null));
@@ -101,20 +101,19 @@ public class ControlThread extends Thread {
             case LoadCustomers:
                 EventPool.view().enQueue(new EventType.EventLoadCustomerResult(true, "OK", null));
                 break;
-            case AlarmTrigger:
+            case AlarmTrigger: {
                 NetworkTransaction.inst().sendTracking();
                 AlarmTimer.inst().continueTimer();
                 WakeLock.inst().release();
+            }
                 break;
-            case SendListApp:
+            case SendListApp: {
                 HashMap<String, Integer> listAppRole = new HashMap<>();
                 //Load role from webservice and send view
                 //To do this
 
                 EventPool.view().enQueue(new EventType.EventListAppResult(listAppRole));
-                break;
-            case HighPrecisionLocation:
-                EventPool.view().enQueue(new EventType.EventLoadHighPrecisionLocationResult(Model.inst().getLastLocation(), "OK"));
+            }
                 break;
             case GCMToken: {
                 EventType.EventGCMToken gcmToken = (EventType.EventGCMToken)event;

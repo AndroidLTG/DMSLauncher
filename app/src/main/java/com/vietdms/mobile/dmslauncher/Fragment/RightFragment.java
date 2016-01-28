@@ -9,8 +9,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.net.Uri;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -66,6 +64,7 @@ import java.util.ArrayList;
 import CommonLib.Const;
 import CommonLib.EventPool;
 import CommonLib.EventType;
+import CommonLib.LocationDetector;
 import CommonLib.Model;
 
 /**
@@ -92,7 +91,7 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
     private SupportMapFragment mapFragment;
     private Location location = null;
     private TextView txtUserName, txtFullName, txtDeviceName, txtAccuracy;
-    private FloatingActionButton fab, fabcancel;
+    private FloatingActionButton fab,fabcancel;
 
     private int positionClick = 0;
     private Runnable runnable = new Runnable() {
@@ -332,16 +331,17 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
                     }
                 } else {
                     MyMethod.refreshMap(context, googleMap);
-                    EventPool.control().enQueue(new EventType.EventLoadHighPrecisionLocationRequest());
                     MyMethod.showToast(context, context.getString(R.string.location_wait));
+					//EventPool.control().enQueue(new EventType.EventLoadHighPrecisionLocationRequest());
+                    LocationDetector.inst().setRequest(true, Const.DefaultHighPrecisionIntervalInSeconds);
                 }
 
                 break;
             case R.id.fabGetAgain:
                 MyMethod.refreshMap(context, googleMap);
-                EventPool.control().enQueue(new EventType.EventLoadHighPrecisionLocationRequest());
                 MyMethod.showToast(context, context.getString(R.string.location_wait));
-                break;
+				//EventPool.control().enQueue(new EventType.EventLoadHighPrecisionLocationRequest());
+                LocationDetector.inst().setRequest(true, Const.DefaultHighPrecisionIntervalInSeconds);                break;
             case R.id.fabCancel: {
                 if (MyMethod.CHECKIN)
                     showLayout(Layouts.CheckIn);
@@ -798,8 +798,9 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
         if (googleMap != null) {
             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(17, 107), 5.5f));
             fab.setEnabled(false);
-            EventPool.control().enQueue(new EventType.EventLoadHighPrecisionLocationRequest());
             this.googleMap = googleMap;
+            //EventPool.control().enQueue(new EventType.EventLoadHighPrecisionLocationRequest());
+            LocationDetector.inst().setRequest(true, Const.DefaultHighPrecisionIntervalInSeconds);
         }
 
     }

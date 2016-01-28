@@ -48,6 +48,7 @@ public class LocationDetector implements GoogleApiClient.ConnectionCallbacks, Go
     private boolean isHighPrecision = false;
     private int lastInterval = 0;
     public synchronized boolean setInterval(int interval) {
+        if (isHighPrecision && interval >= lastInterval) return true;
         return setRequest(isHighPrecision, interval);
     }
     public synchronized boolean setRequest(boolean highPrecision, int interval) {
@@ -62,10 +63,18 @@ public class LocationDetector implements GoogleApiClient.ConnectionCallbacks, Go
         }
         catch (SecurityException ex) {
             Log.e("GoogleApiClient", "setRequest access denied");
+            if (highPrecision) {
+                EventPool.view().enQueue(new EventType.EventLoadHighPrecisionLocationResult(null, "Ứng dụng không được quyền lấy vị trí chính xác"));
+                setRequest(false, Model.inst().getAlarmIntervalNormal());
+            }
             return false;
         }
         catch (Exception ex) {
             Log.e("GoogleApiClient", "setRequest error " + ex.toString());
+            if (highPrecision) {
+                EventPool.view().enQueue(new EventType.EventLoadHighPrecisionLocationResult(null, "Không thể lấy vị trí chính xác ở thời điểm này"));
+                setRequest(false, Model.inst().getAlarmIntervalNormal());
+            }
             return false;
         }
         isHighPrecision = highPrecision;
@@ -115,6 +124,10 @@ public class LocationDetector implements GoogleApiClient.ConnectionCallbacks, Go
     @Override
     public void onLocationChanged(Location location) {
         Model.inst().setLastLocation(location);
+        if (isHighPrecision) {
+            EventPool.view().enQueue(new EventType.EventLoadHighPrecisionLocationResult(location, ""));
+            setRequest(false, Model.inst().getAlarmIntervalNormal());
+        }
         showUpdateLocation();
     }
 

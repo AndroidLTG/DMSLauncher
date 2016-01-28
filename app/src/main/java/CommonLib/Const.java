@@ -7,6 +7,7 @@ public abstract class Const {
     public static final int QueueTimerView = 100; // thời gian sleep giữa các lần xử lý message ở View
     public static final int QueueTimerControl = 100; // thời gian sleep giữa các lần xử lý message ở Controller
     public static final int DefaultAlarmIntervalInSeconds = 5 * 60; // chu kì cập nhật location
+    public static final int DefaultHighPrecisionIntervalInSeconds = 30;
     public static final float BoostedSpeedMPS = 1.0f;
     public static final float DroppedSpeedMPS = 30.0f;
     public static final int MaxRecordsLastSend = 300; // số bản ghi cuối cùng tối đa gửi lên server mỗi lần đọc csdl
