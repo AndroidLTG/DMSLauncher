@@ -19,6 +19,8 @@ import com.google.android.gms.gcm.GcmListenerService;
 import com.vietdms.mobile.dmslauncher.Home;
 import com.vietdms.mobile.dmslauncher.R;
 
+import java.nio.charset.Charset;
+
 import CommonLib.EventPool;
 import CommonLib.EventType;
 

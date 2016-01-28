@@ -9,6 +9,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.net.Uri;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -17,6 +19,7 @@ import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -36,6 +39,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -87,7 +91,8 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
     private Context context;
     private SupportMapFragment mapFragment;
     private Location location = null;
-    private TextView txtUserName,txtFullName;
+    private TextView txtUserName, txtFullName, txtDeviceName, txtAccuracy;
+    private FloatingActionButton fab, fabcancel;
 
     private int positionClick = 0;
     private Runnable runnable = new Runnable() {
@@ -147,6 +152,8 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
         mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.map);
         v.findViewById(R.id.fab).setOnClickListener(this);
+        v.findViewById(R.id.fabGetAgain).setOnClickListener(this);
+        v.findViewById(R.id.fabCancel).setOnClickListener(this);
         v.findViewById(R.id.btnCheckIn).setOnClickListener(this);
         v.findViewById(R.id.btnCheckOut).setOnClickListener(this);
         v.findViewById(R.id.btnNotify).setOnClickListener(this);
@@ -177,8 +184,12 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
 
     private void getId(View v) {
         context = getContext();
+        fab = (FloatingActionButton) v.findViewById(R.id.fab);
+        fabcancel = (FloatingActionButton) v.findViewById(R.id.fabCancel);
         txtUserName = (TextView) v.findViewById(R.id.txtUserName);
         txtFullName = (TextView) v.findViewById(R.id.txtFullName);
+        txtDeviceName = (TextView) v.findViewById(R.id.txtDeviceName);
+        txtAccuracy = (TextView) v.findViewById(R.id.txtAccuracy);
         checkLogin = (CheckBox) v.findViewById(R.id.checkLogin);
         loadingLogin = (LoadingView) v.findViewById(R.id.loginLoadingView);
         editPassNew = (EditText) v.findViewById(R.id.input_password_new);
@@ -217,7 +228,7 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
         Home.rela_checkout = (RelativeLayout) v.findViewById(R.id.rela_layout_checkout);
         Home.rela_checkin = (RelativeLayout) v.findViewById(R.id.rela_layout_checkin);
         Home.relativeCheckIn = (RelativeLayout) v.findViewById(R.id.rela_bg_checkin);
-        Home.relativeCheckOut =(RelativeLayout) v.findViewById(R.id.rela_bg_checkout);
+        Home.relativeCheckOut = (RelativeLayout) v.findViewById(R.id.rela_bg_checkout);
         Home.relativeRight = (RelativeLayout) v.findViewById(R.id.rela_bg_right);
         Home.rela_main = (RelativeLayout) v.findViewById(R.id.rela_layout_main);
         RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -320,12 +331,25 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
                         Home.txtAddressOut.setText(MyMethod.getAddress(location, context));
                     }
                 } else {
-                    MyMethod.refreshMap(context,googleMap);
+                    MyMethod.refreshMap(context, googleMap);
                     EventPool.control().enQueue(new EventType.EventLoadHighPrecisionLocationRequest());
                     MyMethod.showToast(context, context.getString(R.string.location_wait));
                 }
 
                 break;
+            case R.id.fabGetAgain:
+                MyMethod.refreshMap(context, googleMap);
+                EventPool.control().enQueue(new EventType.EventLoadHighPrecisionLocationRequest());
+                MyMethod.showToast(context, context.getString(R.string.location_wait));
+                break;
+            case R.id.fabCancel: {
+                if (MyMethod.CHECKIN)
+                    showLayout(Layouts.CheckIn);
+
+                else
+                    showLayout(Layouts.CheckOut);
+            }
+            break;
             case R.id.btn_get_checkout:
                 showLayout(Layouts.Map);
                 break;
@@ -702,7 +726,7 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
                 if (logoutResult.success) {
                     showLayout(Layouts.LogIn);
                 } else {
-                    MyMethod.showToast(context,logoutResult.message);
+                    MyMethod.showToast(context, logoutResult.message);
                 }
                 break;
             case Login:
@@ -720,8 +744,9 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
                     showLayout(Layouts.Main);
                     txtUserName.setText(Model.inst().getUsername());
                     txtFullName.setText(Model.inst().getFullname());
+                    txtDeviceName.setText(Build.MODEL);
                 } else {
-                    MyMethod.showToast(getContext(), getString(R.string.sign_in_fail)+" : "+loginResult.message);
+                    MyMethod.showToast(getContext(), getString(R.string.sign_in_fail) + " : " + loginResult.message);
                     loadingLogin.setLoading(false);
                     showLayout(Layouts.LogIn);
                 }
@@ -750,6 +775,8 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
                 if (locationResult.location != null) {
                     location = locationResult.location;
                     MyMethod.loadMap(googleMap, location, context);
+                    txtAccuracy.setText("Độ sai số " + location.getAccuracy() + "m");
+                    fab.setEnabled(true);
                 } else {
                     MyMethod.showToast(context, context.getString(R.string.location_none));
                 }
@@ -757,7 +784,7 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
                 break;
             case GCMMessage:
                 EventType.EventGCMMessage gcmMessage = (EventType.EventGCMMessage) event;
-                MyMethod.sendNotification(context,gcmMessage.message);
+                MyMethod.sendNotification(context, gcmMessage.message);
                 break;
             default:
                 Log.w("View_processEvent", "unhandled " + event.type);
@@ -767,7 +794,10 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+
         if (googleMap != null) {
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(17, 107), 5.5f));
+            fab.setEnabled(false);
             EventPool.control().enQueue(new EventType.EventLoadHighPrecisionLocationRequest());
             this.googleMap = googleMap;
         }

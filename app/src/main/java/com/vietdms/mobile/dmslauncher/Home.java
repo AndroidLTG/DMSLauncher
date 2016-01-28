@@ -96,7 +96,7 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
     private CoordinatorLayout coordinatorLayout;
     public static TextView mInformationTextView;
     public static RelativeLayout relaMain;
-    public static RelativeLayout relativeRight, relativeLeft,relativeCheckIn,relativeCheckOut;
+    public static RelativeLayout relativeRight, relativeLeft, relativeCheckIn, relativeCheckOut;
     private Context context;
 
 
@@ -218,7 +218,7 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
             case 0:
                 txtTitle.setText(getString(R.string.calllog));
 
-                if (!MyMethod.blurredLeft){
+                if (!MyMethod.blurredLeft) {
                     MyMethod.blur(context, Home.relativeLeft);
                     MyMethod.blurredLeft = !MyMethod.blurredLeft;
                 }
@@ -227,15 +227,13 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
             case 1:
 
                 if (layout_listapp != null)
-                    if (MyMethod.isVisible(layout_listapp)){
+                    if (MyMethod.isVisible(layout_listapp)) {
                         txtTitle.setText(getString(R.string.list_app));
-                    }
-
-                    else txtTitle.setText(getString(R.string.home));
+                    } else txtTitle.setText(getString(R.string.home));
                 break;
             case 2:
                 txtTitle.setText(getString(R.string.app_dms));
-                if (!MyMethod.blurredRight){
+                if (!MyMethod.blurredRight) {
                     MyMethod.blur(context, Home.relativeRight);
 
                     MyMethod.blurredRight = !MyMethod.blurredRight;
@@ -404,7 +402,7 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
                         MyMethod.setVisible(rela_checkout);
                         txtAddressOut.setText(getApplicationContext().getString(R.string.location_none));
                     }
-                } else{
+                } else {
                     viewPager.setCurrentItem(1);
 
                 }
@@ -424,6 +422,10 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
                     ((intent.getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT)
                             != Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
             if (alreadyOnHome) {
+                if (MyMethod.blurredMenu) {
+                    Blurry.delete(Home.relaMain);
+                    MyMethod.blurredMenu = !MyMethod.blurredMenu;
+                }
                 MyMethod.setGone(layout_listapp);
                 MyMethod.setVisible(rela_layout_center);
                 MyMethod.closeFocus(rela_layout_center);
