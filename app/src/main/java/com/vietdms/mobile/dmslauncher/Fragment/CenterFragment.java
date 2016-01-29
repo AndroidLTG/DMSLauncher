@@ -28,7 +28,7 @@ import com.victor.loading.rotate.RotateLoading;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import jp.wasabeef.blurry.Blurry;
+//import jp.wasabeef.blurry.Blurry;
 
 /**
  * Created by DMSv4 on 12/3/2015.
@@ -97,10 +97,10 @@ public class CenterFragment extends Fragment implements View.OnClickListener, Ad
                 MyMethod.callPhone(v.getContext());
                 break;
             case R.id.btn_Menu:
-                if (!MyMethod.blurredMenu) {
-                    MyMethod.blur(context, Home.relaMain);
-                    MyMethod.blurredMenu = !MyMethod.blurredMenu;
-                }
+//                if (!MyMethod.blurredMenu) {
+//                    MyMethod.blur(context, Home.relaMain);
+//                    MyMethod.blurredMenu = !MyMethod.blurredMenu;
+//                }
                 Home.editSearch.setText("");
                 Home.editSearch.clearFocus();
                 MyMethod.showApps(v.getContext(), Home.viewPager);

@@ -90,4 +90,7 @@
     <string name="notok">Launcher</string>
     <string name="reporting">Đang báo cáo lỗi \n vui lòng chờ ứng dụng khởi động lại</string>
     <string name="device_name">Tên thiết bị</string>
+    <string name="unblock">Mở khóa</string>
+    <string name="password_fail">Mật khẩu sai</string>
+    <string name="staff_list">Danh sách nhân viên</string>
 </resources>

@@ -93,6 +93,7 @@ public abstract class EventType {
 
         }
     }
+
     public static class EventLogoutRequest extends EventBase {
         public EventLogoutRequest() {
             super(Type.Logout);
@@ -157,6 +158,7 @@ public abstract class EventType {
             this.message = message;
         }
     }
+
     public static class EventLogoutResult extends EventBase {
         public boolean success;
         public String message;

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/mapViewAdmin"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+
+    <include layout="@layout/content_map_admin" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <fr.ganfra.materialspinner.MaterialSpinner
+            android:id="@+id/spStaff"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            app:ms_multiline="false"
+            app:ms_hint="@string/staff_list"
+            app:ms_enableFloatingLabel="false"
+            app:ms_enableErrorLabel="false"
+            app:ms_floatingLabelText="floating label"
+            app:ms_baseColor="@android:color/white"
+            app:ms_highlightColor="@color/colorHint"
+            app:ms_errorColor="@color/colorRed"
+            app:ms_thickness="2dp"
+            app:ms_hintColor="@color/colorHint"
+            app:ms_arrowColor="@color/colorBlue"
+            app:ms_arrowSize="16dp"
+            app:ms_alignLabels="false"
+            app:ms_floatingLabelColor="@android:color/black"/>
+
+    </RelativeLayout>
+
+
+</android.support.design.widget.CoordinatorLayout>

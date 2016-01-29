@@ -54,26 +54,6 @@
                     android:textColor="@android:color/white" />
             </android.support.design.widget.TextInputLayout>
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_toLeftOf="@+id/checkLogin"
-                    android:gravity="center_horizontal"
-                    android:text="@string/rememberLogin"
-                    android:textColor="@android:color/white" />
-
-                <CheckBox
-                    android:id="@+id/checkLogin"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:gravity="center_vertical|center_horizontal" />
-            </RelativeLayout>
 
 
             <Button

@@ -30,6 +30,8 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -66,11 +68,12 @@ import CommonLib.EventPool;
 import CommonLib.EventType;
 import CommonLib.LocationDetector;
 import CommonLib.Model;
+import fr.ganfra.materialspinner.MaterialSpinner;
 
 /**
  * Created by DMSv4 on 12/3/2015.
  */
-public class RightFragment extends Fragment implements OnMapReadyCallback, View.OnClickListener, RecyclerItemClickListener.OnItemClickListener {
+public class RightFragment extends Fragment implements OnMapReadyCallback, View.OnClickListener, RecyclerItemClickListener.OnItemClickListener, AdapterView.OnItemSelectedListener {
     private static final int ACTION_TAKE_CARMERA = 999;
     private GoogleMap googleMap;
     private EditText editName, editPass, editPassOld, editPassNew, editPassNewAgain;
@@ -82,16 +85,16 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
     private RecyclerViewAdapterOrder adapterOrder;
     private RecyclerViewAdapterCustomer adapterCustomer;
     private LoadingView loadingLogin;
-    private CheckBox checkLogin;
-    private String passWordStore = "", userNameStore = "";
     private String imagePath;
     private boolean isRunning = false;
     private Handler handler = new Handler();
     private Context context;
-    private SupportMapFragment mapFragment;
+    private SupportMapFragment mapFragment, mapAdminFragment;
     private Location location = null;
     private TextView txtUserName, txtFullName, txtDeviceName, txtAccuracy;
-    private FloatingActionButton fab,fabcancel;
+    private FloatingActionButton fab, fabcancel;
+    private MaterialSpinner spStaff;
+    private ArrayAdapter<String> adapterStaff;
 
     private int positionClick = 0;
     private Runnable runnable = new Runnable() {
@@ -124,22 +127,11 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
         View v = inflater.inflate(R.layout.fragment_right, container, false);
         getId(v);
         event(v);
-        checkLogin();
+        showLayout(Layouts.LogIn);
         Log.d(MyMethod.LOG_EDMS, "onCreateViewFragment end");
         return v;
     }
 
-    private void checkLogin() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        boolean checkLoginValue = preferences.getBoolean(MyMethod.SHAREDPREFERENCE_KEY, false);
-        userNameStore = preferences.getString(MyMethod.SHAREDPREFERENCE_User, "");
-        passWordStore = preferences.getString(MyMethod.SHAREDPREFERENCE_Pass, "");
-        if (!checkLoginValue)
-            showLayout(Layouts.LogIn);
-        else {
-            EventPool.control().enQueue(new EventType.EventLoginRequest(userNameStore, passWordStore));
-        }
-    }
 
     private void event(final View v) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -150,6 +142,12 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
 
         mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.map);
+        mapAdminFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.mapAdmin);
+        String[] Staff = {"Staff 1", "Staff 2", "Staff 3", "Staff 4", "Staff 5", "Staff 6"};
+        adapterStaff = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, Staff);
+        adapterStaff.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spStaff.setAdapter(adapterStaff);
+        spStaff.setOnItemSelectedListener(this);
         v.findViewById(R.id.fab).setOnClickListener(this);
         v.findViewById(R.id.fabGetAgain).setOnClickListener(this);
         v.findViewById(R.id.fabCancel).setOnClickListener(this);
@@ -183,13 +181,13 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
 
     private void getId(View v) {
         context = getContext();
+        spStaff = (MaterialSpinner) v.findViewById(R.id.spStaff);
         fab = (FloatingActionButton) v.findViewById(R.id.fab);
         fabcancel = (FloatingActionButton) v.findViewById(R.id.fabCancel);
         txtUserName = (TextView) v.findViewById(R.id.txtUserName);
         txtFullName = (TextView) v.findViewById(R.id.txtFullName);
         txtDeviceName = (TextView) v.findViewById(R.id.txtDeviceName);
         txtAccuracy = (TextView) v.findViewById(R.id.txtAccuracy);
-        checkLogin = (CheckBox) v.findViewById(R.id.checkLogin);
         loadingLogin = (LoadingView) v.findViewById(R.id.loginLoadingView);
         editPassNew = (EditText) v.findViewById(R.id.input_password_new);
         editPassOld = (EditText) v.findViewById(R.id.input_password_old);
@@ -210,6 +208,7 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
         Home.linearListOrder = (LinearLayout) v.findViewById(R.id.linear_list_order);
         Home.linearCustomer = (LinearLayout) v.findViewById(R.id.linear_customer);
         Home.mapView = (CoordinatorLayout) v.findViewById(R.id.mapView);
+        Home.mapViewAdmin = (CoordinatorLayout) v.findViewById(R.id.mapViewAdmin);
         recyclerOrder = (RecyclerView) v.findViewById(R.id.recyclerOrder);
         recyclerOrder.setHasFixedSize(true);
         recyclerCustomer = (RecyclerView) v.findViewById(R.id.recyclerCustomer);
@@ -332,7 +331,7 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
                 } else {
                     MyMethod.refreshMap(context, googleMap);
                     MyMethod.showToast(context, context.getString(R.string.location_wait));
-					//EventPool.control().enQueue(new EventType.EventLoadHighPrecisionLocationRequest());
+                    //EventPool.control().enQueue(new EventType.EventLoadHighPrecisionLocationRequest());
                     LocationDetector.inst().setRequest(true, Const.DefaultHighPrecisionIntervalInSeconds);
                 }
 
@@ -340,8 +339,9 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
             case R.id.fabGetAgain:
                 MyMethod.refreshMap(context, googleMap);
                 MyMethod.showToast(context, context.getString(R.string.location_wait));
-				//EventPool.control().enQueue(new EventType.EventLoadHighPrecisionLocationRequest());
-                LocationDetector.inst().setRequest(true, Const.DefaultHighPrecisionIntervalInSeconds);                break;
+                //EventPool.control().enQueue(new EventType.EventLoadHighPrecisionLocationRequest());
+                LocationDetector.inst().setRequest(true, Const.DefaultHighPrecisionIntervalInSeconds);
+                break;
             case R.id.fabCancel: {
                 if (MyMethod.CHECKIN)
                     showLayout(Layouts.CheckIn);
@@ -396,7 +396,7 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
                 EventPool.control().enQueue(new EventType.EventLoadCustomerRequest());
                 break;
             case R.id.btnReport:
-                showLayout(Layouts.Notify);
+                showLayout(Layouts.MapAdmin);
                 break;
             case R.id.btn_signin:
                 submitFormLogin(v);
@@ -473,10 +473,10 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
     private void showLayout(Layouts layout) {
         switch (layout) {
             case CheckIn:
-                if (!MyMethod.blurredCheckIn) {
-                    MyMethod.blur(context, Home.relativeCheckIn);
-                    MyMethod.blurredCheckIn = !MyMethod.blurredCheckIn;
-                }
+//                if (!MyMethod.blurredCheckIn) {
+//                    MyMethod.blur(context, Home.relativeCheckIn);
+//                    MyMethod.blurredCheckIn = !MyMethod.blurredCheckIn;
+//                }
                 MyMethod.CHECKIN = true;
                 imagePhotoIn.setVisibility(View.GONE);
                 Home.rela_checkin.setVisibility(View.VISIBLE);
@@ -486,12 +486,13 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
                 Home.linearListOrder.setVisibility(View.GONE);
                 Home.linearCustomer.setVisibility(View.GONE);
                 Home.mapView.setVisibility(View.GONE);
+                Home.mapViewAdmin.setVisibility(View.GONE);
                 break;
             case CheckOut:
-                if (!MyMethod.blurredCheckOut) {
-                    MyMethod.blur(context, Home.relativeCheckOut);
-                    MyMethod.blurredCheckOut = !MyMethod.blurredCheckOut;
-                }
+//                if (!MyMethod.blurredCheckOut) {
+//                    MyMethod.blur(context, Home.relativeCheckOut);
+//                    MyMethod.blurredCheckOut = !MyMethod.blurredCheckOut;
+//                }
                 MyMethod.CHECKIN = false;
                 imagePhotoOut.setVisibility(View.GONE);
                 Home.rela_checkout.setVisibility(View.VISIBLE);
@@ -501,6 +502,7 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
                 Home.linearListOrder.setVisibility(View.GONE);
                 Home.linearCustomer.setVisibility(View.GONE);
                 Home.mapView.setVisibility(View.GONE);
+                Home.mapViewAdmin.setVisibility(View.GONE);
                 break;
             case Notify:
                 break;
@@ -513,6 +515,7 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
                 Home.linearListOrder.setVisibility(View.GONE);
                 Home.linearCustomer.setVisibility(View.VISIBLE);
                 Home.mapView.setVisibility(View.GONE);
+                Home.mapViewAdmin.setVisibility(View.GONE);
                 break;
             case Setting:
                 break;
@@ -525,6 +528,7 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
                 Home.rela_main.setVisibility(View.GONE);
                 Home.linearLogin.setVisibility(View.VISIBLE);
                 Home.mapView.setVisibility(View.GONE);
+                Home.mapViewAdmin.setVisibility(View.GONE);
                 Home.linearChangePass.setVisibility(View.GONE);
                 Home.linearListOrder.setVisibility(View.GONE);
                 break;
@@ -536,6 +540,7 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
                 Home.linearLogin.setVisibility(View.GONE);
                 Home.linearChangePass.setVisibility(View.VISIBLE);
                 Home.mapView.setVisibility(View.GONE);
+                Home.mapViewAdmin.setVisibility(View.GONE);
                 Home.linearListOrder.setVisibility(View.GONE);
                 break;
             case Map:
@@ -547,7 +552,20 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
                 Home.linearChangePass.setVisibility(View.GONE);
                 Home.linearListOrder.setVisibility(View.GONE);
                 Home.mapView.setVisibility(View.VISIBLE);
+                Home.mapViewAdmin.setVisibility(View.GONE);
                 mapFragment.getMapAsync(this);
+                break;
+            case MapAdmin:
+                Home.linearCustomer.setVisibility(View.GONE);
+                Home.rela_checkin.setVisibility(View.GONE);
+                Home.rela_checkout.setVisibility(View.GONE);
+                Home.rela_main.setVisibility(View.GONE);
+                Home.linearLogin.setVisibility(View.GONE);
+                Home.linearChangePass.setVisibility(View.GONE);
+                Home.linearListOrder.setVisibility(View.GONE);
+                Home.mapView.setVisibility(View.GONE);
+                Home.mapViewAdmin.setVisibility(View.VISIBLE);
+                mapAdminFragment.getMapAsync(this);
                 break;
             case ListOrder:
                 //
@@ -557,6 +575,7 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
                 Home.linearLogin.setVisibility(View.GONE);
                 Home.linearChangePass.setVisibility(View.GONE);
                 Home.mapView.setVisibility(View.GONE);
+                Home.mapViewAdmin.setVisibility(View.GONE);
                 Home.linearListOrder.setVisibility(View.VISIBLE);
                 Home.linearCustomer.setVisibility(View.GONE);
                 break;
@@ -569,6 +588,7 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
                 Home.linearChangePass.setVisibility(View.GONE);
                 Home.linearListOrder.setVisibility(View.GONE);
                 Home.mapView.setVisibility(View.GONE);
+                Home.mapViewAdmin.setVisibility(View.GONE);
                 Home.linearCustomer.setVisibility(View.GONE);
                 break;
             case MenuOrderClick:
@@ -734,13 +754,6 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
                 if (loginResult.success) {
                     MyMethod.showToast(getContext(), getString(R.string.sign_in_success));
                     loadingLogin.setLoading(false);
-                    //SAVE IF CHECKED CHECKBOX
-                    MyMethod.savePreferences(getContext(), MyMethod.SHAREDPREFERENCE_KEY, checkLogin.isChecked());
-                    if (checkLogin.isChecked()) {
-                        MyMethod.savePreferences(getContext(), MyMethod.SHAREDPREFERENCE_User, editName.getText().toString());
-                        MyMethod.savePreferences(getContext(), MyMethod.SHAREDPREFERENCE_Pass, editPass.getText().toString());
-                    }
-                    //
                     showLayout(Layouts.Main);
                     txtUserName.setText(Model.inst().getUsername());
                     txtFullName.setText(Model.inst().getFullname());
@@ -805,9 +818,19 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
 
     }
 
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        if (position >= 0) MyMethod.showToast(context, adapterStaff.getItem(position).toString());
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
+
 
     private enum Layouts {
-        CheckIn, CheckOut, Notify, Customer, Setting, LogIn, ChangePass, ListOrder, Main, MenuOrderClick, MenuCustomerClick, Map
+        CheckIn, CheckOut, Notify, Customer, Setting, LogIn, ChangePass, ListOrder, Main, MenuOrderClick, MenuCustomerClick, Map, MapAdmin
     }
 
     private class MyTextWatcher implements TextWatcher {

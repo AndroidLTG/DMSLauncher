@@ -7,7 +7,12 @@
         android:id="@+id/rela_bg_right"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/background"/>
+        android:background="@drawable/background" />
+
+    <include
+        layout="@layout/layout_map_admin"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
     <include
         layout="@layout/layout_map"

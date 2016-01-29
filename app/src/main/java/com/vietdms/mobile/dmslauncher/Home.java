@@ -59,7 +59,7 @@ import java.util.List;
 import CommonLib.EventPool;
 import CommonLib.EventType;
 import cat.ereza.customactivityoncrash.CustomActivityOnCrash;
-import jp.wasabeef.blurry.Blurry;
+//import jp.wasabeef.blurry.Blurry;
 
 public class Home extends AppCompatActivity implements ViewPager.OnPageChangeListener, RecyclerItemClickListener.OnItemClickListener {
     //GCM
@@ -80,12 +80,12 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
     public static RotateLoading rotateLoading;
     public static LinearLayout linearMenu;
     public static TextView txtTitle;
-    public static DialogPlus dialogOrder, dialogCustomer;
+    public static DialogPlus dialogOrder, dialogCustomer, dialogLock;
     public static EditText editSearch;
     public static Toolbar toolbar;
     public static RelativeLayout rela_checkin, rela_main, rela_checkout;
     public static LinearLayout linearLogin, linearChangePass, linearListOrder, linearCustomer;
-    public static CoordinatorLayout mapView;
+    public static CoordinatorLayout mapView,mapViewAdmin;
     public static CustomAdapterGripView adapterGripView;
     public static TextView txtAddressIn;
     public static TextView txtAddressOut;
@@ -217,11 +217,10 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
         switch (position) {
             case 0:
                 txtTitle.setText(getString(R.string.calllog));
-
-                if (!MyMethod.blurredLeft) {
-                    MyMethod.blur(context, Home.relativeLeft);
-                    MyMethod.blurredLeft = !MyMethod.blurredLeft;
-                }
+//                if (!MyMethod.blurredLeft) {
+//                    MyMethod.blur(context, Home.relativeLeft);
+//                    MyMethod.blurredLeft = !MyMethod.blurredLeft;
+//                }
 
                 break;
             case 1:
@@ -233,11 +232,10 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
                 break;
             case 2:
                 txtTitle.setText(getString(R.string.app_dms));
-                if (!MyMethod.blurredRight) {
-                    MyMethod.blur(context, Home.relativeRight);
-
-                    MyMethod.blurredRight = !MyMethod.blurredRight;
-                }
+//                if (!MyMethod.blurredRight) {
+//                    MyMethod.blur(context, Home.relativeRight);
+//                    MyMethod.blurredRight = !MyMethod.blurredRight;
+//                }
                 break;
             default:
                 linearMenu.setVisibility(View.VISIBLE);
@@ -357,13 +355,16 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
                 break;
             case 1:
                 if (MyMethod.isVisible(layout_listapp)) {
-                    if (MyMethod.blurredMenu) {
-                        Blurry.delete((ViewGroup) Home.relaMain);
-                        MyMethod.blurredMenu = !MyMethod.blurredMenu;
+                    if (dialogLock != null && dialogLock.isShowing()) dialogLock.dismiss();
+                    else {
+//                        if (MyMethod.blurredMenu) {
+//                            Blurry.delete((ViewGroup) Home.relaMain);
+//                            MyMethod.blurredMenu = !MyMethod.blurredMenu;
+//                        }
+                        MyMethod.setGone(layout_listapp);
+                        MyMethod.setVisible(rela_layout_center);
+                        txtTitle.setText(getString(R.string.home));
                     }
-                    MyMethod.setGone(layout_listapp);
-                    MyMethod.setVisible(rela_layout_center);
-                    txtTitle.setText(getString(R.string.home));
                 }
                 break;
             case 2:
@@ -402,12 +403,13 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
                         MyMethod.setVisible(rela_checkout);
                         txtAddressOut.setText(getApplicationContext().getString(R.string.location_none));
                     }
+                } else if (MyMethod.isVisible(mapViewAdmin)) {
+                    MyMethod.setGone(mapViewAdmin);
+                    MyMethod.setVisible(rela_main);
                 } else {
                     viewPager.setCurrentItem(1);
 
                 }
-
-                break;
             default:
                 break;
         }
@@ -422,10 +424,10 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
                     ((intent.getFlags() & Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT)
                             != Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
             if (alreadyOnHome) {
-                if (MyMethod.blurredMenu) {
-                    Blurry.delete(Home.relaMain);
-                    MyMethod.blurredMenu = !MyMethod.blurredMenu;
-                }
+//                if (MyMethod.blurredMenu) {
+//                    Blurry.delete(Home.relaMain);
+//                    MyMethod.blurredMenu = !MyMethod.blurredMenu;
+//                }
                 MyMethod.setGone(layout_listapp);
                 MyMethod.setVisible(rela_layout_center);
                 MyMethod.closeFocus(rela_layout_center);

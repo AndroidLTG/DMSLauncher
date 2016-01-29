@@ -39,6 +39,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -54,7 +55,13 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.orhanobut.dialogplus.DialogPlus;
+import com.orhanobut.dialogplus.Holder;
+import com.orhanobut.dialogplus.ListHolder;
+import com.orhanobut.dialogplus.OnItemClickListener;
 import com.vietdms.mobile.dmslauncher.CustomAdapter.CustomAdapterGripView;
+import com.vietdms.mobile.dmslauncher.CustomAdapter.DialogAdapter;
+import com.vietdms.mobile.dmslauncher.CustomAdapter.DialogLockAdapter;
 import com.vietdms.mobile.dmslauncher.GetSet.AppsDetail;
 
 import java.io.IOException;
@@ -65,8 +72,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
-
-import jp.wasabeef.blurry.Blurry;
+//
+//import jp.wasabeef.blurry.Blurry;
 
 /**
  * Created by ${LTG} was born ${10/12/1994}.
@@ -82,7 +89,7 @@ public class MyMethod {
 
     public static boolean CHECKIN = false;//true is open rela_checkin false is open rela_checkout
     public static boolean ORDER = false;// true is open order false is open customer
-    public static boolean blurredLeft=false,blurredRight=false,blurredCheckIn=false,blurredCheckOut=false,blurredMenu=false;
+    public static boolean blurredLeft = false, blurredRight = false, blurredCheckIn = false, blurredCheckOut = false, blurredMenu = false;
 
     public static void showToast(Context context, String toast) {// show toast so cool
         Toast.makeText(context, toast, Toast.LENGTH_SHORT).show();
@@ -206,31 +213,43 @@ public class MyMethod {
                 context.startActivity(i);
                 break;
             case 2:
-                final AlertDialog.Builder builder =
-                        new AlertDialog.Builder(context, R.style.AppCompatAlertDialogStyle);
-                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                final View view = inflater.inflate(R.layout.dialog_enter_pass, null);
-                builder.setView(view);
-                builder.setTitle(context.getString(R.string.enter_password));
-                builder.setCancelable(false);
-                builder.setPositiveButton(context.getString(R.string.accept), new DialogInterface.OnClickListener() {
+                Holder holderLock = new ListHolder();
+                DialogLockAdapter dialogUnblock = new DialogLockAdapter(context);
+                Home.dialogLock = DialogPlus.newDialog(context)
+                        .setContentHolder(holderLock)
+                        .setHeader(R.layout.header_dialog)
+                        .setFooter(R.layout.footer_dialog_lock)
+                        .setCancelable(true)
+                        .setGravity(Gravity.TOP)
+                        .setAdapter(dialogUnblock)
+                        .setExpanded(false)
+                        .create();
+                Home.dialogLock.show();
+                Button buttonOk = (Button) Home.dialogLock.findViewById(R.id.btnDialogOk);
+                Button buttonCancel = (Button) Home.dialogLock.findViewById(R.id.btnDialogCancel);
+                buttonOk.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //check password if ok
-                        if (((EditText) view.findViewById(R.id.edit_dialog_pass)).getText().toString().toLowerCase().equals(PASSWORD.toLowerCase())) {
+                    public void onClick(View v) {
+                        if (((EditText) Home.dialogLock.findViewById(R.id.edit_pass)).getText().toString().toLowerCase().equals(PASSWORD.toLowerCase())) {
                             Intent i = manager.getLaunchIntentForPackage(app.name.toString());
                             context.startActivity(i);
                         } else
-                            ((TextInputLayout) view.findViewById(R.id.input_dialog_layout_password)).setError(context.getString(R.string.err_msg_password));
-                    }
-                });//second parameter used for onclicklistener
-                builder.setNegativeButton(context.getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
+                        {
+                            ((EditText) Home.dialogLock.findViewById(R.id.edit_pass)).setText("");
+                            ((EditText) Home.dialogLock.findViewById(R.id.edit_pass)).setHint(context.getString(R.string.password_fail));
+                        }
                     }
                 });
-                builder.show();
+                buttonCancel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Home.dialogLock.dismiss();
+                    }
+                });
+                ((TextView) Home.dialogLock.findViewById(R.id.header_dialog)).setText(context.getString(R.string.unblock));
+                InputMethodManager keyboard = (InputMethodManager)
+                        context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                keyboard.showSoftInput(Home.dialogLock.findViewById(R.id.edit_pass), 0);
                 break;
             default:
                 break;
@@ -245,9 +264,9 @@ public class MyMethod {
 
     //MAIN MENU
     public static void callPhone(Context context) {// Show call app
-        try{
-        Intent i = context.getPackageManager().getLaunchIntentForPackage(context.getString(R.string.phone_location));
-        context.startActivity(i);
+        try {
+            Intent i = context.getPackageManager().getLaunchIntentForPackage(context.getString(R.string.phone_location));
+            context.startActivity(i);
         } catch (Exception e) {
             Log.d(context.getString(R.string.tagEx), e.toString());
         }
@@ -327,14 +346,14 @@ public class MyMethod {
     }
 
     public static HashMap<String, String> getListApp(Context context) {
-            PackageManager manager = context.getPackageManager();
-            HashMap<String, String> listApp = new HashMap<>();
-            Intent i = new Intent(Intent.ACTION_MAIN, null);
-            i.addCategory(Intent.CATEGORY_LAUNCHER);
-            List<ResolveInfo> availableActivities = manager.queryIntentActivities(i, 0);
-            for (ResolveInfo ri : availableActivities)
-                listApp.put(ri.activityInfo.name, ri.activityInfo.packageName);
-            return listApp;
+        PackageManager manager = context.getPackageManager();
+        HashMap<String, String> listApp = new HashMap<>();
+        Intent i = new Intent(Intent.ACTION_MAIN, null);
+        i.addCategory(Intent.CATEGORY_LAUNCHER);
+        List<ResolveInfo> availableActivities = manager.queryIntentActivities(i, 0);
+        for (ResolveInfo ri : availableActivities)
+            listApp.put(ri.activityInfo.name, ri.activityInfo.packageName);
+        return listApp;
     }
 
     public static void showApps(Context context, ViewPager viewPager, String s) {//show list app by a part of name
@@ -471,7 +490,7 @@ public class MyMethod {
     public static void refreshMap(Context context, GoogleMap googleMap) {
         try {
             googleMap.clear();
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(15.8669512, 101.299562), 10);
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(17, 107), 5.5f);
             googleMap.animateCamera(cameraUpdate);
         } catch (Exception e) {
             Log.d(context.getString(R.string.tagEx), e.toString());
@@ -532,12 +551,12 @@ public class MyMethod {
         }
     }
 
-    public static void blur(Context context, ViewGroup viewGroup) {
-            Blurry.with(context)
-                    .radius(25)
-                    .sampling(2)
-                    .async()
-                    .animate(500)
-                    .onto(viewGroup);
-    }
+//    public static void blur(Context context, ViewGroup viewGroup) {
+//        Blurry.with(context)
+//                .radius(25)
+//                .sampling(2)
+//                .async()
+//                .animate(500)
+//                .onto(viewGroup);
+//    }
 }

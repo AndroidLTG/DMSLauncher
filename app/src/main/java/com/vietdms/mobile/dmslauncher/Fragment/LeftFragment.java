@@ -37,8 +37,7 @@ import com.vietdms.mobile.dmslauncher.R;
 
 import java.util.ArrayList;
 import java.util.Date;
-
-import jp.wasabeef.blurry.Blurry;
+//import jp.wasabeef.blurry.Blurry;
 
 /**
  * Created by DMSv4 on 12/3/2015.
@@ -161,7 +160,6 @@ public class LeftFragment extends Fragment {
                 txtDeleteAllLogThisNumber = (TextView) dialog.findViewById(R.id.txtDeleteAllCallLogThisNumber);
                 // set the custom dialog components - text, image and button
                 txtNameContact.setText(callHistory.getPhoneName() + "\n" + callHistory.getPhoneNumber());
-
                 if (!MyMethod.contactExists(context, callHistory.getPhoneNumber()))
                     txtViewContact.setText(getString(R.string.add_to_contact));
                 txtViewContact.setOnClickListener(new View.OnClickListener() {

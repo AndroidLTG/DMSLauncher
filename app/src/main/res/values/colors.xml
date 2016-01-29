@@ -10,4 +10,5 @@
     <color name="colorHint">#969191</color>
     <color name="colorIcon">#157efb</color>
     <color name="colorYellow">#f9df1a</color>
+    <color name="colorRed">#e93333</color>
 </resources>
