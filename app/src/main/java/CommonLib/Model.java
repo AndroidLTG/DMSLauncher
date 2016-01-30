@@ -62,7 +62,7 @@ public class Model {
         lastLocation = location;
         if (lastLocation != null) {
             if (lastValidLocation != null) {
-                float distanceMeter = lastLocation.distanceTo(lastValidLocation);
+                int distanceMeter = (int)lastLocation.distanceTo(lastValidLocation);
                 int milisecElapsed = (int)(lastLocation.getTime() - lastValidLocation.getTime());
                 if (milisecElapsed > 0) {
                     float accuracy = (lastLocation.getAccuracy() + lastValidLocation.getAccuracy()) / 2;
@@ -81,7 +81,7 @@ public class Model {
                         AlarmTimer.inst().setAlarmInterval(interval);
                     }
                     Bundle extras = new Bundle();
-                    extras.putFloat("distanceMeter", distanceMeter);
+                    extras.putInt("distanceMeter", distanceMeter);
                     extras.putInt("milisecElapsed", milisecElapsed);
                     lastLocation.setExtras(extras);
                 }

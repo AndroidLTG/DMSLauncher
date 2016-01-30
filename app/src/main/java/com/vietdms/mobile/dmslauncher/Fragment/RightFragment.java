@@ -396,6 +396,7 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
                 EventPool.control().enQueue(new EventType.EventLoadCustomerRequest());
                 break;
             case R.id.btnReport:
+                EventPool.control().enQueue(new EventType.EventGetLocationsRequest(30));
                 showLayout(Layouts.MapAdmin);
                 break;
             case R.id.btn_signin:
@@ -544,6 +545,7 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
                 Home.linearListOrder.setVisibility(View.GONE);
                 break;
             case Map:
+                if(googleMap!=null) googleMap.clear();
                 Home.linearCustomer.setVisibility(View.GONE);
                 Home.rela_checkin.setVisibility(View.GONE);
                 Home.rela_checkout.setVisibility(View.GONE);
@@ -788,7 +790,7 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
                 if (locationResult.location != null) {
                     location = locationResult.location;
                     MyMethod.loadMap(googleMap, location, context);
-                    txtAccuracy.setText("Độ sai số " + location.getAccuracy() + "m");
+                    txtAccuracy.setText("Độ chính xác " + location.getAccuracy() + "m");
                     fab.setEnabled(true);
                 } else {
                     MyMethod.showToast(context, context.getString(R.string.location_none));
@@ -799,6 +801,9 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
                 EventType.EventGCMMessage gcmMessage = (EventType.EventGCMMessage) event;
                 MyMethod.sendNotification(context, gcmMessage.message);
                 break;
+            case GetLocations:
+                EventType.EventGetLocationsResult arrLocations = (EventType.EventGetLocationsResult) event;
+                MyMethod.drawMap(context,googleMap,arrLocations.arrayLocations);
             default:
                 Log.w("View_processEvent", "unhandled " + event.type);
                 break;
@@ -834,7 +839,6 @@ public class RightFragment extends Fragment implements OnMapReadyCallback, View.
     }
 
     private class MyTextWatcher implements TextWatcher {
-
         private View view;
 
         private MyTextWatcher(View view) {

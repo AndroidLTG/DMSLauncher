@@ -1,15 +1,23 @@
 package Controller;
 
+import android.location.Location;
+import android.support.annotation.NonNull;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.ListIterator;
 import java.util.Map;
 
 import CommonLib.Const;
 import CommonLib.Model;
+import CommonLib.MyLocation;
 import CommonLib.TrackingItem;
 
 /**
@@ -114,6 +122,27 @@ abstract class Packets {
             public final String username;
             public final String fullname;
         }
+        public static class PacketGetLocations extends Packet {
+            public PacketGetLocations(byte[] data) {
+                super(data);
+                message = readString();
+                int len = readInt();
+                arrayLocations = new MyLocation[len];
+                for (int i = 0; i < len; i++) {
+                    MyLocation loc = new MyLocation();
+                    loc.longitude = readDouble();
+                    loc.latitude = readDouble();
+                    loc.accuracy = readFloat();
+                    loc.speed = readFloat();
+                    loc.distanceMeter = readInt();
+                    loc.milisecElapsed = readInt();
+                    loc.locationDate = readLong();
+                    arrayLocations[i] = loc;
+                }
+            }
+            public String message;
+            public MyLocation[] arrayLocations;
+        }
     }
 
     public static abstract class ToServer {
@@ -123,7 +152,8 @@ abstract class Packets {
             GetConfig,
             Login,
             SendTracking,
-            SendGcmToken
+            SendGcmToken,
+            GetLocations
         }
 
         public static class Packet {
@@ -258,6 +288,12 @@ abstract class Packets {
             public PacketSendGcmToken(String gcmToken) {
                 super(PacketType.SendGcmToken);
                 write(gcmToken, true);
+            }
+        }
+        public static class PacketGetLocations extends Packet {
+            public PacketGetLocations(int max) {
+                super(PacketType.GetLocations);
+                write(max);
             }
         }
     }

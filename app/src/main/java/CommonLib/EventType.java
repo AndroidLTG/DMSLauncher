@@ -24,7 +24,8 @@ public abstract class EventType {
         TakePhoto,
         HighPrecisionLocation,
         GCMToken,
-        GCMMessage
+        GCMMessage,
+        GetLocations
     }
 
     public static class EventBase {
@@ -128,6 +129,15 @@ public abstract class EventType {
             super(Type.LoadCustomers);
         }
     }
+
+    public static class EventGetLocationsRequest extends EventBase {
+        public EventGetLocationsRequest(int max) {
+            super(Type.GetLocations);
+            this.max = max;
+        }
+        public final int max;
+    }
+
 //RETURN FROM CONTROL
 
     public static class EventGCMMessage extends EventBase {
@@ -216,6 +226,16 @@ public abstract class EventType {
             this.location = location;
             this.message = message;
         }
+    }
+
+    public static class EventGetLocationsResult extends EventBase {
+        public EventGetLocationsResult(MyLocation[] arrayLocations, String message) {
+            super(Type.GetLocations);
+            this.arrayLocations = arrayLocations;
+            this.message = message;
+        }
+        public final MyLocation[] arrayLocations;
+        public final String message;
     }
 
 }

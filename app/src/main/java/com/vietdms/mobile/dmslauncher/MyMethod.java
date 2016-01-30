@@ -51,10 +51,12 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.orhanobut.dialogplus.DialogPlus;
 import com.orhanobut.dialogplus.Holder;
 import com.orhanobut.dialogplus.ListHolder;
@@ -72,6 +74,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+
+import CommonLib.MyLocation;
 //
 //import jp.wasabeef.blurry.Blurry;
 
@@ -233,8 +237,7 @@ public class MyMethod {
                         if (((EditText) Home.dialogLock.findViewById(R.id.edit_pass)).getText().toString().toLowerCase().equals(PASSWORD.toLowerCase())) {
                             Intent i = manager.getLaunchIntentForPackage(app.name.toString());
                             context.startActivity(i);
-                        } else
-                        {
+                        } else {
                             ((EditText) Home.dialogLock.findViewById(R.id.edit_pass)).setText("");
                             ((EditText) Home.dialogLock.findViewById(R.id.edit_pass)).setHint(context.getString(R.string.password_fail));
                         }
@@ -551,6 +554,27 @@ public class MyMethod {
         }
     }
 
+    public static void drawMap(Context context, GoogleMap map, MyLocation[] arrayLocations) {
+        map.clear();
+        ArrayList<LatLng> points = new ArrayList<LatLng>();
+        PolylineOptions lineOptions = new PolylineOptions();
+//        for (MyLocation locations : arrayLocations) {
+//            if(locations.locationDate!=0 && locations.distanceMeter!=0) {
+//                points.add(new LatLng(locations.latitude, locations.longitude));
+//                addMarker(map,new LatLng(locations.latitude,locations.longitude),"Time"+locations.locationDate,locations.distanceMeter+"m",context);
+//            }
+//        }
+        for (int i = 0; i < arrayLocations.length; i++) {
+            if (arrayLocations[i].locationDate != 0 && arrayLocations[i].distanceMeter != 0) {
+                points.add(new LatLng(arrayLocations[i].latitude, arrayLocations[i].longitude));
+                addMarker(map, new LatLng(arrayLocations[i].latitude, arrayLocations[i].longitude), "Time" + arrayLocations[i].locationDate, (arrayLocations[i].locationDate - arrayLocations[i - 1].locationDate) / 60000 + " phút", context);
+            }
+        }
+        lineOptions.color(Color.BLUE);
+        lineOptions.addAll(points);
+        lineOptions.width(10);
+        map.addPolyline(lineOptions);
+    }
 //    public static void blur(Context context, ViewGroup viewGroup) {
 //        Blurry.with(context)
 //                .radius(25)

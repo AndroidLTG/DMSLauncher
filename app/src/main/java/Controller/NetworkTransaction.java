@@ -60,7 +60,7 @@ class NetworkTransaction {
             item.speed = location.getSpeed();
             Bundle extras = location.getExtras();
             if (extras != null) {
-                item.distanceMeter = extras.getFloat("distanceMeter", 0.0f);
+                item.distanceMeter = extras.getInt("distanceMeter", 0);
                 item.milisecElapsed = extras.getInt("milisecElapsed", 0);
             }
             item.locationDate = location.getTime();
@@ -222,6 +222,20 @@ class NetworkTransaction {
         }
         else {
             Log.w("getConfigs", "fail");
+            return false;
+        }
+    }
+    public synchronized boolean getLastLocations(int max) {
+        byte[] result = sendPostRequest(defaultUrl, new Packets.ToServer.PacketGetLocations(max).getData(), true);
+        if (result != null) {
+            Log.i("getLastLocations", "success");
+            Packets.FromServer.PacketGetLocations packetGetLocations = new Packets.FromServer.PacketGetLocations(result);
+            EventPool.view().enQueue(new EventType.EventGetLocationsResult(packetGetLocations.arrayLocations, packetGetLocations.message));
+            return true;
+        }
+        else {
+            Log.w("getLastLocations", "fail");
+            EventPool.view().enQueue(new EventType.EventGetLocationsResult(null, "Không thể kết nối đến máy chủ"));
             return false;
         }
     }

@@ -135,7 +135,7 @@ class LocalDB {
             trackingItem.longitude = cursor.getDouble(cursor.getColumnIndex("Longitude"));
             trackingItem.accuracy = cursor.getFloat(cursor.getColumnIndex("Accuracy"));
             trackingItem.speed = cursor.getFloat(cursor.getColumnIndex("Speed"));
-            trackingItem.distanceMeter = cursor.getFloat(cursor.getColumnIndex("DistanceMeter"));
+            trackingItem.distanceMeter = cursor.getInt(cursor.getColumnIndex("DistanceMeter"));
             trackingItem.milisecElapsed = cursor.getInt(cursor.getColumnIndex("MilisecElapsed"));
             trackingItem.locationDate = cursor.getLong(cursor.getColumnIndex("LocationDate"));
             trackingItem.trackingDate = cursor.getLong(cursor.getColumnIndex("TrackingDate"));
@@ -174,7 +174,7 @@ class LocalDB {
     private DbHelper dbHelper = null;
     private class DbHelper extends SQLiteOpenHelper {
         // If you change the database schema, you must increment the database version.
-        public static final int DATABASE_VERSION = 5;
+        public static final int DATABASE_VERSION = 6;
         public static final String DATABASE_NAME = "edms_local.db";
         public static final String TABLE_NAME = "tblTracking";
         public static final String CONFIG_NAME = "tblConfig";
@@ -187,7 +187,7 @@ class LocalDB {
                 + ",Longitude float"
                 + ",Accuracy float"
                 + ",Speed float"
-                + ",DistanceMeter float"
+                + ",DistanceMeter int"
                 + ",MilisecElapsed int"
                 + ",LocationDate bigint"
                 + ",TrackingDate bigint"

@@ -27,9 +27,11 @@ import Controller.ControlThread;
  */
 public class PhoneState {
     private static PhoneState instance = null;
+
     private PhoneState() {
     }
-    public synchronized static PhoneState inst(){
+
+    public synchronized static PhoneState inst() {
         if (instance == null) {
             instance = new PhoneState();
             Log.d("PhoneState", "Create new instance");
@@ -45,12 +47,12 @@ public class PhoneState {
     private ContentResolver contentResolver = null;
 
     public void init(Context context) {
-        telephonyManager = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
+        telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         batteryStatus = context.registerReceiver(null, ifilter);
-        wifiManager = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
-        connectivityManager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        locationManager = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
+        wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         contentResolver = context.getContentResolver();
     }
 
@@ -68,8 +70,7 @@ public class PhoneState {
                 cellInfo.MNC = Integer.parseInt(networkOperator.substring(3));
             }
             return cellInfo;
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             return null;
         }
     }
@@ -80,8 +81,7 @@ public class PhoneState {
             int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
             if (scale <= 0) return -1;
             return level * 100 / scale;
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             return -1;
         }
     }
@@ -92,8 +92,7 @@ public class PhoneState {
             boolean wifiConnected = wifiInfo.getState() == NetworkInfo.State.CONNECTED;
             if (wifiConnected) return 1;
             return 0;
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             return -1;
         }
     }
@@ -104,13 +103,13 @@ public class PhoneState {
             boolean dataConnected = mobileInfo.getState() == NetworkInfo.State.CONNECTED;
             if (dataConnected) return 1;
             return 0;
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             return -1;
         }
     }
+
     public boolean turn3GOnOff(boolean turnOn) {
-        Log.i("turning 3G",turnOn ? "on..." : "off...");
+        Log.i("turning 3G", turnOn ? "on..." : "off...");
         try {
             final Class conmanClass = Class.forName(connectivityManager.getClass().getName());
             final Field iConnectivityManagerField = conmanClass.getDeclaredField("mService");
@@ -123,8 +122,7 @@ public class PhoneState {
             setMobileDataEnabledMethod.setAccessible(true);
 
             setMobileDataEnabledMethod.invoke(iConnectivityManager, turnOn);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             return false;
         }
         return true;
@@ -135,11 +133,11 @@ public class PhoneState {
             boolean isON = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
             if (isON) return 1;
             return 0;
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             return -1;
         }
     }
+
     @SuppressWarnings("deprecation")
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     public byte isAirplaneMode() {
@@ -152,8 +150,7 @@ public class PhoneState {
                 if (isON) return 1;
             }
             return 0;
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             return -1;
         }
     }

@@ -125,6 +125,11 @@ public class ControlThread extends Thread {
                 EventPool.view().enQueue(new EventType.EventGCMMessage(gcmMessage.message));
             }
                 break;
+            case GetLocations: {
+                EventType.EventGetLocationsRequest getLocationsRequest = (EventType.EventGetLocationsRequest)event;
+                NetworkTransaction.inst().getLastLocations(getLocationsRequest.max);
+            }
+            break;
             default:
                 Log.w("Control_processEvent", "unhandled " + event.type);
                 break;

@@ -18,7 +18,7 @@ public class TrackingItem {
     public double longitude;
     public float accuracy;
     public float speed;
-    public float distanceMeter;
+    public int distanceMeter;
     public int milisecElapsed;
     public long locationDate;
     public long trackingDate;

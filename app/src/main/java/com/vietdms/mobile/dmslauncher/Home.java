@@ -410,6 +410,7 @@ public class Home extends AppCompatActivity implements ViewPager.OnPageChangeLis
                     viewPager.setCurrentItem(1);
 
                 }
+                break;
             default:
                 break;
         }
